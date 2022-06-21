@@ -1,0 +1,16 @@
+{
+  "main": "web/index.html",
+  "logo": "logo-180x180.png",
+  "preload": "preload.js",
+  "name": "zejxtgx5",
+  "features": [
+    {
+      "code": "excalidraw",
+      "explain": "离线版白板，支持导出，多设备同步",
+      "cmds": ["白板", "excalidraw"]
+    }
+  ],
+  "development": {
+    "main": "http://127.0.0.1:3000/index.html"
+  }
+}

@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  svg {
+    @apply inline;
+  }
+}
+
+@layer utilities {
+  .hover-shadow {
+    @apply hover:shadow-lg transition-shadow active:shadow-none;
+  }
+}

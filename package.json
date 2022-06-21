@@ -1,0 +1,31 @@
+{
+  "name": "utools-excalidraw",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.11.0",
+    "@heroicons/react": "^1.0.6",
+    "@tippyjs/react": "^4.2.6",
+    "ahooks": "^3.5.0",
+    "classnames": "^2.3.1",
+    "nanoid": "^4.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^1.3.0",
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.3",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.9"
+  }
+}
