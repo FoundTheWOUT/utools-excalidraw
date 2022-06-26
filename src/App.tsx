@@ -4,13 +4,13 @@ import Excalidraw, {
   getSceneVersion,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
-import { useThrottleFn } from "ahooks";
+import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { DownloadIcon, PlusIcon, TrashIcon } from "@heroicons/react/solid";
 import Tippy from "@tippyjs/react";
-import { six_nanoid, blobToBase64 } from "./utils";
-import { Scene, DB_KEY } from "./types";
+import { six_nanoid } from "./utils";
+import { Scene, DB_KEY, Store } from "./types";
 import { getStore, storeSetItem } from "./store";
 
 // TODO: replace import to module
@@ -27,30 +27,57 @@ function App() {
   const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
   const [exportActionTippyActive, setExportActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
+  const setAndStoreAppSettings = (
+    settings: Partial<Store[DB_KEY.SETTINGS]>
+  ) => {
+    const newSettings = {
+      ...appSettings,
+      ...settings,
+    };
+    setAppSettings(newSettings);
+    storeSetItem(DB_KEY.SETTINGS, newSettings);
+  };
+
   const [resizing, setResizing] = useState(false);
   const [scenes, setScenes] = useState<Scene[]>(store.scenes);
+  const setAndStoreScenes = (scenes: Scene[]) => {
+    setScenes(scenes);
+    storeSetItem(DB_KEY.SCENES, scenes);
+  };
 
-  const { run: onSceneUpdate } = useThrottleFn(
+  const [updatingScene, setUpdatingScene] = useState(false);
+
+  const { run: onSceneUpdate } = useDebounceFn(
     (elements, state, files, target) => {
+      if (appSettings.closePreview) {
+        setUpdatingScene(false);
+        return;
+      }
       const serializedJSON = serializeAsJSON(elements, state, files, "local");
       exportToBlob({
         elements,
+        appState: state,
         files,
+        mimeType: "image/jpeg",
+        quality: 0.01,
       })
-        .then((blob) => blobToBase64(blob))
-        .then((base64) => {
-          if (base64) {
-            setScenes((old) => {
-              const newScenes = [...old];
-              Object.assign(newScenes[target], {
-                img: base64,
-                data: serializedJSON,
-              } as Scene);
-              window.utools &&
-                window?.utools.dbStorage.setItem(DB_KEY.SCENES, newScenes);
-              return newScenes;
-            });
+        .then((blob) => {
+          if (blob) {
+            setAndStoreScenes(
+              scenes.map((scene, idx) => {
+                if (idx != target) return scene;
+                scene.img && URL.revokeObjectURL(scene.img);
+                return {
+                  ...scene,
+                  img: URL.createObjectURL(blob),
+                  data: serializedJSON,
+                };
+              })
+            );
           }
+        })
+        .finally(() => {
+          setUpdatingScene(false);
         });
     },
     { wait: 800 }
@@ -94,6 +121,7 @@ function App() {
     if (!excalidrawRef.current) return;
     exportToBlob({
       elements: excalidrawRef.current.getSceneElementsIncludingDeleted(),
+      appState: excalidrawRef.current.getAppState(),
       files: excalidrawRef.current.getFiles(),
     })
       .then((blob) => blob?.arrayBuffer())
@@ -112,6 +140,19 @@ function App() {
       });
   };
 
+  window.utools &&
+    window.utools.onPluginOut(() => {
+      setAndStoreScenes(
+        scenes.map((scene) => {
+          scene.img && URL.revokeObjectURL(scene.img);
+          return {
+            ...scene,
+            img: undefined,
+          };
+        })
+      );
+    });
+
   return (
     <div
       className="h-screen flex"
@@ -122,10 +163,9 @@ function App() {
         let width = e.pageX;
         if (width < 90) width = 90;
         else if (width > 300) width = 300;
-        setAppSettings((s) => ({
-          ...s,
+        setAndStoreAppSettings({
           asideWidth: width,
-        }));
+        });
       }}
     >
       <aside
@@ -133,27 +173,59 @@ function App() {
         style={{ width: appSettings.asideWidth }}
       >
         <div className="h-full overflow-y-auto">
+          {appSettings.asideWidth > 150 && (
+            <div className="p-3 pb-0 flex justify-end gap-2">
+              <span>{appSettings.closePreview ? "打开预览" : "关闭预览"}</span>
+              <div
+                className={cn(
+                  "w-10 rounded-full flex items-center cursor-pointer relative",
+                  appSettings.closePreview ? "bg-gray-300" : "bg-[#6965db]"
+                )}
+                onClick={() =>
+                  setAndStoreAppSettings({
+                    closePreview: !appSettings.closePreview,
+                  })
+                }
+              >
+                <div
+                  className={cn(
+                    "rounded-full h-5 w-5 transition-transform bg-white absolute",
+                    appSettings.closePreview
+                      ? "translate-x-[0.1rem]"
+                      : "translate-x-[1.2rem]"
+                  )}
+                ></div>
+              </div>
+            </div>
+          )}
           {/* card loop */}
           {scenes.map(({ id, img, name, data }, idx) => {
             return (
               <div key={id} className="border-b border-gray-300 p-3">
-                <div
+                <button
                   className={cn(
-                    "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer hover-shadow",
+                    "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer",
+                    updatingScene ? "cursor-not-allowed" : "hover-shadow",
                     {
-                      "ring ring-offset-2": appSettings.lastActiveDraw === idx,
+                      "ring ring-offset-2 ring-[#6965db]":
+                        appSettings.lastActiveDraw === idx,
                     }
                   )}
+                  disabled={updatingScene}
                   onClick={() => handleSetActiveDraw(idx, data)}
                 >
-                  {img && (
+                  {appSettings.closePreview ? (
+                    <div>预览已关闭</div>
+                  ) : img ? (
                     <img
-                      className="object-contain w-full h-full"
+                      className="object-fill w-full h-full"
                       src={img}
                       alt={name}
                     />
+                  ) : (
+                    <div>点击查看预览</div>
                   )}
-                </div>
+                </button>
                 <div
                   className={cn("mt-2 flex gap-1", {
                     hidden: appSettings.asideWidth <= 150,
@@ -283,10 +355,9 @@ function App() {
                 const name = `画布${scenes.length}`;
                 setScenes([...scenes, { id: six_nanoid(), name }]);
                 excalidrawRef.current && excalidrawRef.current.resetScene();
-                setAppSettings((s) => ({
-                  ...s,
+                setAndStoreAppSettings({
                   lastActiveDraw: scenes.length,
-                }));
+                });
               }}
             >
               <PlusIcon className="h-10 text-gray-500" />
@@ -314,6 +385,7 @@ function App() {
             const version = getSceneVersion(elements);
             if (sceneVersion != version) {
               sceneVersion = version;
+              setUpdatingScene(true);
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }
           }}

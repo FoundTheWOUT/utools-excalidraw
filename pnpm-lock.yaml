@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@excalidraw/excalidraw': ^0.11.0
@@ -20,9 +20,9 @@ specifiers:
   vite: ^2.9.9
 
 dependencies:
-  '@excalidraw/excalidraw': 0.11.0_react-dom@17.0.2+react@17.0.2
+  '@excalidraw/excalidraw': 0.11.0_sfoxds7t5ydpegc3knd667wn6m
   '@heroicons/react': 1.0.6_react@17.0.2
-  '@tippyjs/react': 4.2.6_react-dom@17.0.2+react@17.0.2
+  '@tippyjs/react': 4.2.6_sfoxds7t5ydpegc3knd667wn6m
   ahooks: 3.5.0_react@17.0.2
   classnames: 2.3.1
   nanoid: 4.0.0
@@ -210,6 +210,8 @@ packages:
     resolution: {integrity: sha512-YZWVaglMiplo7v8f1oMQ5ZPQr0vn7HPeZXxXWsxXJRjGVrzUFn9OxFQl1sb5wzfootjA/yChhW84BV+383FSOw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.18.4
     dev: true
 
   /@babel/plugin-syntax-jsx/7.17.12_@babel+core@7.18.5:
@@ -301,7 +303,7 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@excalidraw/excalidraw/0.11.0_react-dom@17.0.2+react@17.0.2:
+  /@excalidraw/excalidraw/0.11.0_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-wY0UdnN9JAcBKLzkGlVXiPSKgTO06YeeBhoIy/ezIiMJtfFtWBPjRjJROkdIGqnUmBz5L16MkuXE7b8j1b1ouw==}
     peerDependencies:
       react: ^17.0.2
@@ -391,7 +393,7 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /@tippyjs/react/4.2.6_react-dom@17.0.2+react@17.0.2:
+  /@tippyjs/react/4.2.6_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-91RicDR+H7oDSyPycI13q3b7o4O60wa2oRbjlz2fyRLmHImc4vyDwuUP8NtZaN0VARJY5hybvDYrFzhY9+Lbyw==}
     peerDependencies:
       react: '>=16.8'

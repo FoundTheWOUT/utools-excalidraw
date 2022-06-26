@@ -12,3 +12,5 @@ export function blobToBase64(
     reader.readAsDataURL(blob);
   });
 }
+
+export const extend = Object.assign;
