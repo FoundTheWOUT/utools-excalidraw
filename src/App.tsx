@@ -1,25 +1,74 @@
 import { useState, useRef } from "react";
-import Excalidraw, {
+import {
+  Excalidraw as ExcalidrawComp,
   exportToBlob,
   getSceneVersion,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import {
+  BinaryFileData,
+  ExcalidrawImperativeAPI,
+  ExcalidrawInitialDataState,
+} from "@excalidraw/excalidraw/types/types";
 import { DownloadIcon, PlusIcon, TrashIcon } from "@heroicons/react/solid";
 import Tippy from "@tippyjs/react";
-import { six_nanoid } from "./utils";
+import { decoder, encoder, six_nanoid } from "./utils";
 import { Scene, DB_KEY, Store } from "./types";
-import { getStore, storeSetItem } from "./store";
-
-// TODO: replace import to module
-// https://github.com/excalidraw/excalidraw/issues/5035
-const ExcalidrawComp = (Excalidraw as any).default
-  ? (Excalidraw as any).default
-  : Excalidraw;
+import {
+  dropDeletedFiles,
+  getFile,
+  getStore,
+  storeFile,
+  storeSetItem,
+} from "./store";
+import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
+import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 
 let sceneVersion = -1;
+
+const generatePreviewImage = async (
+  elements: any,
+  appState: any,
+  files: any
+): Promise<string | undefined> => {
+  const blob = await exportToBlob({
+    elements,
+    appState,
+    files,
+    mimeType: "image/jpeg",
+    quality: 0.51,
+  });
+  if (blob) {
+    return URL.createObjectURL(blob);
+  }
+};
+
+// 恢复文件到运行时配置
+const restoreFiles = (data: ImportedDataState): ExcalidrawInitialDataState => {
+  data.elements?.forEach((el) => {
+    if (el.type == "image" && window.utools && el.fileId) {
+      const unit8arr = getFile(el.fileId);
+      if (unit8arr && unit8arr instanceof Uint8Array) {
+        const text = decoder.decode(unit8arr);
+        // restore file to json
+        data.files && (data.files[el.fileId] = JSON.parse(text));
+      }
+    }
+  });
+  return data;
+};
+
+const loadInitialData = (
+  scenes: Scene[],
+  target: number
+): ExcalidrawInitialDataState | null => {
+  let data = scenes[target]?.data;
+  if (typeof data !== "string") return {};
+  data && (data = restoreFiles(JSON.parse(data)));
+  return data ? data : null;
+};
 
 function App() {
   const store = getStore();
@@ -42,60 +91,71 @@ function App() {
   const [scenes, setScenes] = useState<Scene[]>(store.scenes);
   const setAndStoreScenes = (scenes: Scene[]) => {
     setScenes(scenes);
+    if (excalidrawRef.current) {
+      const files = excalidrawRef.current.getFiles();
+      for (let fileKey in files) {
+        const fileObjectStr = JSON.stringify(files[fileKey]);
+        storeFile(fileKey, encoder.encode(fileObjectStr));
+      }
+    }
+
+    // window.utools && window.utools.
     storeSetItem(DB_KEY.SCENES, scenes);
   };
 
   const [updatingScene, setUpdatingScene] = useState(false);
 
   const { run: onSceneUpdate } = useDebounceFn(
-    (elements, state, files, target) => {
-      if (appSettings.closePreview) {
-        setUpdatingScene(false);
-        return;
+    async (elements, state, files, target) => {
+      // lock scene.
+      setUpdatingScene(true);
+      let imagePath: string | undefined = undefined;
+      if (!appSettings.closePreview) {
+        imagePath = await generatePreviewImage(elements, state, files);
       }
-      const serializedJSON = serializeAsJSON(elements, state, files, "local");
-      exportToBlob({
-        elements,
-        appState: state,
-        files,
-        mimeType: "image/jpeg",
-        quality: 0.01,
-      })
-        .then((blob) => {
-          if (blob) {
-            setAndStoreScenes(
-              scenes.map((scene, idx) => {
-                if (idx != target) return scene;
-                scene.img && URL.revokeObjectURL(scene.img);
-                return {
-                  ...scene,
-                  img: URL.createObjectURL(blob),
-                  data: serializedJSON,
-                };
-              })
-            );
-          }
+      setAndStoreScenes(
+        scenes.map((scene, idx) => {
+          if (idx != target) return scene;
+          scene.img && URL.revokeObjectURL(scene.img);
+          const data = serializeAsJSON(elements, state, {}, "database");
+          return {
+            ...scene,
+            img: imagePath,
+            data,
+          };
         })
-        .finally(() => {
-          setUpdatingScene(false);
-        });
+      );
+      setUpdatingScene(false);
     },
-    { wait: 800 }
+    { wait: 300 }
   );
 
-  const handleSetActiveDraw = (idx: number, data?: string) => {
-    if (excalidrawRef.current) {
-      excalidrawRef.current.resetScene();
-      setAppSettings((s) => {
-        const newSettings = {
-          ...s,
-          lastActiveDraw: idx,
-        };
-        storeSetItem(DB_KEY.SETTINGS, newSettings);
-        return newSettings;
-      });
-      data && excalidrawRef.current.updateScene(JSON.parse(data));
+  const handleSetActiveDraw = (
+    idx: number,
+    data?: Scene["data"],
+    afterActive?: () => void
+  ) => {
+    if (!excalidrawRef.current) return;
+
+    setAppSettings((s) => {
+      const newSettings = {
+        ...s,
+        lastActiveDraw: idx,
+      };
+      storeSetItem(DB_KEY.SETTINGS, newSettings);
+      return newSettings;
+    });
+
+    // restore scene
+    if (data) {
+      const _data = restoreFiles(JSON.parse(data));
+      excalidrawRef.current.updateScene(_data);
+      excalidrawRef.current.history.clear();
+      const _files = Object.values(_data.files) as BinaryFileData[];
+      _files.length > 0 && excalidrawRef.current.addFiles(_files);
     }
+
+    afterActive && afterActive();
   };
 
   // 导出函数
@@ -144,13 +204,16 @@ function App() {
     window.utools.onPluginOut(() => {
       setAndStoreScenes(
         scenes.map((scene) => {
+          // drop image
           scene.img && URL.revokeObjectURL(scene.img);
+          // drop deleted files
           return {
             ...scene,
             img: undefined,
           };
         })
       );
+      dropDeletedFiles(scenes);
     });
 
   return (
@@ -205,20 +268,44 @@ function App() {
                 <button
                   className={cn(
                     "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer",
-                    updatingScene ? "cursor-not-allowed" : "hover-shadow",
+                    updatingScene ? "cursor-wait" : "hover-shadow",
                     {
                       "ring ring-offset-2 ring-[#6965db]":
                         appSettings.lastActiveDraw === idx,
                     }
                   )}
                   disabled={updatingScene}
-                  onClick={() => handleSetActiveDraw(idx, data)}
+                  onClick={() =>
+                    handleSetActiveDraw(idx, data, () => {
+                      // re gen preview image
+                      if (excalidrawRef.current) {
+                        generatePreviewImage(
+                          excalidrawRef.current.getSceneElementsIncludingDeleted(),
+                          excalidrawRef.current.getAppState(),
+                          excalidrawRef.current.getFiles()
+                        ).then((path) => {
+                          setAndStoreScenes(
+                            scenes.map((scene, index) => {
+                              if (index != idx) return scene;
+                              scene.img && URL.revokeObjectURL(scene.img);
+                              return {
+                                ...scene,
+                                img: appSettings.closePreview
+                                  ? undefined
+                                  : path,
+                              };
+                            })
+                          );
+                        });
+                      }
+                    })
+                  }
                 >
                   {appSettings.closePreview ? (
                     <div>预览已关闭</div>
                   ) : img ? (
                     <img
-                      className="object-fill w-full h-full"
+                      className="object-contain w-full h-full"
                       src={img}
                       alt={name}
                     />
@@ -376,18 +463,26 @@ function App() {
       <main className="flex-1">
         <ExcalidrawComp
           ref={excalidrawRef}
-          initialData={
-            scenes[appSettings.lastActiveDraw].data
-              ? JSON.parse(scenes[appSettings.lastActiveDraw].data!)
-              : null
-          }
+          initialData={loadInitialData(scenes, appSettings.lastActiveDraw)}
           onChange={(elements: any, state: any, files: any) => {
             const version = getSceneVersion(elements);
             if (sceneVersion != version) {
               sceneVersion = version;
-              setUpdatingScene(true);
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }
+          }}
+          onPaste={(data: ClipboardData, event: any) => {
+            if (data.files && Object.keys(data.files).length > 0) {
+              for (let fileID in data.files) {
+                const blob = new Blob([data.files[fileID].dataURL]);
+                if (blob.size / 1024 / 1024 > 1) {
+                  console.log("图片不能大于10MB");
+                  return false;
+                }
+              }
+            }
+            // console.log("图片不能大于10MB");
+            return true;
           }}
           langCode="zh-CN"
           autoFocus

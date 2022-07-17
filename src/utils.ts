@@ -14,3 +14,6 @@ export function blobToBase64(
 }
 
 export const extend = Object.assign;
+
+export const encoder = new TextEncoder();
+export const decoder = new TextDecoder();

@@ -1,9 +1,10 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@excalidraw/excalidraw': ^0.11.0
+  '@excalidraw/excalidraw': 0.12.0
   '@heroicons/react': ^1.0.6
   '@tippyjs/react': ^4.2.6
+  '@types/lodash': ^4.14.182
   '@types/node': ^18.0.0
   '@types/react': ^18.0.0
   '@types/react-dom': ^18.0.0
@@ -11,6 +12,7 @@ specifiers:
   ahooks: ^3.5.0
   autoprefixer: ^10.4.7
   classnames: ^2.3.1
+  lodash: ^4.17.21
   nanoid: ^4.0.0
   postcss: ^8.4.14
   react: ^17.0.2
@@ -20,16 +22,18 @@ specifiers:
   vite: ^2.9.9
 
 dependencies:
-  '@excalidraw/excalidraw': 0.11.0_sfoxds7t5ydpegc3knd667wn6m
+  '@excalidraw/excalidraw': 0.12.0_sfoxds7t5ydpegc3knd667wn6m
   '@heroicons/react': 1.0.6_react@17.0.2
   '@tippyjs/react': 4.2.6_sfoxds7t5ydpegc3knd667wn6m
   ahooks: 3.5.0_react@17.0.2
   classnames: 2.3.1
+  lodash: 4.17.21
   nanoid: 4.0.0
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
 
 devDependencies:
+  '@types/lodash': 4.14.182
   '@types/node': 18.0.0
   '@types/react': 18.0.14
   '@types/react-dom': 18.0.5
@@ -303,8 +307,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@excalidraw/excalidraw/0.11.0_sfoxds7t5ydpegc3knd667wn6m:
-    resolution: {integrity: sha512-wY0UdnN9JAcBKLzkGlVXiPSKgTO06YeeBhoIy/ezIiMJtfFtWBPjRjJROkdIGqnUmBz5L16MkuXE7b8j1b1ouw==}
+  /@excalidraw/excalidraw/0.12.0_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-xMPmKmOEgKij43k5m6Koaevb+SBw6La7MT9UDY8Iq7nQCMhA1HQwcUURfSkZ3ERibdQmMsAGtjSLbkX7hrA3+A==}
     peerDependencies:
       react: ^17.0.2
       react-dom: ^17.0.2
@@ -407,6 +411,10 @@ packages:
   /@types/js-cookie/2.2.7:
     resolution: {integrity: sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==}
     dev: false
+
+  /@types/lodash/4.14.182:
+    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
+    dev: true
 
   /@types/node/18.0.0:
     resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
