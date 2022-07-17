@@ -151,8 +151,10 @@ function App() {
       const _data = restoreFiles(JSON.parse(data));
       excalidrawRef.current.updateScene(_data);
       excalidrawRef.current.history.clear();
-      const _files = Object.values(_data.files) as BinaryFileData[];
-      _files.length > 0 && excalidrawRef.current.addFiles(_files);
+      if (_data.files) {
+        const _files = Object.values(_data.files) as BinaryFileData[];
+        _files.length > 0 && excalidrawRef.current.addFiles(_files);
+      }
     }
 
     afterActive && afterActive();
