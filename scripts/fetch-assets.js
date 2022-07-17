@@ -23,25 +23,29 @@ async function copyDir(src, dest, includeLang = ["zh-CN"]) {
 
 module.exports = async function main() {
   fs.access("public/excalidraw-assets")
-    .then(async () => {
-      await fs.rm("public/excalidraw-assets", {
+    .then(() =>
+      fs.rm("public/excalidraw-assets", {
         recursive: true,
-      });
-    })
+      })
+    )
+    .then(() =>
+      copyDir(
+        "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
+        "public/excalidraw-assets"
+      )
+    )
     .catch(() => {});
   fs.access("public/excalidraw-assets-dev")
-    .then(async () => {
-      await fs.rm("public/excalidraw-assets", {
+    .then(() =>
+      fs.rm("public/excalidraw-assets", {
         recursive: true,
-      });
-    })
+      })
+    )
+    .then(() =>
+      copyDir(
+        "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets-dev",
+        "public/excalidraw-assets-dev"
+      )
+    )
     .catch(() => {});
-  copyDir(
-    "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
-    "public/excalidraw-assets"
-  );
-  copyDir(
-    "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets-dev",
-    "public/excalidraw-assets-dev"
-  );
 };
