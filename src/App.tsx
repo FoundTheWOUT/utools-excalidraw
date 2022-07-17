@@ -53,7 +53,8 @@ const restoreFiles = (data: ImportedDataState): ExcalidrawInitialDataState => {
       if (unit8arr && unit8arr instanceof Uint8Array) {
         const text = decoder.decode(unit8arr);
         // restore file to json
-        data.files && (data.files[el.fileId] = JSON.parse(text));
+        if (!data.files) data.files = {};
+        data.files[el.fileId] = JSON.parse(text);
       }
     }
   });
