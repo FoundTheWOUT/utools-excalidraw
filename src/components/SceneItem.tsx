@@ -21,7 +21,6 @@ interface Props {
 
 const SceneItem = ({ id, img, name, data, idx }: Props) => {
   const appContext = useContext(AppContext);
-  console.log(appContext);
   if (!appContext) return null;
   const {
     appSettings,
@@ -81,7 +80,7 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
   };
 
   const handleSetActiveDraw = (
-    idx: number,
+    id: string,
     data?: Scene["data"],
     afterActive?: () => void
   ) => {
@@ -90,7 +89,7 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
     setAppSettings((s) => {
       const newSettings = {
         ...s,
-        lastActiveDraw: idx,
+        lastActiveDraw: id,
       };
       storeSetItem(DB_KEY.SETTINGS, newSettings);
       return newSettings;
@@ -118,12 +117,12 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
           updatingScene ? "cursor-wait" : "hover-shadow",
           {
             "ring ring-offset-2 ring-[#6965db]":
-              appSettings.lastActiveDraw === idx,
+              appSettings.lastActiveDraw === id,
           }
         )}
         disabled={updatingScene}
         onClick={() => {
-          handleSetActiveDraw(idx, data, () => {
+          handleSetActiveDraw(id, data, () => {
             // re gen preview image
             if (excalidrawRef.current) {
               generatePreviewImage(
@@ -205,11 +204,11 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
           <button
             className={cn(
               "p-2 rounded-lg flex",
-              appSettings.lastActiveDraw === idx
+              appSettings.lastActiveDraw === id
                 ? "bg-gray-200 cursor-pointer hover-shadow"
                 : "bg-gray-200/50 cursor-not-allowed text-gray-300"
             )}
-            disabled={appSettings.lastActiveDraw !== idx}
+            disabled={appSettings.lastActiveDraw !== id}
             onClick={() => setExportTippyActive(idx)}
             title="导出"
           >
@@ -241,12 +240,12 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
                       setScenes((scenes) => {
                         const newScenes = [...scenes];
                         newScenes.splice(idx, 1);
-                        // delete the last scenes use the last scenes
+                        removeScene(id);
+                        //if delete the last scenes, reselect it fore scene
                         let updateScenesIndex =
                           idx == newScenes.length ? idx - 1 : idx;
-                        removeScene(id);
                         handleSetActiveDraw(
-                          updateScenesIndex,
+                          newScenes[updateScenesIndex].id,
                           newScenes[updateScenesIndex].data
                         );
                         return newScenes;

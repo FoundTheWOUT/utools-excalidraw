@@ -1,6 +1,6 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 import { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types/types";
-import { merge } from "lodash";
+import { keyBy, merge } from "lodash";
 import { Scene } from "../types";
 import { getFile } from "../store/store";
 import { decoder } from "./utils";
@@ -13,9 +13,9 @@ const defaultStatue = {
 
 export const loadInitialData = (
   scenes: Scene[],
-  target: number
+  target: string //scene id
 ): ExcalidrawInitialDataState | null => {
-  let data = scenes[target]?.data;
+  let data = keyBy(scenes, "id")[target]?.data;
   if (typeof data !== "string") return {};
   data && (data = restoreFiles(JSON.parse(data)));
   return merge(defaultStatue, data);

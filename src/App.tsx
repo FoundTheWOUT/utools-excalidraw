@@ -19,7 +19,7 @@ import {
 } from "./store/store";
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { loadInitialData } from "./utils/data";
-import { omit } from "lodash";
+import { keyBy, omit } from "lodash";
 import { newAScene } from "./store/scene";
 import SceneItem from "./components/SceneItem";
 
@@ -73,47 +73,55 @@ function App() {
     async (elements, state, files, target) => {
       // lock scene.
       setUpdatingScene(true);
-      let imagePath: string | undefined = undefined;
-      if (!appSettings.closePreview) {
-        imagePath = await generatePreviewImage(elements, state, files);
-      }
-      const { id, img } = scenes[target];
-      img && URL.revokeObjectURL(img);
-      let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
-      data.appState.zoom = state.zoom;
-      data.appState.scrollX = state.scrollX;
-      data.appState.scrollY = state.scrollY;
-      const data_stringified = JSON.stringify(data);
-
-      // 1. set state
-      setScenes(
-        scenes.map((scene, idx) => {
-          if (idx !== target) return scene;
-          return {
-            ...scene,
-            img: imagePath,
-            data: data_stringified,
-          };
-        })
-      );
-
-      // 2. update store
-      // 2.1 store scene
-      storeScene(id, { ...scenes[target], data: data_stringified });
-
-      // 2.2 store file
-      if (excalidrawRef.current) {
-        const files = excalidrawRef.current.getFiles();
-        for (let fileKey in files) {
-          const fileObjectStr = JSON.stringify(files[fileKey]);
-          storeFile(fileKey, encoder.encode(fileObjectStr));
+      try {
+        let imagePath: string | undefined = undefined;
+        if (!appSettings.closePreview) {
+          imagePath = await generatePreviewImage(elements, state, files);
         }
+        const scene = getSceneByID(target)!;
+        const { id, img } = scene;
+        img && URL.revokeObjectURL(img);
+        let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
+        data.appState.zoom = state.zoom;
+        data.appState.scrollX = state.scrollX;
+        data.appState.scrollY = state.scrollY;
+        const data_stringified = JSON.stringify(data);
+
+        // 1. set state
+        setScenes(
+          scenes.map((scene) => {
+            if (scene.id !== target) return scene;
+            return {
+              ...scene,
+              img: imagePath,
+              data: data_stringified,
+            };
+          })
+        );
+
+        // 2. update store
+        // 2.1 store scene
+        storeScene(id, { ...scene, data: data_stringified });
+
+        // 2.2 store file
+        if (excalidrawRef.current) {
+          const files = excalidrawRef.current.getFiles();
+          for (let fileKey in files) {
+            const fileObjectStr = JSON.stringify(files[fileKey]);
+            storeFile(fileKey, encoder.encode(fileObjectStr));
+          }
+        }
+      } catch (error) {
+        console.warn(error);
       }
 
       setUpdatingScene(false);
     },
     { wait: 300 }
   );
+
+  const getSceneByID = (id: string | null) =>
+    id ? keyBy(scenes, "id")[id] : null;
 
   window.utools &&
     window.utools.onPluginOut(() => {
@@ -127,7 +135,6 @@ function App() {
       dropDeletedFiles(scenes);
     });
 
-  console.log(scenes.filter((scene) => !!scene.sticky));
   return (
     <AppContext.Provider
       value={{
@@ -208,11 +215,11 @@ function App() {
               <div
                 className="w-full aspect-video bg-white cursor-pointer rounded flex items-center justify-center hover-shadow"
                 onClick={() => {
-                  const name = `画布${scenes.length}`;
-                  setScenes([...scenes, newAScene({ name })]);
+                  const newScene = newAScene({ name: `画布${scenes.length}` });
+                  setScenes([...scenes, newScene]);
                   excalidrawRef.current && excalidrawRef.current.resetScene();
                   setAndStoreAppSettings({
-                    lastActiveDraw: scenes.length,
+                    lastActiveDraw: newScene.id,
                   });
                 }}
               >
@@ -232,7 +239,11 @@ function App() {
         <main className="flex-1">
           <ExcalidrawComp
             ref={excalidrawRef}
-            initialData={loadInitialData(scenes, appSettings.lastActiveDraw)}
+            initialData={
+              appSettings.lastActiveDraw
+                ? loadInitialData(scenes, appSettings.lastActiveDraw)
+                : null
+            }
             onChange={(elements, state, files) => {
               const version = getSceneVersion(elements);
               if (sceneVersion != version) {
@@ -260,7 +271,7 @@ function App() {
             }}
             langCode="zh-CN"
             autoFocus
-            name={scenes[appSettings.lastActiveDraw].name}
+            name={getSceneByID(appSettings.lastActiveDraw)?.name}
             UIOptions={{
               canvasActions: {
                 export: false,

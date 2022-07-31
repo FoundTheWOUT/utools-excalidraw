@@ -9,7 +9,7 @@ export type Scene = {
 
 export type Store = {
   [DB_KEY.SETTINGS]: {
-    lastActiveDraw: number;
+    lastActiveDraw: string | null;
     asideWidth: number;
     closePreview: boolean;
   };

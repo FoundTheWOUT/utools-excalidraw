@@ -6,7 +6,7 @@ import { getScenes, newAScene, removeScene, storeScene } from "@/store/scene";
 export const initStore: Store = {
   settings: {
     asideWidth: 300,
-    lastActiveDraw: 0,
+    lastActiveDraw: null,
     closePreview: false,
   },
   scenes: [newAScene({ name: "画布0" })],
@@ -28,18 +28,29 @@ export const initStore: Store = {
 export const getStore = (): Store => {
   const settings = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
   const store = {
-    settings: extend(initStore[DB_KEY.SETTINGS], settings.value),
+    settings: extend(
+      initStore[DB_KEY.SETTINGS],
+      settings ? settings.value : null
+    ),
     scenes: getScenes(),
   };
 
   // 自动修复 lastActiveDraw
   if (
-    store[DB_KEY.SETTINGS].lastActiveDraw >= store[DB_KEY.SCENES].length ||
-    store[DB_KEY.SETTINGS].lastActiveDraw < 0
+    !store.scenes
+      .map((scene) => scene.id)
+      .includes(store[DB_KEY.SETTINGS].lastActiveDraw)
   ) {
-    store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES].length - 1;
+    store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES][0].id;
     storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
   }
+  // if (
+  //   store[DB_KEY.SETTINGS].lastActiveDraw >= store[DB_KEY.SCENES].length ||
+  //   store[DB_KEY.SETTINGS].lastActiveDraw < 0
+  // ) {
+  //   store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES].length - 1;
+  //   storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
+  // }
 
   return store;
 };
