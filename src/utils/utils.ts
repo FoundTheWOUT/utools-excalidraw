@@ -1,3 +1,4 @@
+import { exportToBlob } from "@excalidraw/excalidraw";
 import { nanoid } from "nanoid";
 
 export const six_nanoid = () => nanoid(6);
@@ -12,6 +13,23 @@ export function blobToBase64(
     reader.readAsDataURL(blob);
   });
 }
+
+export const generatePreviewImage = async (
+  elements: any,
+  appState: any,
+  files: any
+): Promise<string | undefined> => {
+  const blob = await exportToBlob({
+    elements,
+    appState,
+    files,
+    mimeType: "image/jpeg",
+    quality: 0.51,
+  });
+  if (blob) {
+    return URL.createObjectURL(blob);
+  }
+};
 
 export const extend = Object.assign;
 

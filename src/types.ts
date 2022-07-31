@@ -1,6 +1,7 @@
 export type Scene = {
   id: string;
   name: string;
+  sticky: boolean; // 置顶
 } & Partial<{
   img: string; //preview img base64
   data: string;

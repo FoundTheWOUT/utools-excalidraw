@@ -1,57 +1,6 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
-import { DB_KEY, Scene, Store } from "./types";
-import { six_nanoid, extend } from "./utils";
 import { dropWhile } from "lodash";
-
-const initStore: Store = {
-  settings: {
-    asideWidth: 300,
-    lastActiveDraw: 0,
-    closePreview: false,
-  },
-  scenes: [{ id: six_nanoid(), name: "画布0" }],
-};
-
-/**
- *
- * Doc
- * 'settings' -> data: {
- *   asideWidth: 300,
- *   lastActiveDraw: 0,
- *   closePreview: false
- *  }
- *
- * 'scenes' -> data: Scene[]
- */
-
-export const getStore = (): Store => {
-  const allDocs = window.utools && window?.utools.db.allDocs();
-  if (allDocs) {
-    // 自动与最新 store 的初始化进行合并
-    const store = allDocs
-      .filter(
-        (doc: any) => doc._id === DB_KEY.SCENES || doc._id === DB_KEY.SETTINGS
-      )
-      .reduce(
-        (acc: any, cur: { _id: DB_KEY; value: any }) => ({
-          ...acc,
-          [cur._id]: extend(initStore[cur._id], cur.value),
-        }),
-        initStore
-      ) as Store;
-    // 自动修复 lastActiveDraw
-    if (store[DB_KEY.SETTINGS].lastActiveDraw >= store[DB_KEY.SCENES].length) {
-      store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES].length - 1;
-      storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
-    }
-    return store;
-  }
-  return initStore;
-};
-
-export const storeSetItem = <T extends DB_KEY>(key: T, value: Store[T]) => {
-  window.utools && window.utools.dbStorage.setItem(key, value);
-};
+import { Scene } from "@/types";
 
 export const storeFile = (
   key: string,

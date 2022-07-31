@@ -18,3 +18,16 @@ window.writeFile = (path, data, opts) => {
     });
   });
 };
+
+// migration scenes -> scene/id
+(function migrateSceneData() {
+  const KEY_SCENES = "scenes";
+  const scenes = utools.db.get(KEY_SCENES);
+  if (scenes) {
+    if (!Array.isArray(scenes.value)) return;
+    utools.db.bulkDocs(
+      scenes.value.map((scene) => ({ _id: `scene/${scene.id}`, value: scene }))
+    );
+    utools.db.remove(KEY_SCENES);
+  }
+})();
