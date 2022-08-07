@@ -2,3 +2,11 @@ TODO
 
 - 画布位置可调
 - 画布置顶
+- 支持素材库
+- 使用 HeadLess UI
+
+## 鸣谢
+
+- [react.js](https://github.com/facebook/react)
+- [Excalidraw](https://github.com/excalidraw/excalidraw)
+- [tailwindcss](https://github.com/tailwindlabs/tailwindcss)
