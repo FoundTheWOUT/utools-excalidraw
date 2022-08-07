@@ -20,3 +20,8 @@ export enum DB_KEY {
   SETTINGS = "settings",
   SCENES = "scenes",
 }
+
+export type DBItem = {
+  _id: string;
+  value: Array<any> | Object | string | number;
+};

@@ -4,6 +4,7 @@ import { keyBy, merge } from "lodash";
 import { Scene } from "../types";
 import { getFile } from "../store/store";
 import { decoder } from "./utils";
+import { restoreLibraryItems } from "@excalidraw/excalidraw";
 
 const defaultStatue = {
   appState: {
@@ -17,8 +18,7 @@ export const loadInitialData = (
 ): ExcalidrawInitialDataState | null => {
   let data = keyBy(scenes, "id")[target]?.data;
   if (typeof data !== "string") return {};
-  data && (data = restoreFiles(JSON.parse(data)));
-  return merge(defaultStatue, data);
+  return merge(defaultStatue, restoreFiles(restoreLibrary(JSON.parse(data))));
 };
 
 // 恢复文件到运行时配置
@@ -36,5 +36,21 @@ export const restoreFiles = (
       }
     }
   });
+  return data;
+};
+
+// 恢复Libraries
+const restoreLibrary = (
+  data: ImportedDataState
+): ExcalidrawInitialDataState => {
+  if (!window.utools) return data;
+  const libraries = window.utools.db.allDocs("library");
+
+  if (libraries.length > 0) {
+    data.libraryItems = restoreLibraryItems(
+      libraries.map((lib: any) => lib.value),
+      "unpublished"
+    );
+  }
   return data;
 };

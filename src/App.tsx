@@ -19,7 +19,7 @@ import {
 } from "./store/store";
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { loadInitialData } from "./utils/data";
-import { keyBy, omit } from "lodash";
+import { keyBy, mapKeys, omit } from "lodash";
 import { getSceneByID, newAScene } from "./store/scene";
 import SceneItem from "./components/SceneItem";
 import ExportOps from "./components/ExportOps";
@@ -195,6 +195,7 @@ function App() {
             {scenes.map(({ id, img, name, data }, idx) => {
               return (
                 <SceneItem
+                  key={id}
                   id={id}
                   img={img}
                   name={name}
@@ -274,6 +275,22 @@ function App() {
                 },
                 saveAsImage: false,
               },
+            }}
+            onLibraryChange={(items) => {
+              if (!window.utools) return;
+              const libraries = window.utools.db.allDocs("library");
+              const stored_lib_ids_set = new Set(
+                libraries.map((lib: any) => lib._id.split("/")[1])
+              );
+              items.forEach((item) => {
+                const { id } = item;
+                window.utools.dbStorage.setItem(`library/${id}`, item);
+                stored_lib_ids_set.delete(id);
+              });
+
+              stored_lib_ids_set.forEach((id) => {
+                window.utools.dbStorage.removeItem(`library/${id}`);
+              });
             }}
           />
         </main>
