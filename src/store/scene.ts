@@ -1,6 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
 import { six_nanoid } from "@/utils/utils";
+import { keyBy } from "lodash";
 
 export const newAScene = ({ name }: { name: string }): Scene => {
   return { id: six_nanoid(), name, sticky: false };
@@ -20,6 +21,9 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
     console.error(error);
   }
 };
+
+export const getSceneByID = (scenes: Scene[], id: string | null) =>
+  id ? keyBy(scenes, "id")[id] : null;
 
 // 获取 Scene 数组
 export const getScenes = (): Scene[] => {

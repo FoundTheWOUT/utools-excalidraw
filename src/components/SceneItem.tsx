@@ -29,55 +29,8 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
     setScenes,
     updatingScene,
     excalidrawRef,
-    tippyAction: {
-      exportTippyActive,
-      setExportTippyActive,
-      removeTippyActive,
-      setRemoveTippyActive,
-    },
+    tippyAction: { removeTippyActive, setRemoveTippyActive },
   } = appContext;
-
-  // 导出函数
-  const exportToFile = (name: string) => {
-    if (!excalidrawRef.current) return;
-    const text = serializeAsJSON(
-      excalidrawRef.current.getSceneElementsIncludingDeleted(),
-      excalidrawRef.current.getAppState(),
-      excalidrawRef.current.getFiles(),
-      "local"
-    );
-    const savePath =
-      window.utools &&
-      window.utools.showSaveDialog({
-        defaultPath: name,
-        buttonLabel: "保存",
-        filters: [{ name: "Excalidraw file", extensions: ["excalidraw"] }],
-      });
-    savePath && window.writeFile && window.writeFile(savePath, text);
-  };
-
-  const exportToPng = (name: string) => {
-    if (!excalidrawRef.current) return;
-    exportToBlob({
-      elements: excalidrawRef.current.getSceneElementsIncludingDeleted(),
-      appState: excalidrawRef.current.getAppState(),
-      files: excalidrawRef.current.getFiles(),
-    })
-      .then((blob) => blob?.arrayBuffer())
-      .then((arrayBuffer) => {
-        if (!arrayBuffer) return;
-        const savePath =
-          window.utools &&
-          window.utools.showSaveDialog({
-            defaultPath: name,
-            buttonLabel: "保存",
-            filters: [{ name: "PNG", extensions: ["png"] }],
-          });
-        savePath &&
-          window.writeFile &&
-          window.writeFile(savePath, arrayBuffer, { isArrayBuffer: true });
-      });
-  };
 
   const handleSetActiveDraw = (
     id: string,
@@ -154,13 +107,13 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
         )}
       </button>
       <div
-        className={cn("mt-2 flex gap-1", {
+        className={cn("mt-2 flex gap-2", {
           hidden: appSettings.asideWidth <= 150,
         })}
       >
         <input
           type="text"
-          className="h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
+          className="flex-1 h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
           value={name}
           onChange={(e) => {
             setScenes((old) => {
@@ -178,43 +131,6 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
             storeScene(id, scenes[idx]);
           }}
         />
-        {/* export */}
-        <Tippy
-          visible={exportTippyActive === idx}
-          onClickOutside={() => setExportTippyActive(-1)}
-          interactive
-          duration={0}
-          content={
-            <div className="bg-gray-200 rounded p-3 flex flex-col gap-1 text-sm">
-              <div
-                className="bg-gray-300 cursor-pointer px-2 p-1 rounded hover-shadow"
-                onClick={() => exportToPng(name)}
-              >
-                保存图片
-              </div>
-              <div
-                className="bg-gray-300 cursor-pointer px-2 p-1 rounded hover-shadow"
-                onClick={() => exportToFile(name)}
-              >
-                导出文件
-              </div>
-            </div>
-          }
-        >
-          <button
-            className={cn(
-              "p-2 rounded-lg flex",
-              appSettings.lastActiveDraw === id
-                ? "bg-gray-200 cursor-pointer hover-shadow"
-                : "bg-gray-200/50 cursor-not-allowed text-gray-300"
-            )}
-            disabled={appSettings.lastActiveDraw !== id}
-            onClick={() => setExportTippyActive(idx)}
-            title="导出"
-          >
-            <DownloadIcon className="w-5" />
-          </button>
-        </Tippy>
 
         <Tippy
           visible={removeTippyActive === idx}

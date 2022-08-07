@@ -20,8 +20,9 @@ import {
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { loadInitialData } from "./utils/data";
 import { keyBy, omit } from "lodash";
-import { newAScene } from "./store/scene";
+import { getSceneByID, newAScene } from "./store/scene";
 import SceneItem from "./components/SceneItem";
+import ExportOps from "./components/ExportOps";
 
 let sceneVersion = -1;
 
@@ -35,8 +36,6 @@ export const AppContext = createContext<{
   tippyAction: {
     removeTippyActive: number;
     setRemoveTippyActive: React.Dispatch<React.SetStateAction<number>>;
-    exportTippyActive: number;
-    setExportTippyActive: React.Dispatch<React.SetStateAction<number>>;
   };
 } | null>(null);
 
@@ -44,7 +43,6 @@ function App() {
   const store = getStore();
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
-  const [exportActionTippyActive, setExportActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
 
   const { run: debounceStoreItem } = useDebounceFn(
@@ -78,7 +76,7 @@ function App() {
         if (!appSettings.closePreview) {
           imagePath = await generatePreviewImage(elements, state, files);
         }
-        const scene = getSceneByID(target)!;
+        const scene = getSceneByID(scenes, target)!;
         const { id, img } = scene;
         img && URL.revokeObjectURL(img);
         let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
@@ -120,9 +118,6 @@ function App() {
     { wait: 300 }
   );
 
-  const getSceneByID = (id: string | null) =>
-    id ? keyBy(scenes, "id")[id] : null;
-
   window.utools &&
     window.utools.onPluginOut(() => {
       scenes.forEach((scene) => {
@@ -143,8 +138,6 @@ function App() {
         setAppSettings,
         updatingScene,
         tippyAction: {
-          exportTippyActive: exportActionTippyActive,
-          setExportTippyActive: setExportActionTippyActive,
           removeTippyActive: removeActionTippyActive,
           setRemoveTippyActive: setRemoveActionTippyActive,
         },
@@ -271,10 +264,14 @@ function App() {
             }}
             langCode="zh-CN"
             autoFocus
-            name={getSceneByID(appSettings.lastActiveDraw)?.name}
+            name={getSceneByID(scenes, appSettings.lastActiveDraw)?.name}
             UIOptions={{
               canvasActions: {
-                export: false,
+                // export: false,
+                export: {
+                  saveFileToDisk: false,
+                  renderCustomUI: () => <ExportOps />,
+                },
                 saveAsImage: false,
               },
             }}
