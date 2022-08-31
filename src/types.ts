@@ -11,6 +11,7 @@ export type Store = {
   [DB_KEY.SETTINGS]: {
     lastActiveDraw: string | null;
     asideWidth: number;
+    asideClosed: boolean;
     closePreview: boolean;
   };
   [DB_KEY.SCENES]: Scene[];

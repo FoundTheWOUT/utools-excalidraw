@@ -8,7 +8,7 @@ import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { PlusIcon } from "@heroicons/react/solid";
-import { encoder, generatePreviewImage } from "./utils/utils";
+import { encoder, generatePreviewImage, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import {
   dropDeletedFiles,
@@ -130,6 +130,43 @@ function App() {
       dropDeletedFiles(scenes);
     });
 
+  const handleScreenMouseMove = (e: React.MouseEvent) => {
+    if (!resizing) return;
+    let width = e.pageX;
+    let closed = appSettings.asideClosed;
+
+    // mouse position in [0,70)
+    // 1. remember current width(90)
+    // 2. close the panel
+    if (numIsInRange(width, 0, 30)) {
+      width = 90;
+      closed = true;
+    } else {
+      closed = false;
+    }
+
+    // mouse position in [70,90)
+    // fix panel with to 90
+    if (numIsInRange(width, 30, 90)) width = 90;
+
+    //  panel width adjust by mouse position
+
+    // mouse position is grater than 300 in x axis.
+    // fix panel with to 300
+    if (width > 300) width = 300;
+
+    setAndStoreAppSettings({
+      asideWidth: width,
+      asideClosed: closed,
+    });
+  };
+
+  const handleAsideControllerClick = () => {
+    setAndStoreAppSettings({
+      asideClosed: !appSettings.asideClosed,
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -149,24 +186,18 @@ function App() {
         className="h-screen flex"
         onMouseUp={() => setResizing(false)}
         onMouseLeave={() => setResizing(false)}
-        onMouseMove={(e) => {
-          if (!resizing) return;
-          let width = e.pageX;
-          if (width < 90) width = 90;
-          else if (width > 300) width = 300;
-          setAndStoreAppSettings({
-            asideWidth: width,
-          });
-        }}
+        onMouseMove={handleScreenMouseMove}
       >
         <aside
           className="relative h-full bg-gray-100 z-10"
-          style={{ width: appSettings.asideWidth }}
+          style={{
+            width: appSettings.asideClosed ? 0 : appSettings.asideWidth,
+          }}
         >
           <div className="h-full overflow-y-auto">
             {appSettings.asideWidth > 150 && (
               <div className="p-3 pb-0 flex justify-end gap-2">
-                <span>
+                <span className="select-none">
                   {appSettings.closePreview ? "打开预览" : "关闭预览"}
                 </span>
                 <div
@@ -224,8 +255,15 @@ function App() {
 
           {/* controller */}
           <div
-            className="absolute top-1/2 -right-2 h-8 w-1.5 bg-slate-500/60 rounded-full cursor-ew-resize"
-            onMouseDown={() => setResizing(true)}
+            title="点击开关面板，拖动调整面板宽度"
+            className={cn(
+              "absolute top-1/2 h-8 w-1.5 bg-slate-500/60 rounded-full cursor-ew-resize",
+              appSettings.asideClosed ? "-right-4" : "-right-2"
+            )}
+            onMouseDown={() => {
+              setResizing(true);
+            }}
+            onClick={handleAsideControllerClick}
           ></div>
         </aside>
 

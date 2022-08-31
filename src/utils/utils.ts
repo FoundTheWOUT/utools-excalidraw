@@ -31,6 +31,10 @@ export const generatePreviewImage = async (
   }
 };
 
+// [start, end) -> true
+export const numIsInRange = (target: number, start: number, end: number) =>
+  target >= start && target < end ? true : false;
+
 export const extend = Object.assign;
 
 export const encoder = new TextEncoder();

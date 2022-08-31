@@ -6,6 +6,7 @@ import { getScenes, newAScene, removeScene, storeScene } from "@/store/scene";
 export const initStore: Store = {
   settings: {
     asideWidth: 300,
+    asideClosed: false,
     lastActiveDraw: null,
     closePreview: false,
   },
