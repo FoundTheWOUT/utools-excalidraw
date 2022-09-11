@@ -19,10 +19,16 @@ import {
 } from "./store/store";
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { loadInitialData } from "./utils/data";
-import { keyBy, mapKeys, omit } from "lodash";
+import { omit } from "lodash";
 import { getSceneByID, newAScene } from "./store/scene";
 import SceneItem from "./components/SceneItem";
 import ExportOps from "./components/ExportOps";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 
 let sceneVersion = -1;
 
@@ -32,7 +38,7 @@ export const AppContext = createContext<{
   scenes: Scene[];
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
   appSettings: Store[DB_KEY.SETTINGS];
-  setAppSettings: React.Dispatch<React.SetStateAction<Store[DB_KEY.SETTINGS]>>;
+  setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
   tippyAction: {
     removeTippyActive: number;
     setRemoveTippyActive: React.Dispatch<React.SetStateAction<number>>;
@@ -167,12 +173,42 @@ function App() {
     });
   };
 
+  const reorder = (
+    list: Scene[],
+    startIndex: number,
+    endIndex: number
+  ): Scene[] => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return;
+    }
+    if (result.destination.index === result.source.index) {
+      return;
+    }
+    const reorderScenes = reorder(
+      scenes,
+      result.source.index,
+      result.destination.index
+    );
+    setScenes(reorderScenes);
+    setAndStoreAppSettings({
+      scenesId: reorderScenes.map((scene) => scene.id),
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
         excalidrawRef,
         appSettings,
-        setAppSettings,
+        setAndStoreAppSettings,
         updatingScene,
         tippyAction: {
           removeTippyActive: removeActionTippyActive,
@@ -197,9 +233,7 @@ function App() {
           <div className="h-full overflow-y-auto">
             {appSettings.asideWidth > 150 && (
               <div className="p-3 pb-0 flex justify-end gap-2">
-                <span className="select-none">
-                  {appSettings.closePreview ? "打开预览" : "关闭预览"}
-                </span>
+                <span className="select-none">预览</span>
                 <div
                   className={cn(
                     "w-10 rounded-full flex items-center cursor-pointer relative",
@@ -223,18 +257,37 @@ function App() {
               </div>
             )}
             {/* card loop */}
-            {scenes.map(({ id, img, name, data }, idx) => {
-              return (
-                <SceneItem
-                  key={id}
-                  id={id}
-                  img={img}
-                  name={name}
-                  data={data}
-                  idx={idx}
-                />
-              );
-            })}
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="list">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {scenes.map(({ id, img, name, data }, idx) => (
+                      <Draggable key={id} draggableId={id} index={idx}>
+                        {(dragProvided) => {
+                          return (
+                            <div
+                              ref={dragProvided.innerRef}
+                              {...dragProvided.draggableProps}
+                            >
+                              <SceneItem
+                                key={id}
+                                id={id}
+                                img={img}
+                                name={name}
+                                data={data}
+                                idx={idx}
+                                dragProvided={dragProvided}
+                              />
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
             <div className="p-3">
               <div

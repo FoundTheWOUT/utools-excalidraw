@@ -44,14 +44,7 @@ const ToImageIcon = () => (
 const ExportOps = () => {
   const appContext = useContext(AppContext);
   if (!appContext) return null;
-  const {
-    appSettings,
-    setAppSettings,
-    scenes,
-    setScenes,
-    updatingScene,
-    excalidrawRef,
-  } = appContext;
+  const { appSettings, scenes, excalidrawRef } = appContext;
 
   const [exportImageOptions, setExportImageOptions] = useState({
     exportBackground: true,

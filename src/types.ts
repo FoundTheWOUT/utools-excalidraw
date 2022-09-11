@@ -13,6 +13,7 @@ export type Store = {
     asideWidth: number;
     asideClosed: boolean;
     closePreview: boolean;
+    scenesId: string[];
   };
   [DB_KEY.SCENES]: Scene[];
 };

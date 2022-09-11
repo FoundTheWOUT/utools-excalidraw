@@ -1,7 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
 import { six_nanoid } from "@/utils/utils";
-import { keyBy } from "lodash";
+import { has, keyBy, remove } from "lodash";
 
 export const newAScene = ({ name }: { name: string }): Scene => {
   return { id: six_nanoid(), name, sticky: false };
@@ -37,4 +37,16 @@ export const getScenes = (): Scene[] => {
 export const removeScene = (key: string | null) => {
   if (!key) return;
   return window.utools && window.utools.dbStorage.removeItem(`scene/${key}`);
+};
+
+export const restoreScenesArray = (
+  scenes: Scene[],
+  idArray: string[]
+): Scene[] => {
+  // if no id array is empty, return the raw scenes arrays.
+  if (idArray.length == 0) return scenes;
+
+  const scenesMap = keyBy(scenes, "id");
+  remove(idArray, (id) => !has(scenesMap, id)); // if the id point to void scene, remove it.
+  return idArray.map((id) => scenesMap[id]);
 };

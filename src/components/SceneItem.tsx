@@ -3,13 +3,11 @@ import cn from "classnames";
 import { AppContext } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import { removeScene, storeScene } from "@/store/scene";
-import Tippy from "@tippyjs/react";
-import { DownloadIcon, FlagIcon, TrashIcon } from "@heroicons/react/solid";
-import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
-import { storeSetItem } from "@/store/store";
-import { DB_KEY, Scene } from "@/types";
+import { TrashIcon, MenuIcon } from "@heroicons/react/solid";
+import { Scene } from "@/types";
 import { restoreFiles } from "@/utils/data";
 import { BinaryFileData } from "@excalidraw/excalidraw/types/types";
+import Tippy from "@tippyjs/react";
 
 interface Props {
   id: string;
@@ -17,14 +15,15 @@ interface Props {
   name: string;
   data: string | undefined;
   idx: number;
+  dragProvided?: any;
 }
 
-const SceneItem = ({ id, img, name, data, idx }: Props) => {
+const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
   if (!appContext) return null;
   const {
     appSettings,
-    setAppSettings,
+    setAndStoreAppSettings,
     scenes,
     setScenes,
     updatingScene,
@@ -39,13 +38,8 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
   ) => {
     if (!excalidrawRef.current) return;
 
-    setAppSettings((s) => {
-      const newSettings = {
-        ...s,
-        lastActiveDraw: id,
-      };
-      storeSetItem(DB_KEY.SETTINGS, newSettings);
-      return newSettings;
+    setAndStoreAppSettings({
+      lastActiveDraw: id,
     });
 
     // restore scene
@@ -187,6 +181,14 @@ const SceneItem = ({ id, img, name, data, idx }: Props) => {
             <TrashIcon className="w-5 text-red-500" />
           </div>
         </Tippy>
+
+        <div
+          className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
+          title="移动"
+          {...dragProvided.dragHandleProps}
+        >
+          <MenuIcon className="w-5" />
+        </div>
         {/* <div
           className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
           onClick={() => {

@@ -1,7 +1,13 @@
 import { DB_KEY, Store } from "../types";
 import { extend } from "../utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "@/store/file";
-import { getScenes, newAScene, removeScene, storeScene } from "@/store/scene";
+import {
+  getScenes,
+  newAScene,
+  removeScene,
+  restoreScenesArray,
+  storeScene,
+} from "@/store/scene";
 
 export const initStore: Store = {
   settings: {
@@ -9,6 +15,7 @@ export const initStore: Store = {
     asideClosed: false,
     lastActiveDraw: null,
     closePreview: false,
+    scenesId: [],
   },
   scenes: [newAScene({ name: "画布0" })],
 };
@@ -27,16 +34,20 @@ export const initStore: Store = {
  */
 
 export const getStore = (): Store => {
-  const settings = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+  const _settingsFromStore =
+    window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+  const settings = extend(
+    initStore[DB_KEY.SETTINGS],
+    _settingsFromStore ? _settingsFromStore.value : null
+  );
+
   const store = {
-    settings: extend(
-      initStore[DB_KEY.SETTINGS],
-      settings ? settings.value : null
-    ),
-    scenes: getScenes(),
+    settings,
+    scenes: restoreScenesArray(getScenes(), settings.scenesId),
   };
 
   // 自动修复 lastActiveDraw
+  // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
   if (
     !store.scenes
       .map((scene) => scene.id)
