@@ -3,8 +3,14 @@ import { initStore } from "@/store/store";
 import { six_nanoid } from "@/utils/utils";
 import { has, keyBy, remove } from "lodash";
 
-export const newAScene = ({ name }: { name: string }): Scene => {
-  return { id: six_nanoid(), name, sticky: false };
+export const newAScene = ({
+  name,
+  id,
+}: {
+  name: string;
+  id?: string;
+}): Scene => {
+  return { id: id ? id : six_nanoid(), name, sticky: false };
 };
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
@@ -46,7 +52,15 @@ export const restoreScenesArray = (
   // if no id array is empty, return the raw scenes arrays.
   if (idArray.length == 0) return scenes;
 
+  // [scene,scene] -> {"id":scene,"id":scene}
   const scenesMap = keyBy(scenes, "id");
-  remove(idArray, (id) => !has(scenesMap, id)); // if the id point to void scene, remove it.
-  return idArray.map((id) => scenesMap[id]);
+
+  // fix the scene which owning by the map, but not exist in id array.
+  Object.keys(scenesMap).forEach((key) => {
+    if (!idArray.includes(key)) {
+      idArray.push(key);
+    }
+  });
+
+  return idArray.filter((id) => has(scenesMap, id)).map((id) => scenesMap[id]);
 };

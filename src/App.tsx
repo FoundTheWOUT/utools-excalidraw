@@ -1,4 +1,4 @@
-import React, { useState, useRef, createContext } from "react";
+import React, { useState, useRef, createContext, useMemo } from "react";
 import {
   Excalidraw as ExcalidrawComp,
   getSceneVersion,
@@ -46,7 +46,7 @@ export const AppContext = createContext<{
 } | null>(null);
 
 function App() {
-  const store = getStore();
+  const store = useMemo(() => getStore(), []);
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
@@ -298,6 +298,7 @@ function App() {
                   excalidrawRef.current && excalidrawRef.current.resetScene();
                   setAndStoreAppSettings({
                     lastActiveDraw: newScene.id,
+                    scenesId: appSettings.scenesId.concat(newScene.id),
                   });
                 }}
               >
