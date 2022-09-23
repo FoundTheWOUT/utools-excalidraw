@@ -1,9 +1,8 @@
 import { DB_KEY, Store } from "../types";
-import { extend } from "../utils/utils";
+import { extend, newAScene } from "../utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "@/store/file";
 import {
   getScenes,
-  newAScene,
   removeScene,
   restoreScenesArray,
   storeScene,

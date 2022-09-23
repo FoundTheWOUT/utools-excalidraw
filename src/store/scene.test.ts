@@ -1,6 +1,7 @@
 import { Scene } from "@/types";
+import { newAScene } from "@/utils/utils";
 import { describe, expect, it } from "vitest";
-import { newAScene, restoreScenesArray } from "./scene";
+import { restoreScenesArray } from "./scene";
 
 describe("handle scene data", () => {
   it("restore array of scenes data by settings", () => {

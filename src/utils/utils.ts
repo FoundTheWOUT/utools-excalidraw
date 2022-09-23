@@ -1,3 +1,4 @@
+import { Scene } from "@/types";
 import { nanoid } from "nanoid";
 
 export const six_nanoid = () => nanoid(6);
@@ -44,3 +45,13 @@ export const extend = Object.assign;
 
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
+
+export const newAScene = ({
+  name,
+  id,
+}: {
+  name: string;
+  id?: string;
+}): Scene => {
+  return { id: id ? id : six_nanoid(), name, sticky: false };
+};

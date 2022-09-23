@@ -19,8 +19,9 @@ import {
 } from "./store/store";
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { loadInitialData } from "./utils/data";
+import { newAScene } from "@/utils/utils";
 import { omit } from "lodash";
-import { getSceneByID, newAScene } from "./store/scene";
+import { getSceneByID } from "./store/scene";
 import SceneItem from "./components/SceneItem";
 import ExportOps from "./components/ExportOps";
 import {

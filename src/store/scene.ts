@@ -1,17 +1,6 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
-import { six_nanoid } from "@/utils/utils";
 import { has, keyBy } from "lodash";
-
-export const newAScene = ({
-  name,
-  id,
-}: {
-  name: string;
-  id?: string;
-}): Scene => {
-  return { id: id ? id : six_nanoid(), name, sticky: false };
-};
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {
