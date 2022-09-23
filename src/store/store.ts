@@ -9,7 +9,7 @@ import {
   storeScene,
 } from "@/store/scene";
 
-export const initStore: Store = {
+export const initStore = (): Store => ({
   settings: {
     asideWidth: 300,
     asideClosed: false,
@@ -17,8 +17,8 @@ export const initStore: Store = {
     closePreview: false,
     scenesId: [],
   },
-  scenes: [newAScene({ name: "画布0" })],
-};
+  scenes: [newAScene({ name: "画布一" })],
+});
 
 /**
  *
@@ -34,10 +34,12 @@ export const initStore: Store = {
  */
 
 export const getStore = (): Store => {
+  const _initStore = initStore();
   const _settingsFromStore =
     window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+
   const settings = extend(
-    initStore[DB_KEY.SETTINGS],
+    _initStore[DB_KEY.SETTINGS],
     _settingsFromStore ? _settingsFromStore.value : null
   );
 

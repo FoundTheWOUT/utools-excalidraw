@@ -1,7 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
 import { six_nanoid } from "@/utils/utils";
-import { has, keyBy, remove } from "lodash";
+import { has, keyBy } from "lodash";
 
 export const newAScene = ({
   name,
@@ -33,11 +33,12 @@ export const getSceneByID = (scenes: Scene[], id: string | null) =>
 
 // 获取 Scene 数组
 export const getScenes = (): Scene[] => {
-  if (!window.utools) return initStore[DB_KEY.SCENES];
+  const _initStore = initStore();
+  if (!window.utools) return _initStore[DB_KEY.SCENES];
   const scenes_from_db = window.utools.db.allDocs("scene/");
   return Array.isArray(scenes_from_db) && scenes_from_db.length > 0
     ? scenes_from_db.map((scene: any) => scene.value)
-    : initStore[DB_KEY.SCENES];
+    : _initStore[DB_KEY.SCENES];
 };
 
 export const removeScene = (key: string | null) => {
