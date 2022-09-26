@@ -1,5 +1,6 @@
 import { Scene } from "@/types";
 import { nanoid } from "nanoid";
+import { restoreFiles } from "./data";
 
 export const six_nanoid = () => nanoid(6);
 
@@ -35,6 +36,14 @@ export const generatePreviewImage = async (
     console.error(e);
     return Promise.resolve(undefined);
   }
+};
+
+export const generatePreviewImageFromSceneData = async (
+  data: Scene["data"]
+) => {
+  if (!data) return undefined;
+  const { elements, appState, files } = restoreFiles(JSON.parse(data));
+  return await generatePreviewImage(elements, appState, files);
 };
 
 // [start, end) -> true

@@ -1,5 +1,9 @@
 import { DB_KEY, Store } from "../types";
-import { extend, newAScene } from "../utils/utils";
+import {
+  extend,
+  generatePreviewImageFromSceneData,
+  newAScene,
+} from "../utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "@/store/file";
 import {
   getScenes,
@@ -32,7 +36,7 @@ export const initStore = (): Store => ({
  * 'scene/id' -> {value:'json'}
  */
 
-export const getStore = (): Store => {
+export const getStore = async (): Promise<Store> => {
   const _initStore = initStore();
   const _settingsFromStore =
     window.utools && window.utools.db.get(DB_KEY.SETTINGS);
@@ -64,6 +68,16 @@ export const getStore = (): Store => {
   //   store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES].length - 1;
   //   storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
   // }
+
+  store.scenes = await Promise.all(
+    store.scenes.map(async (scene) => {
+      const img = await generatePreviewImageFromSceneData(scene.data);
+      return {
+        ...scene,
+        img,
+      };
+    })
+  );
 
   return store;
 };

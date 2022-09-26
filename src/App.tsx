@@ -1,4 +1,4 @@
-import React, { useState, useRef, createContext, useMemo } from "react";
+import React, { useState, useRef, createContext } from "react";
 import {
   Excalidraw as ExcalidrawComp,
   getSceneVersion,
@@ -12,7 +12,6 @@ import { encoder, generatePreviewImage, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import {
   dropDeletedFiles,
-  getStore,
   storeFile,
   storeScene,
   storeSetItem,
@@ -46,8 +45,8 @@ export const AppContext = createContext<{
   };
 } | null>(null);
 
-function App() {
-  const store = useMemo(() => getStore(), []);
+function App({ store }: { store: Store }) {
+  // const { data: store } = useSWR("store", getStore);
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
