@@ -1,0 +1,6 @@
+{
+  "root": true,
+  "plugins": ["react-hooks"],
+  "extends": ["eslint:recommended", "plugin:react-hooks/recommended"],
+  "ignorePatterns": ["dist/**/*", "public/**/*", "scripts/**/*"]
+}

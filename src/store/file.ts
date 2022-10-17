@@ -1,6 +1,7 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 import { dropWhile } from "lodash";
 import { Scene } from "@/types";
+import { log } from "@/utils/utils";
 
 export const storeFile = (
   key: string,
@@ -12,6 +13,7 @@ export const storeFile = (
     // TODO: too large, notice user would not be save
     return;
   }
+  log("store file to db.");
   try {
     window.utools && window.utools.db.postAttachment(`file/${key}`, data, type);
   } catch (err) {
@@ -20,11 +22,13 @@ export const storeFile = (
 };
 
 export const getFile = (key: string): Uint16Array | undefined => {
+  log("get file from db.");
   return window.utools && window.utools.db.getAttachment(`file/${key}`);
 };
 
 export const removeFile = (key: string | null) => {
   if (!key) return;
+  log("remove file from db.");
   return window.utools && window.utools.db.remove(`file/${key}`);
 };
 

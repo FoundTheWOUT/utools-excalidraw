@@ -8,7 +8,12 @@ import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { PlusIcon } from "@heroicons/react/solid";
-import { encoder, generatePreviewImage, numIsInRange } from "./utils/utils";
+import {
+  encoder,
+  generatePreviewImage,
+  log,
+  numIsInRange,
+} from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import {
   dropDeletedFiles,
@@ -17,7 +22,7 @@ import {
   storeSetItem,
 } from "./store/store";
 import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
-import { loadInitialData } from "./utils/data";
+import { defaultStatue, loadInitialData } from "./utils/data";
 import { newAScene } from "@/utils/utils";
 import { omit } from "lodash";
 import { getSceneByID } from "./store/scene";
@@ -29,6 +34,7 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
+import useSWR from "swr";
 
 let sceneVersion = -1;
 
@@ -47,6 +53,15 @@ export const AppContext = createContext<{
 
 function App({ store }: { store: Store }) {
   // const { data: store } = useSWR("store", getStore);
+  const {
+    settings: { lastActiveDraw },
+    scenes: initScenes,
+  } = store;
+
+  const { data: initialData } = useSWR("init sate", () =>
+    loadInitialData(initScenes, lastActiveDraw!)
+  );
+
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
@@ -70,7 +85,7 @@ function App({ store }: { store: Store }) {
   };
 
   const [resizing, setResizing] = useState(false);
-  const [scenes, setScenes] = useState<Scene[]>(store.scenes);
+  const [scenes, setScenes] = useState<Scene[]>(initScenes);
   const [updatingScene, setUpdatingScene] = useState(false);
 
   const { run: onSceneUpdate } = useDebounceFn(
@@ -203,6 +218,8 @@ function App({ store }: { store: Store }) {
     });
   };
 
+  if (!initialData) return null;
+
   return (
     <AppContext.Provider
       value={{
@@ -325,11 +342,7 @@ function App({ store }: { store: Store }) {
         <main className="flex-1">
           <ExcalidrawComp
             ref={excalidrawRef}
-            initialData={
-              appSettings.lastActiveDraw
-                ? loadInitialData(scenes, appSettings.lastActiveDraw)
-                : null
-            }
+            initialData={initialData}
             onChange={(elements, state, files) => {
               const version = getSceneVersion(elements);
               if (sceneVersion != version) {
@@ -369,6 +382,7 @@ function App({ store }: { store: Store }) {
               },
             }}
             onLibraryChange={(items) => {
+              log("library change.");
               if (!window.utools) return;
               const libraries = window.utools.db.allDocs("library");
               const stored_lib_ids_set = new Set(

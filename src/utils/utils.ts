@@ -64,3 +64,15 @@ export const newAScene = ({
 }): Scene => {
   return { id: id ? id : six_nanoid(), name, sticky: false };
 };
+
+const inner_log = function () {
+  if (import.meta.env.MODE === "development") {
+    return console.log.bind(
+      window.console,
+      "%c utools-exca ",
+      "background-color:#6965db;color:white;padding: 2px 4px; border-radius: 4px;"
+    );
+  }
+  return () => {};
+};
+export const log = inner_log() as (msg?: any, ...args: any[]) => void;

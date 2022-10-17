@@ -2,6 +2,7 @@ import { DB_KEY, Store } from "../types";
 import {
   extend,
   generatePreviewImageFromSceneData,
+  log,
   newAScene,
 } from "../utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "@/store/file";
@@ -37,6 +38,7 @@ export const initStore = (): Store => ({
  */
 
 export const getStore = async (): Promise<Store> => {
+  log("get store...");
   const _initStore = initStore();
   const _settingsFromStore =
     window.utools && window.utools.db.get(DB_KEY.SETTINGS);
@@ -83,6 +85,7 @@ export const getStore = async (): Promise<Store> => {
 };
 
 export const storeSetItem = <T extends DB_KEY>(key: T, value: Store[T]) => {
+  log(`store to ${key}, data:`, value);
   window.utools && window.utools.dbStorage.setItem(key, value);
 };
 

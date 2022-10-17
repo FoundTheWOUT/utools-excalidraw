@@ -3,12 +3,13 @@ import { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types/types";
 import { keyBy, merge } from "lodash";
 import { Scene } from "../types";
 import { getFile } from "../store/store";
-import { decoder } from "./utils";
-import { restoreLibraryItems } from "@excalidraw/excalidraw";
+import { decoder, log } from "./utils";
+import { FONT_FAMILY, restoreLibraryItems } from "@excalidraw/excalidraw";
 
-const defaultStatue = {
+export const defaultStatue = {
   appState: {
     fileHandle: {},
+    currentItemFontFamily: FONT_FAMILY.Helvetica,
   },
 } as ExcalidrawInitialDataState;
 
@@ -17,8 +18,16 @@ export const loadInitialData = (
   target: string //scene id
 ): ExcalidrawInitialDataState | null => {
   let data = keyBy(scenes, "id")[target]?.data;
-  if (typeof data !== "string") return {};
-  return merge(defaultStatue, restoreFiles(restoreLibrary(JSON.parse(data))));
+
+  // if can't found data return default config
+  if (typeof data !== "string") return defaultStatue;
+
+  const config = merge(
+    defaultStatue,
+    restoreFiles(restoreLibrary(JSON.parse(data)))
+  );
+  log("load config", config);
+  return config;
 };
 
 // 恢复文件到运行时配置
@@ -44,6 +53,7 @@ const restoreLibrary = (
   data: ImportedDataState
 ): ExcalidrawInitialDataState => {
   if (!window.utools) return data;
+  log("get library from db.");
   const libraries = window.utools.db.allDocs("library");
 
   if (libraries.length > 0) {

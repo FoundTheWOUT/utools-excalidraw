@@ -1,6 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
 import { has, keyBy } from "lodash";
+import { log } from "@/utils/utils";
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {
@@ -10,6 +11,7 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
   // console.log(`store key :${key}`);
   // console.log(`store value:`);
   // console.log(data);
+  log("store scene to db.");
   try {
     window.utools && window.utools.dbStorage.setItem(`scene/${key}`, data);
   } catch (error) {
@@ -24,6 +26,7 @@ export const getSceneByID = (scenes: Scene[], id: string | null) =>
 export const getScenes = (): Scene[] => {
   const _initStore = initStore();
   if (!window.utools) return _initStore[DB_KEY.SCENES];
+  log("get scene from db.");
   const scenes_from_db = window.utools.db.allDocs("scene/");
   return Array.isArray(scenes_from_db) && scenes_from_db.length > 0
     ? scenes_from_db.map((scene: any) => scene.value)
