@@ -45,10 +45,6 @@ export const AppContext = createContext<{
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
   appSettings: Store[DB_KEY.SETTINGS];
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
-  tippyAction: {
-    removeTippyActive: number;
-    setRemoveTippyActive: React.Dispatch<React.SetStateAction<number>>;
-  };
 } | null>(null);
 
 function App({ store }: { store: Store }) {
@@ -63,7 +59,6 @@ function App({ store }: { store: Store }) {
   );
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
-  const [removeActionTippyActive, setRemoveActionTippyActive] = useState(-1);
   const [appSettings, setAppSettings] = useState(store.settings);
 
   const { run: debounceStoreItem } = useDebounceFn(
@@ -227,10 +222,6 @@ function App({ store }: { store: Store }) {
         appSettings,
         setAndStoreAppSettings,
         updatingScene,
-        tippyAction: {
-          removeTippyActive: removeActionTippyActive,
-          setRemoveTippyActive: setRemoveActionTippyActive,
-        },
         scenes,
         setScenes,
       }}

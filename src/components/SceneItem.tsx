@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import cn from "classnames";
 import { AppContext } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
@@ -20,6 +20,7 @@ interface Props {
 
 const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
+  const [tippyActive, setTippyActive] = useState(false);
   if (!appContext) return null;
   const {
     appSettings,
@@ -28,7 +29,6 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
     setScenes,
     updatingScene,
     excalidrawRef,
-    tippyAction: { removeTippyActive, setRemoveTippyActive },
   } = appContext;
 
   const handleSetActiveDraw = (
@@ -127,10 +127,10 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
         />
 
         <Tippy
-          visible={removeTippyActive === idx}
+          visible={tippyActive}
           interactive
           duration={0}
-          onClickOutside={() => setRemoveTippyActive(-1)}
+          onClickOutside={() => setTippyActive(false)}
           content={
             <div className="flex flex-col justify-center bg-gray-200 p-3 rounded">
               <div className="pb-2">确定删除该画布吗</div>
@@ -138,7 +138,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                 <button
                   className="px-3 py-1 bg-gray-300 rounded hover-shadow"
                   onClick={() => {
-                    setRemoveTippyActive(-1);
+                    setTippyActive(false);
                   }}
                 >
                   取消
@@ -169,7 +169,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                       window.utools &&
                         window.utools.showNotification("禁止删除最后一页");
                     }
-                    setRemoveTippyActive(-1);
+                    setTippyActive(false);
                   }}
                 >
                   确定
@@ -180,7 +180,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
         >
           <div
             className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
-            onClick={() => setRemoveTippyActive(idx)}
+            onClick={() => setTippyActive(true)}
             title="删除"
           >
             <TrashIcon className="w-5 text-red-500" />

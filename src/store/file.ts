@@ -21,7 +21,7 @@ export const storeFile = (
   }
 };
 
-export const getFile = (key: string): Uint16Array | undefined => {
+export const getFile = (key: string): Uint8Array | null => {
   log("get file from db.");
   return window.utools && window.utools.db.getAttachment(`file/${key}`);
 };
@@ -34,8 +34,12 @@ export const removeFile = (key: string | null) => {
 
 export const dropDeletedFiles = (scenes: Scene[]) => {
   if (!window.utools) return;
+
+  // 1. get all file in db.
   const files = window.utools.db.allDocs("file");
   const noneDeletedFileId = new Set();
+
+  // 2. find all file in all scenes, set file id to 'none deleted' Set.
   scenes.map((scene) => {
     if (scene.data) {
       const data = JSON.parse(scene.data) as ImportedDataState;
@@ -46,14 +50,12 @@ export const dropDeletedFiles = (scenes: Scene[]) => {
       });
     }
   });
-  const needDeleteFile = dropWhile(files, (doc: any) => {
+
+  // 3. iter files, and remove it if it's not contain in the 'none deleted' Set.
+  files.forEach((doc) => {
     const _path = doc._id.split("/");
-    if (_path.length > 1) {
-      return noneDeletedFileId.has(_path[1]);
+    if (_path.length < 1 || !noneDeletedFileId.has(_path[1])) {
+      window.utools && window.utools.db.remove(doc._id);
     }
-    return false;
-  });
-  needDeleteFile.map((file) => {
-    window.utools && window.utools.db.remove(file._id);
   });
 };

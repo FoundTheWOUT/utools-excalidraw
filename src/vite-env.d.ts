@@ -3,7 +3,6 @@ import * as fs from "fs";
 
 declare global {
   interface Window {
-    utools: any;
     writeFile: (
       path: string,
       data: string | ArrayBuffer,
