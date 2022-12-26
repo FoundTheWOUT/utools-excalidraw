@@ -1,13 +1,17 @@
 import React, { useState, useRef, createContext } from "react";
 import {
-  Excalidraw as ExcalidrawComp,
+  Excalidraw,
   getSceneVersion,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
-import { PlusIcon } from "@heroicons/react/solid";
+import {
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  PlusIcon,
+} from "@heroicons/react/solid";
 import {
   encoder,
   generatePreviewImage,
@@ -21,7 +25,6 @@ import {
   storeScene,
   storeSetItem,
 } from "./store/store";
-import { ClipboardData } from "@excalidraw/excalidraw/types/clipboard";
 import { defaultStatue, loadInitialData } from "./utils/data";
 import { newAScene } from "@/utils/utils";
 import { omit } from "lodash";
@@ -35,6 +38,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import useSWR from "swr";
+import { FILE_DOC_PREFIX, TEN_MB } from "./const";
 
 let sceneVersion = -1;
 
@@ -119,10 +123,19 @@ function App({ store }: { store: Store }) {
 
         // 2.2 store file
         if (excalidrawRef.current) {
+          const storedFiles = utools.db
+            .allDocs(FILE_DOC_PREFIX)
+            .map((doc) => doc._id.split("/")[1]);
           const files = excalidrawRef.current.getFiles();
           for (let fileKey in files) {
+            if (storedFiles.includes(fileKey)) continue;
             const fileObjectStr = JSON.stringify(files[fileKey]);
-            storeFile(fileKey, encoder.encode(fileObjectStr));
+            storeFile(
+              fileKey,
+              encoder.encode(fileObjectStr),
+              undefined,
+              excalidrawRef.current
+            );
           }
         }
       } catch (error) {
@@ -264,7 +277,7 @@ function App({ store }: { store: Store }) {
                 </div>
               </div>
             )}
-            {/* card loop */}
+            {/* scene cards */}
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="list">
                 {(provided) => (
@@ -314,24 +327,35 @@ function App({ store }: { store: Store }) {
               </div>
             </div>
           </div>
-
           {/* controller */}
-          <div
-            title="点击开关面板，拖动调整面板宽度"
+          <button
             className={cn(
-              "absolute top-1/2 h-8 w-1.5 bg-slate-500/60 rounded-full cursor-ew-resize",
-              appSettings.asideClosed ? "-right-4" : "-right-2"
+              "absolute bottom-12 -right-3 bg-white rounded-full shadow transition-transform",
+              appSettings.asideClosed && "translate-x-4"
+            )}
+            onClick={handleAsideControllerClick}
+          >
+            {appSettings.asideClosed ? (
+              <ChevronRightIcon className="h-6" />
+            ) : (
+              <ChevronLeftIcon className="h-6" />
+            )}
+          </button>
+
+          <div
+            className={cn(
+              "absolute top-1/2 h-8 w-1.5 bg-slate-500/60 rounded-full cursor-ew-resize -right-2",
+              appSettings.asideClosed && "hidden"
             )}
             onMouseDown={() => {
               setResizing(true);
             }}
-            onClick={handleAsideControllerClick}
           ></div>
         </aside>
 
         {/* white board */}
-        <main className="flex-1">
-          <ExcalidrawComp
+        <main className="flex-1 ml-2">
+          <Excalidraw
             ref={excalidrawRef}
             initialData={initialData}
             onChange={(elements, state, files) => {
@@ -346,11 +370,14 @@ function App({ store }: { store: Store }) {
                 );
               }
             }}
-            onPaste={(data: ClipboardData, event: any) => {
+            onPaste={(data, event) => {
               if (data.files && Object.keys(data.files).length > 0) {
                 for (let fileID in data.files) {
                   const blob = new Blob([data.files[fileID].dataURL]);
-                  if (blob.size / 1024 / 1024 > 1) {
+                  console.log(blob.size);
+                  if (blob.size > TEN_MB) {
+                    excalidrawRef.current &&
+                      excalidrawRef.current.setToast({ message: "hi" });
                     console.log("图片不能大于10MB");
                     return false;
                   }

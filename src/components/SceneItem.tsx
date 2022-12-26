@@ -8,6 +8,7 @@ import { Scene } from "@/types";
 import { restoreFiles } from "@/utils/data";
 import { BinaryFileData } from "@excalidraw/excalidraw/types/types";
 import Tippy from "@tippyjs/react";
+import "tippy.js/animations/scale-subtle.css";
 
 interface Props {
   id: string;
@@ -58,48 +59,52 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
 
   return (
     <div key={id} className="border-b border-gray-300 p-3">
-      <button
-        className={cn(
-          "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer",
-          updatingScene ? "cursor-wait" : "hover-shadow",
-          {
-            "ring ring-offset-2 ring-[#6965db]":
-              appSettings.lastActiveDraw === id,
-          }
-        )}
-        disabled={updatingScene}
-        onClick={() => {
-          handleSetActiveDraw(id, data, () => {
-            // re gen preview image
-            if (excalidrawRef.current) {
-              generatePreviewImage(
-                excalidrawRef.current.getSceneElementsIncludingDeleted(),
-                excalidrawRef.current.getAppState(),
-                excalidrawRef.current.getFiles()
-              ).then((path) => {
-                setScenes(
-                  scenes.map((scene, index) => {
-                    if (index != idx) return scene;
-                    scene.img && URL.revokeObjectURL(scene.img);
-                    return {
-                      ...scene,
-                      img: appSettings.closePreview ? undefined : path,
-                    };
-                  })
-                );
-              });
+      {!appSettings.closePreview && (
+        <button
+          className={cn(
+            "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer select-none",
+            updatingScene ? "cursor-wait" : "hover-shadow",
+            {
+              "ring ring-offset-2 ring-[#6965db]":
+                appSettings.lastActiveDraw === id,
             }
-          });
-        }}
-      >
-        {appSettings.closePreview ? (
-          <div>预览已关闭</div>
-        ) : img ? (
-          <img className="object-contain w-full h-full" src={img} alt={name} />
-        ) : (
-          <div>点击查看预览</div>
-        )}
-      </button>
+          )}
+          disabled={updatingScene}
+          onClick={() => {
+            handleSetActiveDraw(id, data, () => {
+              // re gen preview image
+              if (excalidrawRef.current) {
+                generatePreviewImage(
+                  excalidrawRef.current.getSceneElementsIncludingDeleted(),
+                  excalidrawRef.current.getAppState(),
+                  excalidrawRef.current.getFiles()
+                ).then((path) => {
+                  setScenes(
+                    scenes.map((scene, index) => {
+                      if (index != idx) return scene;
+                      scene.img && URL.revokeObjectURL(scene.img);
+                      return {
+                        ...scene,
+                        img: appSettings.closePreview ? undefined : path,
+                      };
+                    })
+                  );
+                });
+              }
+            });
+          }}
+        >
+          {img ? (
+            <img
+              className="object-contain w-full h-full"
+              src={img}
+              alt={name}
+            />
+          ) : (
+            <div>点击查看预览</div>
+          )}
+        </button>
+      )}
       <div
         className={cn("mt-2 flex gap-2", {
           hidden: appSettings.asideWidth <= 150,
@@ -129,7 +134,8 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
         <Tippy
           visible={tippyActive}
           interactive
-          duration={0}
+          animation="scale-subtle"
+          duration={[450, 125]}
           onClickOutside={() => setTippyActive(false)}
           content={
             <div className="flex flex-col justify-center bg-gray-200 p-3 rounded">
@@ -146,30 +152,24 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                 <button
                   className="px-3 py-1 bg-red-500 hover-shadow text-white rounded"
                   onClick={() => {
-                    if (scenes.length > 1) {
-                      setScenes((scenes) => {
-                        const newScenes = [...scenes];
-                        newScenes.splice(idx, 1);
-                        removeScene(id);
-                        //if delete the last scenes, reselect it fore scene
-                        let updateScenesIndex =
-                          idx == newScenes.length ? idx - 1 : idx;
-                        handleSetActiveDraw(
-                          newScenes[updateScenesIndex].id,
-                          newScenes[updateScenesIndex].data
-                        );
-                        setAndStoreAppSettings({
-                          scenesId: appSettings.scenesId.filter(
-                            (_id) => _id != id
-                          ),
-                        });
-                        return newScenes;
+                    setScenes((scenes) => {
+                      const newScenes = [...scenes];
+                      newScenes.splice(idx, 1);
+                      removeScene(id);
+                      //if delete the last scenes, reselect it fore scene
+                      let updateScenesIndex =
+                        idx == newScenes.length ? idx - 1 : idx;
+                      handleSetActiveDraw(
+                        newScenes[updateScenesIndex].id,
+                        newScenes[updateScenesIndex].data
+                      );
+                      setAndStoreAppSettings({
+                        scenesId: appSettings.scenesId.filter(
+                          (_id) => _id != id
+                        ),
                       });
-                    } else {
-                      window.utools &&
-                        window.utools.showNotification("禁止删除最后一页");
-                    }
-                    setTippyActive(false);
+                      return newScenes;
+                    });
                   }}
                 >
                   确定
@@ -178,38 +178,28 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
             </div>
           }
         >
-          <div
-            className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
+          <button
+            className={cn(
+              "bg-gray-200 p-2 rounded-lg flex",
+              scenes.length === 1
+                ? "cursor-not-allowed text-red-300"
+                : "text-red-500 hover-shadow"
+            )}
             onClick={() => setTippyActive(true)}
             title="删除"
+            disabled={scenes.length === 1}
           >
-            <TrashIcon className="w-5 text-red-500" />
-          </div>
+            <TrashIcon className="w-5" />
+          </button>
         </Tippy>
 
-        <div
-          className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
+        <button
+          className="bg-gray-200 p-2 rounded-lg hover-shadow flex"
           title="移动"
           {...dragProvided.dragHandleProps}
         >
           <MenuIcon className="w-5" />
-        </div>
-        {/* <div
-          className="bg-gray-200 cursor-pointer p-2 rounded-lg hover-shadow flex"
-          onClick={() => {
-            setScenes(
-              scenes.map((scene, scene_idx) => {
-                if (scene_idx !== idx) return scene;
-                return {
-                  ...scene,
-                  sticky: !scene.sticky,
-                };
-              })
-            );
-          }}
-        >
-          <FlagIcon className="w-5" />
-        </div> */}
+        </button>
       </div>
     </div>
   );

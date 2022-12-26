@@ -1,16 +1,19 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
-import { dropWhile } from "lodash";
+import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { Scene } from "@/types";
 import { log } from "@/utils/utils";
+import { FILE_DOC_PREFIX, TEN_MB } from "@/const";
 
 export const storeFile = (
   key: string,
   data: Uint8Array,
-  type?: string | undefined
+  type?: string | undefined,
+  excalidrawRef?: ExcalidrawImperativeAPI
 ) => {
   if (!type) type = "text/plain";
-  if (data.length / 1024 / 1024 > 10) {
-    // TODO: too large, notice user would not be save
+  if (data.byteLength > TEN_MB) {
+    excalidrawRef &&
+      excalidrawRef.setToast({ message: "插入图片大于10MB，退出后图片将丢失" });
     return;
   }
   log("store file to db.");
@@ -29,14 +32,14 @@ export const getFile = (key: string): Uint8Array | null => {
 export const removeFile = (key: string | null) => {
   if (!key) return;
   log("remove file from db.");
-  return window.utools && window.utools.db.remove(`file/${key}`);
+  return window.utools && window.utools.db.remove(`${FILE_DOC_PREFIX}/${key}`);
 };
 
 export const dropDeletedFiles = (scenes: Scene[]) => {
   if (!window.utools) return;
 
   // 1. get all file in db.
-  const files = window.utools.db.allDocs("file");
+  const files = window.utools.db.allDocs(FILE_DOC_PREFIX);
   const noneDeletedFileId = new Set();
 
   // 2. find all file in all scenes, set file id to 'none deleted' Set.
