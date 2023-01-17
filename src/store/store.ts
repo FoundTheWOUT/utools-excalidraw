@@ -22,6 +22,7 @@ export const initStore = (): Store => ({
     scenesId: [],
   },
   scenes: [newAScene({ name: "画布一" })],
+  scenes_map: new Map(),
 });
 
 /**
@@ -48,14 +49,21 @@ export const getStore = async (): Promise<Store> => {
     _settingsFromStore ? _settingsFromStore.value : null
   );
 
+  const { scenes, scenesMap } = restoreScenesArray(
+    getScenes(),
+    settings.scenesId
+  );
+
   const store = {
     settings,
-    scenes: restoreScenesArray(getScenes(), settings.scenesId),
-  };
+    scenes,
+    scenes_map: scenesMap,
+  } as Store;
 
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
   if (
+    store[DB_KEY.SETTINGS].lastActiveDraw &&
     !store.scenes
       .map((scene) => scene.id)
       .includes(store[DB_KEY.SETTINGS].lastActiveDraw)

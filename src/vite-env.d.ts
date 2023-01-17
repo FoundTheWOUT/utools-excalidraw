@@ -11,6 +11,8 @@ declare global {
         isArrayBuffer?: boolean;
       }
     ) => Promise<>;
+
+    readFileSync: typeof fs.readFileSync;
   }
 
   const __PLUGIN_ID__: string;

@@ -38,22 +38,33 @@ export const removeScene = (key: string | null) => {
   return window.utools && window.utools.dbStorage.removeItem(`scene/${key}`);
 };
 
+/**
+ * 根据 idArray 恢复场景，选择 idArray 中每个 id 对应的场景，如果该 id 没有场景则跳过。
+ * @param scenes 场景数组
+ * @param idArray 场景 id 数组
+ * @returns
+ */
 export const restoreScenesArray = (
   scenes: Scene[],
   idArray: string[]
-): Scene[] => {
+): { scenes: Scene[]; scenesMap: Map<string, Scene> } => {
   // if no id array is empty, return the raw scenes arrays.
-  if (idArray.length == 0) return scenes;
+  if (idArray.length == 0) return { scenes, scenesMap: new Map() };
 
   // [scene,scene] -> {"id":scene,"id":scene}
-  const scenesMap = keyBy(scenes, "id");
+  const scenesMap = new Map(Object.entries(keyBy(scenes, "id")));
 
   // fix the scene which owning by the map, but not exist in id array.
-  Object.keys(scenesMap).forEach((key) => {
+  for (const key of scenesMap.keys()) {
     if (!idArray.includes(key)) {
       idArray.push(key);
     }
-  });
+  }
 
-  return idArray.filter((id) => has(scenesMap, id)).map((id) => scenesMap[id]);
+  return {
+    scenes: idArray
+      .filter((id) => scenesMap.has(id))
+      .map((id) => scenesMap.get(id) as Scene),
+    scenesMap,
+  };
 };

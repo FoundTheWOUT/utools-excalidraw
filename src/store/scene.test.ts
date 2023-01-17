@@ -9,7 +9,8 @@ describe("handle scene data", () => {
       newAScene({ id: "David", name: "David" }),
       newAScene({ id: "Lucy", name: "Lucy" }),
     ];
-    expect(restoreScenesArray(scenes, ["David", "Lucy"])).toStrictEqual(scenes);
+    const { scenes: res } = restoreScenesArray(scenes, ["David", "Lucy"]);
+    expect(res).toStrictEqual(scenes);
   });
 
   it("restore scene, weather the scene is in the ordering or not.", () => {
@@ -17,7 +18,9 @@ describe("handle scene data", () => {
       newAScene({ id: "David", name: "David" }),
       newAScene({ id: "Lucy", name: "Lucy" }),
     ];
-    expect(restoreScenesArray(scenes, ["David"])).toStrictEqual(scenes);
+    const { scenes: res } = restoreScenesArray(scenes, ["David"]);
+
+    expect(res).toStrictEqual(scenes);
   });
 
   it("drop the id, if it's not in the scenes", () => {
@@ -25,8 +28,11 @@ describe("handle scene data", () => {
       newAScene({ id: "David", name: "David" }),
       newAScene({ id: "Lucy", name: "Lucy" }),
     ];
-    expect(
-      restoreScenesArray(scenes, ["David", "Rebecca", "Lucy"])
-    ).toStrictEqual(scenes);
+    const { scenes: res } = restoreScenesArray(scenes, [
+      "David",
+      "Rebecca",
+      "Lucy",
+    ]);
+    expect(res).toStrictEqual(scenes);
   });
 });

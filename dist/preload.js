@@ -19,6 +19,8 @@ window.writeFile = (path, data, opts) => {
   });
 };
 
+window.readFileSync = fs.readFileSync;
+
 // migration scenes -> scene/id
 (function migrateSceneData() {
   const KEY_SCENES = "scenes";

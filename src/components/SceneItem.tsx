@@ -4,9 +4,6 @@ import { AppContext } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import { removeScene, storeScene } from "@/store/scene";
 import { TrashIcon, MenuIcon } from "@heroicons/react/solid";
-import { Scene } from "@/types";
-import { restoreFiles } from "@/utils/data";
-import { BinaryFileData } from "@excalidraw/excalidraw/types/types";
 import Tippy from "@tippyjs/react";
 import "tippy.js/animations/scale-subtle.css";
 
@@ -30,32 +27,8 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
     setScenes,
     updatingScene,
     excalidrawRef,
+    handleSetActiveDraw,
   } = appContext;
-
-  const handleSetActiveDraw = (
-    id: string,
-    data?: Scene["data"],
-    afterActive?: () => void
-  ) => {
-    if (!excalidrawRef.current) return;
-
-    setAndStoreAppSettings({
-      lastActiveDraw: id,
-    });
-
-    // restore scene
-    if (data) {
-      const _data = restoreFiles(JSON.parse(data));
-      excalidrawRef.current.updateScene(_data);
-      excalidrawRef.current.history.clear();
-      if (_data.files) {
-        const _files = Object.values(_data.files) as BinaryFileData[];
-        _files.length > 0 && excalidrawRef.current.addFiles(_files);
-      }
-    }
-
-    afterActive && afterActive();
-  };
 
   return (
     <div key={id} className="border-b border-gray-300 p-3">

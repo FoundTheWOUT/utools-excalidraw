@@ -56,13 +56,10 @@ export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
 
 export const newAScene = ({
-  name,
   id,
-}: {
-  name: string;
-  id?: string;
-}): Scene => {
-  return { id: id ? id : six_nanoid(), name, sticky: false };
+  ...rest
+}: Partial<Scene> & { name: string }): Scene => {
+  return { id: id ? id : six_nanoid(), sticky: false, ...rest };
 };
 
 const inner_log = function () {
@@ -75,4 +72,17 @@ const inner_log = function () {
   }
   return () => {};
 };
+
 export const log = inner_log() as (msg?: any, ...args: any[]) => void;
+
+export const reorder = <T>(
+  list: T[],
+  startIndex: number,
+  endIndex: number
+): T[] => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};

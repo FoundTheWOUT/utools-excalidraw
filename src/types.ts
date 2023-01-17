@@ -16,6 +16,7 @@ export type Store = {
     scenesId: string[];
   };
   [DB_KEY.SCENES]: Scene[];
+  scenes_map: Map<string, Scene>;
 };
 
 export enum DB_KEY {

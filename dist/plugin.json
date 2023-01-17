@@ -8,6 +8,16 @@
       "code": "excalidraw",
       "explain": "离线版白板，支持导出，多设备同步",
       "cmds": ["白板", "excalidraw"]
+    },
+    {
+      "code": "load-excalidraw-file",
+      "cmds": [
+        {
+          "type": "files",
+          "label": "打开 excalidraw 文件",
+          "match": "/\\.excalidraw$/i"
+        }
+      ]
     }
   ],
   "development": {

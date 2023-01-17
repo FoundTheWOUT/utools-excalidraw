@@ -6,7 +6,10 @@ import {
 } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import {
+  BinaryFileData,
+  ExcalidrawImperativeAPI,
+} from "@excalidraw/excalidraw/types/types";
 import {
   ChevronRightIcon,
   ChevronLeftIcon,
@@ -17,6 +20,8 @@ import {
   generatePreviewImage,
   log,
   numIsInRange,
+  reorder,
+  six_nanoid,
 } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import {
@@ -25,7 +30,7 @@ import {
   storeScene,
   storeSetItem,
 } from "./store/store";
-import { defaultStatue, loadInitialData } from "./utils/data";
+import { defaultStatue, loadInitialData, restoreFiles } from "./utils/data";
 import { newAScene } from "@/utils/utils";
 import { omit } from "lodash";
 import { getSceneByID } from "./store/scene";
@@ -42,6 +47,12 @@ import { FILE_DOC_PREFIX, TEN_MB } from "./const";
 
 let sceneVersion = -1;
 
+type Payload = Partial<{
+  isFile: boolean;
+  name: string;
+  path: string;
+}>;
+
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
   updatingScene: boolean;
@@ -49,6 +60,11 @@ export const AppContext = createContext<{
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
   appSettings: Store[DB_KEY.SETTINGS];
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
+  handleSetActiveDraw: (
+    id: string,
+    data?: Scene["data"],
+    afterActive?: () => void
+  ) => void;
 } | null>(null);
 
 function App({ store }: { store: Store }) {
@@ -56,6 +72,7 @@ function App({ store }: { store: Store }) {
   const {
     settings: { lastActiveDraw },
     scenes: initScenes,
+    scenes_map,
   } = store;
 
   const { data: initialData } = useSWR("init sate", () =>
@@ -147,8 +164,65 @@ function App({ store }: { store: Store }) {
     { wait: 300 }
   );
 
-  window.utools &&
-    window.utools.onPluginOut(() => {
+  const handleSetActiveDraw = (
+    id: string,
+    data?: Scene["data"],
+    afterActive?: () => void
+  ) => {
+    if (!excalidrawRef.current) return;
+
+    setAndStoreAppSettings({
+      lastActiveDraw: id,
+    });
+
+    // restore scene
+    if (data) {
+      const _data = restoreFiles(JSON.parse(data));
+      excalidrawRef.current.updateScene(_data);
+      excalidrawRef.current.history.clear();
+      if (_data.files) {
+        const _files = Object.values(_data.files) as BinaryFileData[];
+        _files.length > 0 && excalidrawRef.current.addFiles(_files);
+      }
+    }
+
+    afterActive && afterActive();
+  };
+
+  utools &&
+    utools.onPluginEnter(({ code, payload }) => {
+      const pl = payload as Payload[];
+      if (code === "load-excalidraw-file" && pl.length) {
+        const firstAppendScenesId = six_nanoid();
+        let data = "";
+        const appendScenes = pl
+          .map(({ isFile, path, name }, idx) => {
+            if (isFile && path && name) {
+              const [fileName] = name.split(".");
+              const excalidrawFile = window.readFileSync(path, {
+                encoding: "utf-8",
+              });
+              if (idx === 0) {
+                data = excalidrawFile;
+              }
+              return newAScene({
+                id: idx === 0 ? firstAppendScenesId : six_nanoid(),
+                name: fileName,
+                data: excalidrawFile,
+              });
+            }
+            return undefined;
+          })
+          .filter(
+            (item) => item === undefined || !scenes_map.has(item.id)
+          ) as Scene[];
+        setScenes([...scenes, ...appendScenes]);
+        handleSetActiveDraw(firstAppendScenesId, data);
+      }
+    });
+
+  utools &&
+    utools.onPluginOut(() => {
       scenes.forEach((scene) => {
         // drop image
         scene.img && URL.revokeObjectURL(scene.img);
@@ -196,18 +270,6 @@ function App({ store }: { store: Store }) {
     });
   };
 
-  const reorder = (
-    list: Scene[],
-    startIndex: number,
-    endIndex: number
-  ): Scene[] => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
@@ -237,6 +299,7 @@ function App({ store }: { store: Store }) {
         updatingScene,
         scenes,
         setScenes,
+        handleSetActiveDraw,
       }}
     >
       <div
