@@ -62,11 +62,10 @@ export const getStore = async (): Promise<Store> => {
 
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
+  const lastActiveDraw = store[DB_KEY.SETTINGS].lastActiveDraw;
   if (
-    store[DB_KEY.SETTINGS].lastActiveDraw &&
-    !store.scenes
-      .map((scene) => scene.id)
-      .includes(store[DB_KEY.SETTINGS].lastActiveDraw)
+    lastActiveDraw &&
+    !store.scenes.map((scene) => scene.id).includes(lastActiveDraw)
   ) {
     store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES][0].id;
     storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);

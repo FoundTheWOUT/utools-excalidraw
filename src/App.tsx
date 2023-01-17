@@ -113,7 +113,8 @@ function App({ store }: { store: Store }) {
         if (!appSettings.closePreview) {
           imagePath = await generatePreviewImage(elements, state, files);
         }
-        const scene = getSceneByID(scenes, target)!;
+        const scene = getSceneByID(scenes, target);
+        if (!scene) return;
         const { id, img } = scene;
         img && URL.revokeObjectURL(img);
         let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
@@ -177,19 +178,23 @@ function App({ store }: { store: Store }) {
 
     // restore scene
     if (data) {
-      const _data = restoreFiles(JSON.parse(data));
-      excalidrawRef.current.updateScene(_data);
-      excalidrawRef.current.history.clear();
-      if (_data.files) {
-        const _files = Object.values(_data.files) as BinaryFileData[];
-        _files.length > 0 && excalidrawRef.current.addFiles(_files);
+      try {
+        const _data = restoreFiles(JSON.parse(data));
+        excalidrawRef.current.updateScene(_data);
+        excalidrawRef.current.history.clear();
+        if (_data.files) {
+          const _files = Object.values(_data.files) as BinaryFileData[];
+          _files.length > 0 && excalidrawRef.current.addFiles(_files);
+        }
+      } catch (error) {
+        excalidrawRef.current.setToast({ message: "解析错误" });
       }
     }
 
     afterActive && afterActive();
   };
 
-  utools &&
+  window.utools &&
     utools.onPluginEnter(({ code, payload }) => {
       const pl = payload as Payload[];
       if (code === "load-excalidraw-file" && pl.length) {
@@ -202,6 +207,14 @@ function App({ store }: { store: Store }) {
               const excalidrawFile = window.readFileSync(path, {
                 encoding: "utf-8",
               });
+              try {
+                JSON.parse(excalidrawFile);
+              } catch (error) {
+                excalidrawRef.current?.setToast({
+                  message: `${name} 解析错误`,
+                });
+                return undefined;
+              }
               if (idx === 0) {
                 data = excalidrawFile;
               }
@@ -213,15 +226,17 @@ function App({ store }: { store: Store }) {
             }
             return undefined;
           })
-          .filter(
-            (item) => item === undefined || !scenes_map.has(item.id)
-          ) as Scene[];
+          .filter((item) => {
+            if (item === undefined) return false;
+            if (scenes_map.has(item.id)) return false;
+            return true;
+          }) as Scene[];
         setScenes([...scenes, ...appendScenes]);
-        handleSetActiveDraw(firstAppendScenesId, data);
+        appendScenes.length && handleSetActiveDraw(firstAppendScenesId, data);
       }
     });
 
-  utools &&
+  window.utools &&
     utools.onPluginOut(() => {
       scenes.forEach((scene) => {
         // drop image
@@ -344,7 +359,7 @@ function App({ store }: { store: Store }) {
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="list">
                 {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                  <div ref={provided.innerRef}>
                     {scenes.map(({ id, img, name, data }, idx) => (
                       <Draggable key={id} draggableId={id} index={idx}>
                         {(dragProvided) => {

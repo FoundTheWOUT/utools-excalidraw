@@ -19,7 +19,6 @@ interface Props {
 const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
   const [tippyActive, setTippyActive] = useState(false);
-  if (!appContext) return null;
   const {
     appSettings,
     setAndStoreAppSettings,
@@ -28,40 +27,39 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
-  } = appContext;
+  } = appContext ?? {};
 
   return (
     <div key={id} className="border-b border-gray-300 p-3">
-      {!appSettings.closePreview && (
+      {!appSettings?.closePreview && (
         <button
           className={cn(
             "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer select-none",
             updatingScene ? "cursor-wait" : "hover-shadow",
             {
               "ring ring-offset-2 ring-[#6965db]":
-                appSettings.lastActiveDraw === id,
+                appSettings?.lastActiveDraw === id,
             }
           )}
           disabled={updatingScene}
           onClick={() => {
-            handleSetActiveDraw(id, data, () => {
+            handleSetActiveDraw?.(id, data, () => {
               // re gen preview image
-              if (excalidrawRef.current) {
+              if (excalidrawRef?.current) {
                 generatePreviewImage(
                   excalidrawRef.current.getSceneElementsIncludingDeleted(),
                   excalidrawRef.current.getAppState(),
                   excalidrawRef.current.getFiles()
                 ).then((path) => {
-                  setScenes(
-                    scenes.map((scene, index) => {
-                      if (index != idx) return scene;
-                      scene.img && URL.revokeObjectURL(scene.img);
-                      return {
-                        ...scene,
-                        img: appSettings.closePreview ? undefined : path,
-                      };
-                    })
-                  );
+                  const newScenes = scenes?.map((scene, index) => {
+                    if (index != idx) return scene;
+                    scene.img && URL.revokeObjectURL(scene.img);
+                    return {
+                      ...scene,
+                      img: appSettings?.closePreview ? undefined : path,
+                    };
+                  });
+                  newScenes && setScenes?.(newScenes);
                 });
               }
             });
@@ -80,7 +78,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
       )}
       <div
         className={cn("mt-2 flex gap-2", {
-          hidden: appSettings.asideWidth <= 150,
+          hidden: appSettings?.asideWidth && appSettings.asideWidth <= 150,
         })}
       >
         <input
@@ -88,7 +86,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
           className="flex-1 h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
           value={name}
           onChange={(e) => {
-            setScenes((old) => {
+            setScenes?.((old) => {
               const newScenes = [...old];
               newScenes[idx].name = e.target.value;
               return newScenes;
@@ -96,11 +94,11 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
           }}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              storeScene(id, scenes[idx]);
+              scenes?.[idx] && storeScene(id, scenes[idx]);
             }
           }}
           onBlur={() => {
-            storeScene(id, scenes[idx]);
+            scenes?.[idx] && storeScene(id, scenes?.[idx]);
           }}
         />
 
@@ -108,7 +106,7 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
           visible={tippyActive}
           interactive
           animation="scale-subtle"
-          duration={[450, 125]}
+          duration={125}
           onClickOutside={() => setTippyActive(false)}
           content={
             <div className="flex flex-col justify-center bg-gray-200 p-3 rounded">
@@ -125,19 +123,19 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                 <button
                   className="px-3 py-1 bg-red-500 hover-shadow text-white rounded"
                   onClick={() => {
-                    setScenes((scenes) => {
+                    setScenes?.((scenes) => {
                       const newScenes = [...scenes];
                       newScenes.splice(idx, 1);
                       removeScene(id);
                       //if delete the last scenes, reselect it fore scene
                       let updateScenesIndex =
                         idx == newScenes.length ? idx - 1 : idx;
-                      handleSetActiveDraw(
+                      handleSetActiveDraw?.(
                         newScenes[updateScenesIndex].id,
                         newScenes[updateScenesIndex].data
                       );
-                      setAndStoreAppSettings({
-                        scenesId: appSettings.scenesId.filter(
+                      setAndStoreAppSettings?.({
+                        scenesId: appSettings?.scenesId.filter(
                           (_id) => _id != id
                         ),
                       });
@@ -154,13 +152,13 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
           <button
             className={cn(
               "bg-gray-200 p-2 rounded-lg flex",
-              scenes.length === 1
+              scenes?.length === 1
                 ? "cursor-not-allowed text-red-300"
                 : "text-red-500 hover-shadow"
             )}
             onClick={() => setTippyActive(true)}
             title="删除"
-            disabled={scenes.length === 1}
+            disabled={scenes?.length === 1}
           >
             <TrashIcon className="w-5" />
           </button>
