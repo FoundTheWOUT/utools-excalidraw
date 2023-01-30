@@ -40,36 +40,29 @@ export const initStore = (): Store => ({
 
 export const getStore = async (): Promise<Store> => {
   log("get store...");
-  const _initStore = initStore();
-  const _settingsFromStore =
-    window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+  const defaultStore = initStore();
+  const settingsFromDB = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
 
   const settings = extend(
-    _initStore[DB_KEY.SETTINGS],
-    _settingsFromStore ? _settingsFromStore.value : null
+    defaultStore[DB_KEY.SETTINGS],
+    settingsFromDB ? settingsFromDB.value : null
   );
 
-  const { scenes, scenesMap } = restoreScenesArray(
+  const { scenes, scenesMap, idArray } = restoreScenesArray(
     getScenes(),
     settings.scenesId
   );
 
-  const store = {
-    settings,
-    scenes,
-    scenes_map: scenesMap,
-  } as Store;
-
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
-  const lastActiveDraw = store[DB_KEY.SETTINGS].lastActiveDraw;
+  let lastActiveDraw = settings.lastActiveDraw;
   if (
     lastActiveDraw &&
-    !store.scenes.map((scene) => scene.id).includes(lastActiveDraw)
+    !scenes.map((scene) => scene.id).includes(lastActiveDraw)
   ) {
-    store[DB_KEY.SETTINGS].lastActiveDraw = store[DB_KEY.SCENES][0].id;
-    storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
+    lastActiveDraw = scenes[0].id;
   }
+
   // if (
   //   store[DB_KEY.SETTINGS].lastActiveDraw >= store[DB_KEY.SCENES].length ||
   //   store[DB_KEY.SETTINGS].lastActiveDraw < 0
@@ -78,15 +71,26 @@ export const getStore = async (): Promise<Store> => {
   //   storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
   // }
 
-  store.scenes = await Promise.all(
-    store.scenes.map(async (scene) => {
-      const img = await generatePreviewImageFromSceneData(scene.data);
-      return {
-        ...scene,
-        img,
-      };
-    })
-  );
+  const store: Store = {
+    settings: {
+      ...settings,
+      lastActiveDraw,
+      scenesId: idArray,
+    },
+    scenes: await Promise.all(
+      // 恢复图片
+      scenes.map(async (scene) => {
+        const img = await generatePreviewImageFromSceneData(scene.data);
+        return {
+          ...scene,
+          img,
+        };
+      })
+    ),
+    scenes_map: scenesMap,
+  };
+
+  storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
 
   return store;
 };

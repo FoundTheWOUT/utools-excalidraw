@@ -134,11 +134,6 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                         newScenes[updateScenesIndex].id,
                         newScenes[updateScenesIndex].data
                       );
-                      setAndStoreAppSettings?.({
-                        scenesId: appSettings?.scenesId.filter(
-                          (_id) => _id != id
-                        ),
-                      });
                       return newScenes;
                     });
                   }}

@@ -1,6 +1,6 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
-import { has, keyBy } from "lodash";
+import { keyBy } from "lodash";
 import { log } from "@/utils/utils";
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
@@ -47,24 +47,26 @@ export const removeScene = (key: string | null) => {
 export const restoreScenesArray = (
   scenes: Scene[],
   idArray: string[]
-): { scenes: Scene[]; scenesMap: Map<string, Scene> } => {
+): { scenes: Scene[]; idArray: string[]; scenesMap: Map<string, Scene> } => {
   // if no id array is empty, return the raw scenes arrays.
-  if (idArray.length == 0) return { scenes, scenesMap: new Map() };
+  if (idArray.length == 0) return { scenes, idArray: [], scenesMap: new Map() };
 
   // [scene,scene] -> {"id":scene,"id":scene}
   const scenesMap = new Map(Object.entries(keyBy(scenes, "id")));
 
-  // fix the scene which owning by the map, but not exist in id array.
+  // restore the sceneId which owning by the map, but not exist in id array.
   for (const key of scenesMap.keys()) {
     if (!idArray.includes(key)) {
       idArray.push(key);
     }
   }
 
+  // remove the sceneId that point to null scene.
+  idArray = idArray.filter((id) => scenesMap.has(id));
+
   return {
-    scenes: idArray
-      .filter((id) => scenesMap.has(id))
-      .map((id) => scenesMap.get(id) as Scene),
+    scenes: idArray.map((id) => scenesMap.get(id) as Scene),
+    idArray,
     scenesMap,
   };
 };
