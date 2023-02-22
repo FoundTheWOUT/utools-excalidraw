@@ -127,13 +127,16 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                       const newScenes = [...scenes];
                       newScenes.splice(idx, 1);
                       removeScene(id);
-                      //if delete the last scenes, reselect it fore scene
-                      let updateScenesIndex =
-                        idx == newScenes.length ? idx - 1 : idx;
-                      handleSetActiveDraw?.(
-                        newScenes[updateScenesIndex].id,
-                        newScenes[updateScenesIndex].data
-                      );
+                      // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
+                      if (appSettings?.lastActiveDraw === id) {
+                        //if delete the last scenes, reselect it fore scene
+                        let updateScenesIndex =
+                          idx == newScenes.length ? idx - 1 : idx;
+                        handleSetActiveDraw?.(
+                          newScenes[updateScenesIndex].id,
+                          newScenes[updateScenesIndex].data
+                        );
+                      }
                       return newScenes;
                     });
                   }}

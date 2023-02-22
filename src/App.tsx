@@ -3,6 +3,7 @@ import {
   Excalidraw,
   getSceneVersion,
   serializeAsJSON,
+  MainMenu,
 } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";

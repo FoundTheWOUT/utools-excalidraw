@@ -12,7 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "0.13.0",
+    "@excalidraw/excalidraw": "0.14.2",
     "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^1.0.6",
     "@tippyjs/react": "^4.2.6",

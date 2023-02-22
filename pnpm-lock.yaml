@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@excalidraw/excalidraw': 0.13.0
+  '@excalidraw/excalidraw': 0.14.2
   '@headlessui/react': ^1.7.7
   '@heroicons/react': ^1.0.6
   '@tippyjs/react': ^4.2.6
@@ -31,7 +31,7 @@ specifiers:
   vitest: ^0.23.4
 
 dependencies:
-  '@excalidraw/excalidraw': 0.13.0_sfoxds7t5ydpegc3knd667wn6m
+  '@excalidraw/excalidraw': 0.14.2_sfoxds7t5ydpegc3knd667wn6m
   '@headlessui/react': 1.7.7_sfoxds7t5ydpegc3knd667wn6m
   '@heroicons/react': 1.0.6_react@17.0.2
   '@tippyjs/react': 4.2.6_sfoxds7t5ydpegc3knd667wn6m
@@ -349,8 +349,8 @@ packages:
       - supports-color
     dev: true
 
-  /@excalidraw/excalidraw/0.13.0_sfoxds7t5ydpegc3knd667wn6m:
-    resolution: {integrity: sha512-TTi1hiUczfIj/kLQshh1EHUrXziEa5cwLF74TrlFQWwW9jhJIF73HplmqEMrfwwqt7CrypXRZtMzH1hhmZ3vbg==}
+  /@excalidraw/excalidraw/0.14.2_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-8LdjpTBWEK5waDWB7Bt/G9YBI4j0OxkstUhvaDGz7dwQGfzF6FW5CXBoYHNEoX0qmb+Fg/NPOlZ7FrKsrSVCqg==}
     peerDependencies:
       react: ^17.0.2 || ^18.2.0
       react-dom: ^17.0.2 || ^18.2.0
