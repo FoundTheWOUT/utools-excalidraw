@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start-server",
+      "problemMatcher": [],
+      "label": "npm: start-server",
+      "detail": "nodemon --watch server/dist server/dist/index.js"
+    },
+    {
+      "type": "npm",
+      "script": "dev-server",
+      "problemMatcher": [],
+      "label": "npm: dev-server",
+      "detail": "tsc -p tsconfig.server.json -w"
+    },
+    {
+      "problemMatcher": [],
+      "label": "dev-server",
+      "detail": "tsc -p tsconfig.server.json -w",
+      "dependsOn": ["npm: start-server", "npm: dev-server"]
+    }
+  ]
+}
