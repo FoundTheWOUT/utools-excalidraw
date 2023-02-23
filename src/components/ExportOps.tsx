@@ -44,7 +44,7 @@ const ToImageIcon = () => (
 const ExportOps = () => {
   const appContext = useContext(AppContext);
   if (!appContext) return null;
-  const { appSettings, scenes, excalidrawRef } = appContext;
+  const { appSettings, sceneName, excalidrawRef } = appContext;
 
   const [exportImageOptions, setExportImageOptions] = useState({
     exportBackground: true,
@@ -110,8 +110,7 @@ const ExportOps = () => {
         <div
           className="bg-green-500 text-center rounded p-2 hover:bg-green-700 cursor-pointer select-none mt-auto"
           onClick={() => {
-            const name = getSceneByID(scenes, appSettings.lastActiveDraw)?.name;
-            if (name) exportToFile(name);
+            if (sceneName) exportToFile(sceneName);
           }}
         >
           保存到本地
@@ -184,8 +183,8 @@ const ExportOps = () => {
         <div
           className="bg-[#6965db] text-center rounded p-2 hover:bg-[#4e4ba3] cursor-pointer select-none text-white"
           onClick={() => {
-            const name = getSceneByID(scenes, appSettings.lastActiveDraw)?.name;
-            if (name) exportToPng(name, exportImageOptions.exportImageScale);
+            if (sceneName)
+              exportToPng(sceneName, exportImageOptions.exportImageScale);
           }}
         >
           导出图片

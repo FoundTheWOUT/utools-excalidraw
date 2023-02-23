@@ -31,6 +31,7 @@ import SceneList from "./components/SceneList";
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
   updatingScene: boolean;
+  sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
   appSettings: Store[DB_KEY.SETTINGS];
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
@@ -59,7 +60,7 @@ function App({ store }: { store: Store }) {
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store.settings);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
   const { run: debounceStoreItem } = useDebounceFn(
     (key: DB_KEY, value: Store[DB_KEY]) => storeSetItem(key, value)
@@ -235,6 +236,7 @@ function App({ store }: { store: Store }) {
         updatingScene,
         handleSetActiveDraw,
         setSceneName: setName,
+        sceneName: name,
       }}
     >
       <div
