@@ -1,4 +1,4 @@
-import { DB_KEY, Store } from "../types";
+import { DB_KEY, Scene, Store } from "../types";
 import {
   extend,
   generatePreviewImageFromSceneData,
@@ -79,13 +79,20 @@ export const getStore = async (): Promise<Store> => {
     },
     scenes: await Promise.all(
       // 恢复图片
-      scenes.map(async (scene) => {
-        const img = await generatePreviewImageFromSceneData(scene.data);
-        return {
-          ...scene,
-          img,
-        };
-      })
+      scenes.map(
+        (scene) =>
+          new Promise<Scene>(async (res, rej) => {
+            try {
+              const img = await generatePreviewImageFromSceneData(scene.data);
+              res({
+                ...scene,
+                img,
+              });
+            } catch (error) {
+              rej(error);
+            }
+          })
+      )
     ),
     scenes_map: scenesMap,
   };

@@ -1,33 +1,50 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import cn from "classnames";
-import { AppContext } from "@/App";
+import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import { removeScene, storeScene } from "@/store/scene";
 import { TrashIcon, MenuIcon } from "@heroicons/react/solid";
 import Tippy from "@tippyjs/react";
 import "tippy.js/animations/scale-subtle.css";
+import { SideBarContext } from "./SceneList";
+import { Scene } from "@/types";
 
 interface Props {
-  id: string;
-  img: string | undefined;
-  name: string;
-  data: string | undefined;
+  scene: Scene;
   idx: number;
   dragProvided?: any;
 }
 
-const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
+const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
+  const { scenes, setScenes } = useContext(SideBarContext) ?? {};
   const [tippyActive, setTippyActive] = useState(false);
   const {
     appSettings,
-    setAndStoreAppSettings,
-    scenes,
-    setScenes,
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
+    setSceneName,
   } = appContext ?? {};
+
+  const [bgColor, setBgColor] = useState("");
+
+  const { img, id, name, data } = scene;
+
+  useEffect(() => {
+    const unsubscribe = updateScene.subscribe(({ target, value }) => {
+      if (target === id) {
+        const appState = excalidrawRef?.current?.getAppState();
+        img && URL.revokeObjectURL(img);
+        storeScene(id, { ...scene, ...value });
+        appState?.viewBackgroundColor &&
+          setBgColor(appState?.viewBackgroundColor);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <div key={id} className="border-b border-gray-300 p-3">
@@ -41,8 +58,12 @@ const SceneItem = ({ id, img, name, data, idx, dragProvided }: Props) => {
                 appSettings?.lastActiveDraw === id,
             }
           )}
+          style={{
+            background: bgColor,
+          }}
           disabled={updatingScene}
           onClick={() => {
+            setSceneName?.(name);
             handleSetActiveDraw?.(id, data, () => {
               // re gen preview image
               if (excalidrawRef?.current) {

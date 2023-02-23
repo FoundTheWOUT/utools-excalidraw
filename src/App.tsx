@@ -11,54 +11,27 @@ import {
   BinaryFileData,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types/types";
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  PlusIcon,
-} from "@heroicons/react/solid";
+import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/solid";
 import {
   encoder,
   generatePreviewImage,
   log,
   numIsInRange,
-  reorder,
-  six_nanoid,
 } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
-import {
-  dropDeletedFiles,
-  storeFile,
-  storeScene,
-  storeSetItem,
-} from "./store/store";
-import { defaultStatue, loadInitialData, restoreFiles } from "./utils/data";
-import { newAScene } from "@/utils/utils";
+import { storeFile, storeSetItem } from "./store/store";
+import { loadInitialData, restoreFiles } from "./utils/data";
 import { omit } from "lodash";
-import { getSceneByID } from "./store/scene";
-import SceneItem from "./components/SceneItem";
 import ExportOps from "./components/ExportOps";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "react-beautiful-dnd";
 import useSWR from "swr";
 import { FILE_DOC_PREFIX, TEN_MB } from "./const";
-
-let sceneVersion = -1;
-
-type Payload = Partial<{
-  isFile: boolean;
-  name: string;
-  path: string;
-}>;
+import { EventChanel } from "./utils/event";
+import SceneList from "./components/SceneList";
 
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
   updatingScene: boolean;
-  scenes: Scene[];
-  setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
+  setSceneName: React.Dispatch<React.SetStateAction<string>>;
   appSettings: Store[DB_KEY.SETTINGS];
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
   handleSetActiveDraw: (
@@ -68,8 +41,12 @@ export const AppContext = createContext<{
   ) => void;
 } | null>(null);
 
+export const updateScene = new EventChanel<{
+  target: string;
+  value: Partial<Scene>;
+}>();
+
 function App({ store }: { store: Store }) {
-  // const { data: store } = useSWR("store", getStore);
   const {
     settings: { lastActiveDraw },
     scenes: initScenes,
@@ -82,6 +59,7 @@ function App({ store }: { store: Store }) {
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store.settings);
+  const [name, setName] = useState("");
 
   const { run: debounceStoreItem } = useDebounceFn(
     (key: DB_KEY, value: Store[DB_KEY]) => storeSetItem(key, value)
@@ -102,46 +80,42 @@ function App({ store }: { store: Store }) {
   };
 
   const [resizing, setResizing] = useState(false);
-  const [scenes, setScenes] = useState<Scene[]>(initScenes);
   const [updatingScene, setUpdatingScene] = useState(false);
 
   const { run: onSceneUpdate } = useDebounceFn(
     async (elements, state, files, target) => {
       // lock scene.
-      setUpdatingScene(true);
+      // setUpdatingScene(true);
+
+      if (socket.current) {
+        const data = serializeAsJSON(elements, state, {}, "database");
+        const encoded = new TextEncoder().encode(data);
+        socket.current.send(encoded);
+      }
+
       try {
         let imagePath: string | undefined = undefined;
         if (!appSettings.closePreview) {
           imagePath = await generatePreviewImage(elements, state, files);
         }
-        const scene = getSceneByID(scenes, target);
-        if (!scene) return;
-        const { id, img } = scene;
-        img && URL.revokeObjectURL(img);
+
         let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
         data.appState.zoom = state.zoom;
         data.appState.scrollX = state.scrollX;
         data.appState.scrollY = state.scrollY;
         const data_stringified = JSON.stringify(data);
 
-        // 1. set state
-        setScenes(
-          scenes.map((scene) => {
-            if (scene.id !== target) return scene;
-            return {
-              ...scene,
-              img: imagePath,
-              data: data_stringified,
-            };
-          })
-        );
+        // emit update event
+        updateScene.emit({
+          target,
+          value: {
+            img: imagePath,
+            data: data_stringified,
+          },
+        });
 
-        // 2. update store
-        // 2.1 store scene
-        storeScene(id, { ...scene, data: data_stringified });
-
-        // 2.2 store file
-        if (excalidrawRef.current) {
+        // store file
+        if (excalidrawRef.current && window.utools) {
           const storedFiles = utools.db
             .allDocs(FILE_DOC_PREFIX)
             .map((doc) => doc._id.split("/")[1]);
@@ -161,7 +135,7 @@ function App({ store }: { store: Store }) {
         console.warn(error);
       }
 
-      setUpdatingScene(false);
+      // setUpdatingScene(false);
     },
     { wait: 300 }
   );
@@ -194,60 +168,6 @@ function App({ store }: { store: Store }) {
 
     afterActive && afterActive();
   };
-
-  window.utools &&
-    utools.onPluginEnter(({ code, payload }) => {
-      const pl = payload as Payload[];
-      if (code === "load-excalidraw-file" && pl.length) {
-        const firstAppendScenesId = six_nanoid();
-        let data = "";
-        const appendScenes = pl
-          .map(({ isFile, path, name }, idx) => {
-            if (isFile && path && name) {
-              const [fileName] = name.split(".");
-              const excalidrawFile = window.readFileSync(path, {
-                encoding: "utf-8",
-              });
-              try {
-                JSON.parse(excalidrawFile);
-              } catch (error) {
-                excalidrawRef.current?.setToast({
-                  message: `${name} 解析错误`,
-                });
-                return undefined;
-              }
-              if (idx === 0) {
-                data = excalidrawFile;
-              }
-              return newAScene({
-                id: idx === 0 ? firstAppendScenesId : six_nanoid(),
-                name: fileName,
-                data: excalidrawFile,
-              });
-            }
-            return undefined;
-          })
-          .filter((item) => {
-            if (item === undefined) return false;
-            if (scenes_map.has(item.id)) return false;
-            return true;
-          }) as Scene[];
-        setScenes([...scenes, ...appendScenes]);
-        appendScenes.length && handleSetActiveDraw(firstAppendScenesId, data);
-      }
-    });
-
-  window.utools &&
-    utools.onPluginOut(() => {
-      scenes.forEach((scene) => {
-        // drop image
-        scene.img && URL.revokeObjectURL(scene.img);
-        scene.img = undefined;
-        storeScene(scene.id, scene);
-      });
-      // drop deleted files
-      dropDeletedFiles(scenes);
-    });
 
   const handleScreenMouseMove = (e: React.MouseEvent) => {
     if (!resizing) return;
@@ -313,9 +233,8 @@ function App({ store }: { store: Store }) {
         appSettings,
         setAndStoreAppSettings,
         updatingScene,
-        scenes,
-        setScenes,
         handleSetActiveDraw,
+        setSceneName: setName,
       }}
     >
       <div
@@ -356,55 +275,7 @@ function App({ store }: { store: Store }) {
                 </div>
               </div>
             )}
-            {/* scene cards */}
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="list">
-                {(provided) => (
-                  <div ref={provided.innerRef}>
-                    {scenes.map(({ id, img, name, data }, idx) => (
-                      <Draggable key={id} draggableId={id} index={idx}>
-                        {(dragProvided) => {
-                          return (
-                            <div
-                              ref={dragProvided.innerRef}
-                              {...dragProvided.draggableProps}
-                            >
-                              <SceneItem
-                                key={id}
-                                id={id}
-                                img={img}
-                                name={name}
-                                data={data}
-                                idx={idx}
-                                dragProvided={dragProvided}
-                              />
-                            </div>
-                          );
-                        }}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-
-            <div className="p-3">
-              <div
-                className="w-full aspect-video bg-white cursor-pointer rounded flex items-center justify-center hover-shadow"
-                onClick={() => {
-                  const newScene = newAScene({ name: `画布${scenes.length}` });
-                  setScenes([...scenes, newScene]);
-                  excalidrawRef.current && excalidrawRef.current.resetScene();
-                  setAndStoreAppSettings({
-                    lastActiveDraw: newScene.id,
-                    scenesId: appSettings.scenesId.concat(newScene.id),
-                  });
-                }}
-              >
-                <PlusIcon className="h-10 text-gray-500" />
-              </div>
-            </div>
+            <SceneList initScenes={initScenes} scenesMap={scenes_map} />
           </div>
           {/* controller */}
           <button
@@ -438,16 +309,7 @@ function App({ store }: { store: Store }) {
             ref={excalidrawRef}
             initialData={initialData}
             onChange={(elements, state, files) => {
-              const version = getSceneVersion(elements);
-              if (sceneVersion != version) {
-                sceneVersion = version;
-                onSceneUpdate(
-                  elements,
-                  state,
-                  files,
-                  appSettings.lastActiveDraw
-                );
-              }
+              onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }}
             onPaste={(data, event) => {
               if (data.files && Object.keys(data.files).length > 0) {
@@ -467,7 +329,7 @@ function App({ store }: { store: Store }) {
             }}
             langCode="zh-CN"
             autoFocus
-            name={getSceneByID(scenes, appSettings.lastActiveDraw)?.name}
+            name={name}
             UIOptions={{
               canvasActions: {
                 // export: false,
