@@ -1,10 +1,5 @@
 import React, { useState, useRef, createContext } from "react";
-import {
-  Excalidraw,
-  getSceneVersion,
-  serializeAsJSON,
-  MainMenu,
-} from "@excalidraw/excalidraw";
+import { Excalidraw, serializeAsJSON } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import {
@@ -87,12 +82,6 @@ function App({ store }: { store: Store }) {
     async (elements, state, files, target) => {
       // lock scene.
       // setUpdatingScene(true);
-
-      if (socket.current) {
-        const data = serializeAsJSON(elements, state, {}, "database");
-        const encoded = new TextEncoder().encode(data);
-        socket.current.send(encoded);
-      }
 
       try {
         let imagePath: string | undefined = undefined;
@@ -204,24 +193,6 @@ function App({ store }: { store: Store }) {
   const handleAsideControllerClick = () => {
     setAndStoreAppSettings({
       asideClosed: !appSettings.asideClosed,
-    });
-  };
-
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-    if (result.destination.index === result.source.index) {
-      return;
-    }
-    const reorderScenes = reorder(
-      scenes,
-      result.source.index,
-      result.destination.index
-    );
-    setScenes(reorderScenes);
-    setAndStoreAppSettings({
-      scenesId: reorderScenes.map((scene) => scene.id),
     });
   };
 
