@@ -6,7 +6,7 @@ export class EventChanel<T> {
       this.events.delete(cb);
     };
   }
-  emit(context: T) {
-    this.events.forEach((cb) => cb(context));
+  emit(context?: T) {
+    this.events.forEach((cb) => cb(context as T));
   }
 }
