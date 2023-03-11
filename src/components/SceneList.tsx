@@ -91,7 +91,7 @@ function SceneList({
       const data = serializeAsJSON(elements, appState, files, "database");
       const newScene = newAScene({ name, data });
       setScenes((oldScene) => [...oldScene, newScene]);
-      handleSetActiveDraw?.(newScene.id, data);
+      handleSetActiveDraw?.(newScene.id, { scene: newScene });
     });
     return () => {
       unsubscribe();
@@ -133,7 +133,6 @@ function SceneList({
       const pl = payload as Payload[];
       if (code === "load-excalidraw-file" && pl.length) {
         const firstAppendScenesId = six_nanoid();
-        let data = "";
         const appendScenes = pl
           .map(({ isFile, path, name }, idx) => {
             if (isFile && path && name) {
@@ -149,9 +148,6 @@ function SceneList({
                 });
                 return undefined;
               }
-              if (idx === 0) {
-                data = excalidrawFile;
-              }
               return newAScene({
                 id: idx === 0 ? firstAppendScenesId : six_nanoid(),
                 name: fileName,
@@ -166,7 +162,10 @@ function SceneList({
             return true;
           }) as Scene[];
         setScenes([...scenes, ...appendScenes]);
-        appendScenes.length && handleSetActiveDraw?.(firstAppendScenesId, data);
+        appendScenes.length &&
+          handleSetActiveDraw?.(firstAppendScenesId, {
+            scene: appendScenes[0],
+          });
       }
     });
 
@@ -216,9 +215,11 @@ function SceneList({
             const newScene = newAScene({ name: `画布${scenes.length}` });
             setScenes([...scenes, newScene]);
             excalidrawRef?.current && excalidrawRef.current.resetScene();
-            setAndStoreAppSettings?.({
-              lastActiveDraw: newScene.id,
-              scenesId: appSettings?.scenesId.concat(newScene.id),
+            handleSetActiveDraw?.(newScene.id, {
+              appSettings: {
+                lastActiveDraw: newScene.id,
+                scenesId: appSettings?.scenesId.concat(newScene.id),
+              },
             });
           }}
         >

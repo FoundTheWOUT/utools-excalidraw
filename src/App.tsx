@@ -1,5 +1,5 @@
 import React, { useState, useRef, createContext } from "react";
-import { Excalidraw, serializeAsJSON } from "@excalidraw/excalidraw";
+import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import cn from "classnames";
 import {
@@ -7,6 +7,7 @@ import {
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types/types";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/solid";
+import { FolderIcon } from "@heroicons/react/outline";
 import {
   encoder,
   generatePreviewImage,
@@ -32,11 +33,15 @@ export const AppContext = createContext<{
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
   handleSetActiveDraw: (
     id: string,
-    data?: Scene["data"],
+    payload?: {
+      scene?: Scene;
+      appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
+    },
     afterActive?: () => void
   ) => void;
 } | null>(null);
 
+export const loadScene = new EventChanel();
 export const updateScene = new EventChanel<{
   target: string;
   value: Partial<Scene>;
@@ -130,15 +135,23 @@ function App({ store }: { store: Store }) {
     { wait: 300 }
   );
 
-  const handleSetActiveDraw = (
-    id: string,
-    data?: Scene["data"],
+  const handleSetActiveScene = (
+    sceneId: string,
+    payload?: {
+      scene?: Scene;
+      appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
+    },
     afterActive?: () => void
   ) => {
     if (!excalidrawRef.current) return;
+    payload = payload ?? {};
 
+    const { data } = payload.scene ?? {};
+
+    payload.scene?.name && setName(payload.scene?.name);
     setAndStoreAppSettings({
-      lastActiveDraw: id,
+      ...(payload.appSettings ?? {}),
+      lastActiveDraw: sceneId,
     });
 
     // restore scene
@@ -196,6 +209,10 @@ function App({ store }: { store: Store }) {
     });
   };
 
+  const handleSceneLoad = () => {
+    loadScene.emit();
+  };
+
   if (!initialData) return null;
 
   return (
@@ -205,7 +222,7 @@ function App({ store }: { store: Store }) {
         appSettings,
         setAndStoreAppSettings,
         updatingScene,
-        handleSetActiveDraw,
+        handleSetActiveDraw: handleSetActiveScene,
         setSceneName: setName,
         sceneName: name,
       }}
@@ -330,7 +347,17 @@ function App({ store }: { store: Store }) {
                 window.utools.dbStorage.removeItem(`library/${id}`);
               });
             }}
-          />
+          >
+            <MainMenu>
+              <MainMenu.Item onSelect={handleSceneLoad} icon={<FolderIcon />}>
+                载入画布
+              </MainMenu.Item>
+              <MainMenu.DefaultItems.Export />
+              <MainMenu.DefaultItems.ClearCanvas />
+              <MainMenu.DefaultItems.ToggleTheme />
+              <MainMenu.DefaultItems.ChangeCanvasBackground />
+            </MainMenu>
+          </Excalidraw>
         </main>
       </div>
     </AppContext.Provider>

@@ -29,7 +29,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   const [bgColor, setBgColor] = useState("");
 
-  const { img, id, name, data } = scene;
+  const { img, id, name } = scene;
 
   useEffect(() => {
     const unsubscribe = updateScene.subscribe(({ target, value }) => {
@@ -63,8 +63,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           }}
           disabled={updatingScene}
           onClick={() => {
-            setSceneName?.(name);
-            handleSetActiveDraw?.(id, data, () => {
+            handleSetActiveDraw?.(id, { scene }, () => {
               // re gen preview image
               if (excalidrawRef?.current) {
                 generatePreviewImage(
@@ -119,6 +118,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             }
           }}
           onBlur={() => {
+            setSceneName?.(name);
             scenes?.[idx] && storeScene(id, scenes?.[idx]);
           }}
         />
@@ -153,10 +153,9 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                         //if delete the last scenes, reselect it fore scene
                         let updateScenesIndex =
                           idx == newScenes.length ? idx - 1 : idx;
-                        handleSetActiveDraw?.(
-                          newScenes[updateScenesIndex].id,
-                          newScenes[updateScenesIndex].data
-                        );
+                        handleSetActiveDraw?.(newScenes[updateScenesIndex].id, {
+                          scene: newScenes[updateScenesIndex],
+                        });
                       }
                       return newScenes;
                     });
