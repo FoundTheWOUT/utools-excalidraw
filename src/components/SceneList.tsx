@@ -1,7 +1,9 @@
-import { AppContext, updateScene } from "@/App";
+import { AppContext, loadScene, updateScene } from "@/App";
+import { EXCALIDRAW_EXTENSION } from "@/const";
 import { dropDeletedFiles, storeScene } from "@/store/store";
 import { Scene } from "@/types";
 import { newAScene, reorder, six_nanoid } from "@/utils/utils";
+import { loadFromBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
 import React, {
   createContext,
@@ -45,6 +47,10 @@ function SceneList({
     handleSetActiveDraw,
   } = appContext ?? {};
 
+  /**
+   * 把状态放在子组件中，通过事件进行 setState 避免 App.tsx 在 onSceneUpdate 时直接 setState。
+   * 若在 App.tsx 中直接 setState 会触发 excalidraw 更新(onChange)，进而导致无限的循环。
+   */
   const [scenes, setScenes] = useState<Scene[]>(initScenes);
 
   useEffect(() => {
@@ -58,6 +64,34 @@ function SceneList({
           };
         });
       });
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // listen loadScene event, and update SceneList.
+  useEffect(() => {
+    const unsubscribe = loadScene.subscribe(async () => {
+      const [fileHandle] = await window.showOpenFilePicker();
+      const fileData = await fileHandle.getFile();
+      if (!fileData.name.endsWith(EXCALIDRAW_EXTENSION)) {
+        excalidrawRef?.current?.setToast({ message: "导入文件错误" });
+        return;
+      }
+      const { elements, appState, files } = await loadFromBlob(
+        fileData,
+        null,
+        null
+      );
+      const name = fileData.name.slice(
+        0,
+        fileData.name.length - EXCALIDRAW_EXTENSION.length
+      );
+      const data = serializeAsJSON(elements, appState, files, "database");
+      const newScene = newAScene({ name, data });
+      setScenes((oldScene) => [...oldScene, newScene]);
+      handleSetActiveDraw?.(newScene.id, data);
     });
     return () => {
       unsubscribe();

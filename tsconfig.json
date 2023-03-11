@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": { "@/*": ["src/*"] },
-    "types": ["utools-api-types"]
+    "types": ["utools-api-types", "@types/wicg-file-system-access"]
   },
   "include": ["src/**/*", "dist/preload.js"],
   "references": [{ "path": "./tsconfig.node.json" }]

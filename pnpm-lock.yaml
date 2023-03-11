@@ -10,6 +10,7 @@ specifiers:
   '@types/react': ^18.0.0
   '@types/react-beautiful-dnd': ^13.1.2
   '@types/react-dom': ^18.0.0
+  '@types/wicg-file-system-access': ^2020.9.5
   '@vitejs/plugin-react': ^1.3.0
   ahooks: ^3.5.0
   autoprefixer: ^10.4.7
@@ -50,6 +51,7 @@ devDependencies:
   '@types/react': 18.0.14
   '@types/react-beautiful-dnd': 13.1.2
   '@types/react-dom': 18.0.5
+  '@types/wicg-file-system-access': 2020.9.5
   '@vitejs/plugin-react': 1.3.2
   autoprefixer: 10.4.7_postcss@8.4.14
   eslint: 8.24.0
@@ -549,6 +551,10 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
+    dev: true
+
+  /@types/wicg-file-system-access/2020.9.5:
+    resolution: {integrity: sha512-UYK244awtmcUYQfs7FR8710MJcefL2WvkyHMjA8yJzxd1mo0Gfn88sRZ1Bls7hiUhA2w7ne1gpJ9T5g3G0wOyA==}
     dev: true
 
   /@vitejs/plugin-react/1.3.2:

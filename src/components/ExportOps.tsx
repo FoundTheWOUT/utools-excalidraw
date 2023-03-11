@@ -1,5 +1,5 @@
 import { AppContext } from "@/App";
-import { getSceneByID } from "@/store/scene";
+import { EXCALIDRAW_EXTENSION } from "@/const";
 import { extend } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import classNames from "classnames";
@@ -61,6 +61,9 @@ const ExportOps = () => {
       excalidrawRef.current.getFiles(),
       "local"
     );
+    if (name.includes(".")) {
+      name += EXCALIDRAW_EXTENSION;
+    }
     const savePath =
       window.utools &&
       window.utools.showSaveDialog({
