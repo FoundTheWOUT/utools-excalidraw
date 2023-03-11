@@ -2,8 +2,8 @@ import { AppContext, loadScene, updateScene } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import { dropDeletedFiles, storeScene } from "@/store/store";
 import { Scene } from "@/types";
-import { newAScene, reorder, six_nanoid } from "@/utils/utils";
-import { loadFromBlob, serializeAsJSON } from "@excalidraw/excalidraw";
+import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
+import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
 import React, {
   createContext,
@@ -73,25 +73,27 @@ function SceneList({
   // listen loadScene event, and update SceneList.
   useEffect(() => {
     const unsubscribe = loadScene.subscribe(async () => {
-      const [fileHandle] = await window.showOpenFilePicker();
-      const fileData = await fileHandle.getFile();
-      if (!fileData.name.endsWith(EXCALIDRAW_EXTENSION)) {
-        excalidrawRef?.current?.setToast({ message: "导入文件错误" });
-        return;
+      try {
+        const [fileHandle] = await window.showOpenFilePicker();
+        const fileData = await fileHandle.getFile();
+        if (!fileData.name.endsWith(EXCALIDRAW_EXTENSION)) {
+          excalidrawRef?.current?.setToast({ message: "导入文件错误" });
+          return;
+        }
+        await loadFromBlob(fileData, null, null); // 尝试加载一下
+        const data = await fileData.text();
+        const name = fileData.name.slice(
+          0,
+          fileData.name.length - EXCALIDRAW_EXTENSION.length
+        );
+        // const data = serializeAsJSON(elements, appState, files, "database");
+        const newScene = newAScene({ name, data });
+        setScenes((oldScene) => [...oldScene, newScene]);
+        handleSetActiveDraw?.(newScene.id, { scene: newScene });
+      } catch (error) {
+        log(error);
+        excalidrawRef?.current?.setToast({ message: (error as Error).message });
       }
-      const { elements, appState, files } = await loadFromBlob(
-        fileData,
-        null,
-        null
-      );
-      const name = fileData.name.slice(
-        0,
-        fileData.name.length - EXCALIDRAW_EXTENSION.length
-      );
-      const data = serializeAsJSON(elements, appState, files, "database");
-      const newScene = newAScene({ name, data });
-      setScenes((oldScene) => [...oldScene, newScene]);
-      handleSetActiveDraw?.(newScene.id, { scene: newScene });
     });
     return () => {
       unsubscribe();
