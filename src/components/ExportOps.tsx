@@ -44,7 +44,7 @@ const ToImageIcon = () => (
 const ExportOps = () => {
   const appContext = useContext(AppContext);
   if (!appContext) return null;
-  const { appSettings, sceneName, excalidrawRef } = appContext;
+  const { sceneName, excalidrawRef } = appContext;
 
   const [exportImageOptions, setExportImageOptions] = useState({
     exportBackground: true,
@@ -71,7 +71,11 @@ const ExportOps = () => {
         buttonLabel: "保存",
         filters: [{ name: "Excalidraw file", extensions: ["excalidraw"] }],
       });
-    savePath && window.writeFile && window.writeFile(savePath, text);
+    savePath &&
+      window.writeFile &&
+      window.writeFile(savePath, text).then(() => {
+        window.utools && window.utools.shellShowItemInFolder(savePath);
+      });
   };
 
   const exportToPng = (name: string, scale: number) => {
@@ -98,7 +102,11 @@ const ExportOps = () => {
           });
         savePath &&
           window.writeFile &&
-          window.writeFile(savePath, arrayBuffer, { isArrayBuffer: true });
+          window
+            .writeFile(savePath, arrayBuffer, { isArrayBuffer: true })
+            .then(() => {
+              window.utools && window.utools.shellShowItemInFolder(savePath);
+            });
       });
   };
 
