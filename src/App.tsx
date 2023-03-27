@@ -233,7 +233,7 @@ function App({ store }: { store: Store }) {
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
       >
-        <SideBar />
+        <SideBar initScenes={initScenes}/>
 
         {/* white board */}
         <main className="flex-1 ml-2">

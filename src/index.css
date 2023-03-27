@@ -8,6 +8,12 @@
   }
 }
 
+@layer components {
+  .btn-base {
+    @apply bg-gray-200 rounded-lg hover-shadow;
+  }
+}
+
 @layer utilities {
   .hover-shadow {
     @apply hover:shadow-lg transition-shadow active:shadow-none;

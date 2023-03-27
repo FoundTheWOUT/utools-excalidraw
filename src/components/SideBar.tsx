@@ -1,10 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import cn from "classnames";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  TrashIcon,
+} from "@heroicons/react/solid";
+import { Scene } from "@/types";
+import { Dialog, Switch } from "@headlessui/react";
+import SwitchBtn from "@/ui/Switch";
 
-function SideBar() {
+function SideBar({ initScenes }: { initScenes: Scene[] }) {
   const { appSettings, setAndStoreAppSettings, setResizing } =
     useContext(AppContext) ?? {};
 
@@ -13,6 +20,7 @@ function SideBar() {
       asideClosed: !appSettings?.asideClosed,
     });
   };
+  const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
 
   return (
     <aside
@@ -23,28 +31,63 @@ function SideBar() {
     >
       <div className="h-full overflow-y-auto">
         {appSettings?.asideWidth && appSettings.asideWidth > 150 && (
-          <div className="p-3 pb-0 flex justify-end gap-2">
-            <span className="select-none">预览</span>
-            <div
-              className={cn(
-                "w-10 rounded-full flex items-center cursor-pointer relative",
-                appSettings?.closePreview ? "bg-gray-300" : "bg-[#6965db]"
-              )}
-              onClick={() =>
-                setAndStoreAppSettings?.({
-                  closePreview: !appSettings?.closePreview,
-                })
-              }
+          <div className="p-3 pb-0 flex justify-between items-center gap-2">
+            {/* trashcan dialog */}
+            <button
+              className="btn-base flex items-center p-2"
+              onClick={() => {
+                setTrashcanDialogOpen(true);
+              }}
+              title="垃圾桶"
             >
-              <div
-                className={cn(
-                  "rounded-full h-5 w-5 transition-transform bg-white absolute",
-                  appSettings?.closePreview
-                    ? "translate-x-[0.1rem]"
-                    : "translate-x-[1.2rem]"
-                )}
-              ></div>
-            </div>
+              <TrashIcon className="w-5 text-red-500" />
+            </button>
+            <Dialog
+              className="relative z-50"
+              open={trashcanDialogOpen}
+              onClose={() => setTrashcanDialogOpen(false)}
+            >
+              <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+              <div className="fixed inset-0 flex items-center justify-center p-4">
+                <Dialog.Panel className="bg-white max-w-2xl p-4 rounded-lg shadow-lg">
+                  <Dialog.Title className="font-bold text-xl">
+                    垃圾桶
+                  </Dialog.Title>
+                  <Dialog.Description>
+                    This will permanently deactivate your account
+                  </Dialog.Description>
+
+                  <p>
+                    Are you sure you want to deactivate your account? All of
+                    your data will be permanently removed. This action cannot be
+                    undone.
+                  </p>
+
+                  <div className="flex">
+                    <button
+                      className="ml-auto btn-base p-2"
+                      onClick={() => setTrashcanDialogOpen(false)}
+                    >
+                      取消
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+
+            <Switch.Group>
+              <div className="flex items-center gap-2">
+                <Switch.Label>预览</Switch.Label>
+                <SwitchBtn
+                  checked={appSettings.closePreview}
+                  onClick={() =>
+                    setAndStoreAppSettings?.({
+                      closePreview: !appSettings?.closePreview,
+                    })
+                  }
+                />
+              </div>
+            </Switch.Group>
           </div>
         )}
         <SceneList initScenes={initScenes.filter((scene) => !scene.deleted)} />
