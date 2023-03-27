@@ -31,13 +31,7 @@ export const SideBarContext = createContext<{
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
 } | null>(null);
 
-function SceneList({
-  initScenes,
-  scenesMap: scenes_map, // 注意，现在这个 scenesMap 只有在初始化时有效
-}: {
-  initScenes: Scene[];
-  scenesMap: any;
-}) {
+function SceneList({ initScenes }: { initScenes: Scene[] }) {
   const appContext = useContext(AppContext);
 
   const {
@@ -135,8 +129,8 @@ function SceneList({
       const pl = payload as Payload[];
       if (code === "load-excalidraw-file" && pl.length) {
         const firstAppendScenesId = six_nanoid();
-        const appendScenes = pl
-          .map(({ isFile, path, name }, idx) => {
+        const appendScenes = pl.reduce(
+          (scenes, { isFile, path, name }, idx) => {
             if (isFile && path && name) {
               const [fileName] = name.split(".");
               const excalidrawFile = window.readFileSync(path, {
@@ -144,25 +138,23 @@ function SceneList({
               });
               try {
                 JSON.parse(excalidrawFile);
+                scenes.push(
+                  newAScene({
+                    id: idx === 0 ? firstAppendScenesId : six_nanoid(),
+                    name: fileName,
+                    data: excalidrawFile,
+                  })
+                );
               } catch (error) {
                 excalidrawRef?.current?.setToast({
                   message: `${name} 解析错误`,
                 });
-                return undefined;
               }
-              return newAScene({
-                id: idx === 0 ? firstAppendScenesId : six_nanoid(),
-                name: fileName,
-                data: excalidrawFile,
-              });
             }
-            return undefined;
-          })
-          .filter((item) => {
-            if (item === undefined) return false;
-            if (scenes_map.has(item.id)) return false;
-            return true;
-          }) as Scene[];
+            return scenes;
+          },
+          [] as Scene[]
+        );
         setScenes([...scenes, ...appendScenes]);
         appendScenes.length &&
           handleSetActiveDraw?.(firstAppendScenesId, {
