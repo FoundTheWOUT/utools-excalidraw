@@ -39,6 +39,7 @@ export const AppContext = createContext<{
     },
     afterActive?: () => void
   ) => void;
+  trashcan: Scene[];
 } | null>(null);
 
 export const loadScene = new EventChanel();
@@ -56,6 +57,10 @@ function App({ store }: { store: Store }) {
 
   const { data: initialData } = useSWR("init sate", () =>
     loadInitialData(initScenes, lastActiveDraw!)
+  );
+
+  const [trashcan, setTrashcan] = useState(
+    initScenes.filter((scene) => scene.deleted)
   );
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
@@ -225,6 +230,7 @@ function App({ store }: { store: Store }) {
         handleSetActiveDraw: handleSetActiveScene,
         setSceneName: setName,
         sceneName: name,
+        trashcan,
       }}
     >
       <div
@@ -265,7 +271,10 @@ function App({ store }: { store: Store }) {
                 </div>
               </div>
             )}
-            <SceneList initScenes={initScenes} scenesMap={scenes_map} />
+            <SceneList
+              initScenes={initScenes.filter((scene) => !scene.deleted)}
+              scenesMap={scenes_map}
+            />
           </div>
           {/* controller */}
           <button

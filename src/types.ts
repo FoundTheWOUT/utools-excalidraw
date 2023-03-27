@@ -2,6 +2,7 @@ export type Scene = {
   id: string;
   name: string;
   sticky: boolean; // 置顶
+  deleted: boolean;
 } & Partial<{
   img: string; //preview img base64
   data: string;

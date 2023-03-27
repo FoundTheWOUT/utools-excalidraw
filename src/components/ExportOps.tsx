@@ -5,7 +5,7 @@ import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import classNames from "classnames";
 import { omit } from "lodash";
 import React, { useState, useContext } from "react";
-import StyledCheckBox from "./StyledCheckBox";
+import StyledCheckBox from "../ui/CheckBox";
 
 const ToDiskIcon = () => (
   <svg

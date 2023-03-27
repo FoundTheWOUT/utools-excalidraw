@@ -3,7 +3,7 @@ import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import { removeScene, storeScene } from "@/store/scene";
-import { TrashIcon, MenuIcon } from "@heroicons/react/solid";
+import { TrashIcon, MenuIcon, XIcon } from "@heroicons/react/solid";
 import Tippy from "@tippyjs/react";
 import "tippy.js/animations/scale-subtle.css";
 import { SideBarContext } from "./SceneList";
@@ -178,7 +178,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             title="删除"
             disabled={scenes?.length === 1}
           >
-            <TrashIcon className="w-5" />
+            <XIcon className="w-5" />
           </button>
         </Tippy>
 

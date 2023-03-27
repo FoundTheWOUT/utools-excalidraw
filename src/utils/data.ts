@@ -1,6 +1,7 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 import { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types/types";
-import { keyBy, merge } from "lodash";
+import { flow, keyBy } from "lodash";
+import { merge } from "lodash/fp";
 import { Scene } from "../types";
 import { getFile } from "../store/store";
 import { decoder, log } from "./utils";
@@ -17,15 +18,21 @@ export const loadInitialData = (
   scenes: Scene[],
   target: string //scene id
 ): ExcalidrawInitialDataState | null => {
-  let data = keyBy(scenes, "id")[target]?.data;
+  let data = keyBy(
+    scenes.filter((scene) => !scene.deleted),
+    "id"
+  )[target]?.data;
 
   // if can't found data return default config
   if (typeof data !== "string") return defaultStatue;
 
-  const config = merge(
-    defaultStatue,
-    restoreFiles(restoreLibrary(JSON.parse(data)))
-  );
+  const config = flow(
+    JSON.parse,
+    restoreLibrary,
+    restoreFiles,
+    merge(defaultStatue)
+  )(data);
+
   log("load config", config);
   return config;
 };
