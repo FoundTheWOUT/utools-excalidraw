@@ -13,7 +13,7 @@ import {
   numIsInRange,
 } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
-import { storeFile, storeSetItem } from "./store/store";
+import { removeScene, storeFile, storeSetItem } from "./store/store";
 import { loadInitialData, restoreFiles } from "./utils/data";
 import { omit } from "lodash";
 import ExportOps from "./components/ExportOps";
@@ -21,6 +21,7 @@ import useSWR from "swr";
 import { FILE_DOC_PREFIX, TEN_MB } from "./const";
 import { EventChanel } from "./utils/event";
 import SideBar from "./components/SideBar";
+import dayjs from "dayjs";
 
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
@@ -48,6 +49,11 @@ export const updateScene = new EventChanel<{
   value: Partial<Scene>;
 }>();
 
+const dropExpiredScene = (id: string) => {
+  removeScene(id);
+  return true;
+};
+
 function App({ store }: { store: Store }) {
   const {
     settings: { lastActiveDraw },
@@ -59,9 +65,17 @@ function App({ store }: { store: Store }) {
     loadInitialData(initScenes, lastActiveDraw!)
   );
 
-  const [trashcan, setTrashcan] = useState(
-    initScenes.filter((scene) => scene.deleted)
+  const deletedScene = initScenes.filter((scene) =>
+    scene.deleted && scene.deletedAt
+      ? dayjs.unix(scene.deletedAt).diff(dayjs(), "d") >= 30
+        ? // grater than 30 days, remove it
+          !dropExpiredScene(scene.id)
+        : // should put it in trashcan
+          true
+      : // not a deleted scene
+        false
   );
+  const [trashcan, setTrashcan] = useState(deletedScene);
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store.settings);
