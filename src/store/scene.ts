@@ -1,7 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
 import { initStore } from "@/store/store";
-import { keyBy } from "lodash";
-import { log } from "@/utils/utils";
+import { keyBy, uniq } from "lodash";
+import { log, newAScene } from "@/utils/utils";
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {
@@ -29,7 +29,7 @@ export const getScenes = (): Scene[] => {
   log("get scene from db.");
   const scenes_from_db = window.utools.db.allDocs("scene/");
   return Array.isArray(scenes_from_db) && scenes_from_db.length > 0
-    ? scenes_from_db.map((scene: any) => scene.value)
+    ? scenes_from_db.map((scene: any) => newAScene(scene.value))
     : _initStore[DB_KEY.SCENES];
 };
 
@@ -62,7 +62,7 @@ export const restoreScenesArray = (
   }
 
   // remove the sceneId that point to null scene.
-  idArray = idArray.filter((id) => scenesMap.has(id));
+  idArray = uniq(idArray.filter((id) => scenesMap.has(id)));
 
   return {
     scenes: idArray.map((id) => scenesMap.get(id) as Scene),

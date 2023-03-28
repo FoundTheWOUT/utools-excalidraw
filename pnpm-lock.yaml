@@ -15,6 +15,7 @@ specifiers:
   ahooks: ^3.5.0
   autoprefixer: ^10.4.7
   classnames: ^2.3.1
+  dayjs: ^1.11.7
   eslint: ^8.24.0
   eslint-plugin-react-hooks: ^4.6.0
   jotai: ^2.0.3
@@ -39,6 +40,7 @@ dependencies:
   '@tippyjs/react': 4.2.6_sfoxds7t5ydpegc3knd667wn6m
   ahooks: 3.5.0_react@17.0.2
   classnames: 2.3.1
+  dayjs: 1.11.7
   jotai: 2.0.3_react@17.0.2
   lodash: 4.17.21
   nanoid: 4.0.0
@@ -620,7 +622,7 @@ packages:
     dependencies:
       '@types/js-cookie': 2.2.7
       ahooks-v3-count: 1.0.0
-      dayjs: 1.11.3
+      dayjs: 1.11.7
       intersection-observer: 0.12.2
       js-cookie: 2.2.1
       lodash: 4.17.21
@@ -860,8 +862,8 @@ packages:
     resolution: {integrity: sha512-uX1KG+x9h5hIJsaKR9xHUeUraxf8IODOwq9JLNPq6BwB04a/xgpq3rcx47l5BZu5zBPlgD342tdke3Hom/nJRA==}
     dev: true
 
-  /dayjs/1.11.3:
-    resolution: {integrity: sha512-xxwlswWOlGhzgQ4TKzASQkUhqERI3egRNqgV4ScR8wlANA/A9tZ7miXa44vTTKEq5l7vWoL5G57bG3zA+Kow0A==}
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
     dev: false
 
   /debug/4.3.4:

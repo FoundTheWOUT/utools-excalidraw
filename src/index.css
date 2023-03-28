@@ -9,8 +9,17 @@
 }
 
 @layer components {
+  .btn-preset {
+    @apply rounded-lg hover-shadow;
+  }
   .btn-base {
-    @apply bg-gray-200 rounded-lg hover-shadow;
+    @apply bg-gray-200 text-gray-800 btn-preset;
+  }
+  .btn-safe {
+    @apply bg-emerald-100 btn-preset hover:bg-emerald-500 text-emerald-500 font-bold hover:text-white transition-colors;
+  }
+  .btn-danger {
+    @apply bg-red-100 btn-preset hover:bg-red-500 text-red-500 font-bold hover:text-white transition-colors;
   }
 }
 

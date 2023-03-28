@@ -5,13 +5,7 @@ import { Scene } from "@/types";
 import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
-import React, {
-  createContext,
-  memo,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { memo, useContext, useEffect } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -19,6 +13,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import SceneItem from "./SceneItem";
+import { SideBarContext } from "./SideBar";
 
 type Payload = Partial<{
   isFile: boolean;
@@ -26,30 +21,18 @@ type Payload = Partial<{
   path: string;
 }>;
 
-export const SideBarContext = createContext<{
-  scenes: Scene[];
-  setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
-} | null>(null);
-
-function SceneList({ initScenes }: { initScenes: Scene[] }) {
-  const appContext = useContext(AppContext);
-
+function SceneList() {
   const {
     excalidrawRef,
     setAndStoreAppSettings,
     appSettings,
     handleSetActiveDraw,
-  } = appContext ?? {};
-
-  /**
-   * 把状态放在子组件中，通过事件进行 setState 避免 App.tsx 在 onSceneUpdate 时直接 setState。
-   * 若在 App.tsx 中直接 setState 会触发 excalidraw 更新(onChange)，进而导致无限的循环。
-   */
-  const [scenes, setScenes] = useState<Scene[]>(initScenes);
+  } = useContext(AppContext) ?? {};
+  const { scenes = [], setScenes } = useContext(SideBarContext) ?? {};
 
   useEffect(() => {
     const unsubscribe = updateScene.subscribe(({ target, value }) => {
-      setScenes((scenes) => {
+      setScenes?.((scenes) => {
         return scenes.map((scene) => {
           if (scene.id !== target) return scene;
           return {
@@ -82,7 +65,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
         );
         // const data = serializeAsJSON(elements, appState, files, "database");
         const newScene = newAScene({ name, data });
-        setScenes((oldScene) => [...oldScene, newScene]);
+        setScenes?.((oldScene) => [...oldScene, newScene]);
         handleSetActiveDraw?.(newScene.id, { scene: newScene });
       } catch (error) {
         log(error);
@@ -106,7 +89,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
       result.source.index,
       result.destination.index
     );
-    setScenes(reorderScenes);
+    setScenes?.(reorderScenes);
     setAndStoreAppSettings?.({
       scenesId: reorderScenes.map((scene) => scene.id),
     });
@@ -155,7 +138,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
           },
           [] as Scene[]
         );
-        setScenes([...scenes, ...appendScenes]);
+        setScenes?.((scenes) => [...scenes, ...appendScenes]);
         appendScenes.length &&
           handleSetActiveDraw?.(firstAppendScenesId, {
             scene: appendScenes[0],
@@ -164,12 +147,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
     });
 
   return (
-    <SideBarContext.Provider
-      value={{
-        scenes,
-        setScenes,
-      }}
-    >
+    <>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="list">
           {(provided) => (
@@ -207,7 +185,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
           className="w-full aspect-video bg-white cursor-pointer rounded flex items-center justify-center hover-shadow"
           onClick={() => {
             const newScene = newAScene({ name: `画布${scenes.length}` });
-            setScenes([...scenes, newScene]);
+            setScenes?.([...scenes, newScene]);
             excalidrawRef?.current && excalidrawRef.current.resetScene();
             handleSetActiveDraw?.(newScene.id, {
               appSettings: {
@@ -220,7 +198,7 @@ function SceneList({ initScenes }: { initScenes: Scene[] }) {
           <PlusIcon className="h-10 text-gray-500" />
         </div>
       </div>
-    </SideBarContext.Provider>
+    </>
   );
 }
 

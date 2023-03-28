@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
-import { removeScene, storeScene } from "@/store/scene";
-import { TrashIcon, MenuIcon, XIcon } from "@heroicons/react/solid";
-import Tippy from "@tippyjs/react";
+import { storeScene } from "@/store/scene";
+import { MenuIcon, XIcon } from "@heroicons/react/solid";
 import "tippy.js/animations/scale-subtle.css";
-import { SideBarContext } from "./SceneList";
+import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
+import dayjs from "dayjs";
+import { uniqBy } from "lodash";
 
 interface Props {
   scene: Scene;
@@ -18,13 +19,14 @@ interface Props {
 const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
   const { scenes, setScenes } = useContext(SideBarContext) ?? {};
-  const [tippyActive, setTippyActive] = useState(false);
   const {
     appSettings,
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
     setSceneName,
+    setTrashcan,
+    setAndStoreAppSettings,
   } = appContext ?? {};
 
   const [bgColor, setBgColor] = useState("");
@@ -45,6 +47,48 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       unsubscribe();
     };
   }, []);
+
+  const moveToTrashcan = (scene: Scene) => {
+    setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
+    storeScene(scene.id, scene);
+  };
+
+  const handleDeleteScene = () => {
+    setScenes?.((scenes) => {
+      const newScenes = scenes.reduce((nextScenes, curScene) => {
+        curScene.id === id
+          ? moveToTrashcan({
+              ...curScene,
+              deleted: true,
+              deletedAt: dayjs().unix(),
+            })
+          : nextScenes.push(curScene);
+        return nextScenes;
+      }, [] as Scene[]);
+      // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
+      if (appSettings?.lastActiveDraw === id) {
+        //if delete the last scenes, reselect it fore scene
+        let updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
+        handleSetActiveDraw?.(newScenes[updateScenesIndex].id, {
+          scene: newScenes[updateScenesIndex],
+          appSettings: {
+            scenesId: newScenes.map((scene) => scene.id),
+          },
+        });
+      } else {
+        // handleSetActiveDraw 会使用该方法
+        // 而存 db 操作是经过debounce的，连续调用的话之前的存储操作可能会被丢弃
+        // 因此需要保证一个操作只调用一次这个方法
+        // 优化~
+        setAndStoreAppSettings?.({
+          scenesId: newScenes
+            .filter((s) => !s.deleted)
+            .map((scene) => scene.id),
+        });
+      }
+      return newScenes;
+    });
+  };
 
   return (
     <div key={id} className="border-b border-gray-300 p-3">
@@ -123,64 +167,19 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           }}
         />
 
-        <Tippy
-          visible={tippyActive}
-          interactive
-          animation="scale-subtle"
-          duration={125}
-          onClickOutside={() => setTippyActive(false)}
-          content={
-            <div className="flex flex-col justify-center bg-gray-200 p-3 rounded">
-              <div className="pb-2">确定删除该画布吗</div>
-              <div className="flex justify-around text-sm">
-                <button
-                  className="px-3 py-1 bg-gray-300 rounded hover-shadow"
-                  onClick={() => {
-                    setTippyActive(false);
-                  }}
-                >
-                  取消
-                </button>
-                <button
-                  className="px-3 py-1 bg-red-500 hover-shadow text-white rounded"
-                  onClick={() => {
-                    setScenes?.((scenes) => {
-                      const newScenes = [...scenes];
-                      newScenes.splice(idx, 1);
-                      removeScene(id);
-                      // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
-                      if (appSettings?.lastActiveDraw === id) {
-                        //if delete the last scenes, reselect it fore scene
-                        let updateScenesIndex =
-                          idx == newScenes.length ? idx - 1 : idx;
-                        handleSetActiveDraw?.(newScenes[updateScenesIndex].id, {
-                          scene: newScenes[updateScenesIndex],
-                        });
-                      }
-                      return newScenes;
-                    });
-                  }}
-                >
-                  确定
-                </button>
-              </div>
-            </div>
-          }
+        <button
+          className={cn(
+            "bg-gray-200 p-2 rounded-lg flex",
+            scenes?.length === 1
+              ? "cursor-not-allowed text-red-300"
+              : "text-red-500 hover-shadow"
+          )}
+          onClick={handleDeleteScene}
+          title="删除"
+          disabled={scenes?.length === 1}
         >
-          <button
-            className={cn(
-              "bg-gray-200 p-2 rounded-lg flex",
-              scenes?.length === 1
-                ? "cursor-not-allowed text-red-300"
-                : "text-red-500 hover-shadow"
-            )}
-            onClick={() => setTippyActive(true)}
-            title="删除"
-            disabled={scenes?.length === 1}
-          >
-            <XIcon className="w-5" />
-          </button>
-        </Tippy>
+          <XIcon className="w-5" />
+        </button>
 
         <button
           className="bg-gray-200 p-2 rounded-lg hover-shadow flex"

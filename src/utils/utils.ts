@@ -59,7 +59,13 @@ export const newAScene = ({
   id,
   ...rest
 }: Partial<Scene> & { name: string }): Scene => {
-  return { id: id ? id : six_nanoid(), sticky: false, deleted: false, ...rest };
+  return {
+    id: id ? id : six_nanoid(),
+    sticky: false,
+    deleted: false,
+    deletedAt: null,
+    ...rest,
+  };
 };
 
 const inner_log = function () {

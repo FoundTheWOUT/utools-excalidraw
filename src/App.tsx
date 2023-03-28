@@ -38,6 +38,7 @@ export const AppContext = createContext<{
     afterActive?: () => void
   ) => void;
   trashcan: Scene[];
+  setTrashcan: React.Dispatch<React.SetStateAction<Scene[]>>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
@@ -225,6 +226,7 @@ function App({ store }: { store: Store }) {
         sceneName: name,
         trashcan,
         setResizing,
+        setTrashcan,
       }}
     >
       <div
@@ -233,7 +235,7 @@ function App({ store }: { store: Store }) {
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
       >
-        <SideBar initScenes={initScenes}/>
+        <SideBar initScenes={initScenes} />
 
         {/* white board */}
         <main className="flex-1 ml-2">

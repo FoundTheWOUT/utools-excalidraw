@@ -3,10 +3,11 @@ export type Scene = {
   name: string;
   sticky: boolean; // 置顶
   deleted: boolean;
-} & Partial<{
-  img: string; //preview img base64
-  data: string;
-}>;
+  deletedAt: number | null;
+
+  img?: string; //preview img base64
+  data?: string;
+};
 
 export type Store = {
   [DB_KEY.SETTINGS]: {
