@@ -5,6 +5,7 @@ import { Scene } from "@/types";
 import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
+import { concat } from "lodash";
 import React, { memo, useContext, useEffect } from "react";
 import {
   DragDropContext,
@@ -27,6 +28,7 @@ function SceneList() {
     setAndStoreAppSettings,
     appSettings,
     handleSetActiveDraw,
+    trashcan = [],
   } = useContext(AppContext) ?? {};
   const { scenes = [], setScenes } = useContext(SideBarContext) ?? {};
 
@@ -45,6 +47,11 @@ function SceneList() {
     return () => {
       unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    appSettings?.lastActiveDraw &&
+      document.getElementById(appSettings?.lastActiveDraw)?.scrollIntoView();
   }, []);
 
   // listen loadScene event, and update SceneList.
@@ -104,7 +111,7 @@ function SceneList() {
         storeScene(scene.id, scene);
       });
       // drop deleted files
-      dropDeletedFiles(scenes);
+      dropDeletedFiles(concat(scenes, trashcan));
     });
 
   window.utools &&
@@ -162,11 +169,6 @@ function SceneList() {
                       >
                         <SceneItem
                           scene={scene}
-                          //   key={id}
-                          //   id={id}
-                          //   img={img}
-                          //   name={name}
-                          //   data={data}
                           idx={idx}
                           dragProvided={dragProvided}
                         />

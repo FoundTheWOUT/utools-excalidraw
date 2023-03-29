@@ -52,7 +52,7 @@ function TrashcanDialog({
   const placeholder = [];
   for (let i = 0; i < PAGE_SIZE - (items?.length ?? 0); i++) {
     placeholder.push(
-      <div className="flex gap-4">
+      <div className="flex gap-4" key={i}>
         <div className="object-contain w-48 border-2 border-dashed rounded-lg aspect-video" />
         <div className="flex flex-col flex-1 w-48">
           <div className="h-6 border-b-2 border-dashed"></div>

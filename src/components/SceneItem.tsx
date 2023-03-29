@@ -91,7 +91,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   };
 
   return (
-    <div key={id} className="border-b border-gray-300 p-3">
+    <div key={id} id={id} className="border-b border-gray-300 p-3">
       {!appSettings?.closePreview && (
         <button
           className={cn(
