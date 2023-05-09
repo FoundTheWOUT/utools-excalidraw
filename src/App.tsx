@@ -7,7 +7,6 @@ import {
 } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
 import {
-  encoder,
   generatePreviewImage,
   log,
   numIsInRange,
@@ -18,10 +17,11 @@ import { loadInitialData, restoreFiles } from "./utils/data";
 import { omit } from "lodash";
 import ExportOps from "./components/ExportOps";
 import useSWR from "swr";
-import { FILE_DOC_PREFIX, TEN_MB } from "./const";
+import { TEN_MB } from "./const";
 import { EventChanel } from "./utils/event";
 import SideBar from "./components/SideBar";
 import dayjs from "dayjs";
+import StoreSystem from "./store";
 
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
@@ -82,7 +82,7 @@ function App({ store }: { store: Store }) {
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
   const { run: debounceStoreItem } = useDebounceFn(
-    (key: DB_KEY, value: Store[DB_KEY]) => storeSetItem(key, value)
+    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value)
   );
 
   const setAndStoreAppSettings = (
@@ -129,22 +129,7 @@ function App({ store }: { store: Store }) {
         });
 
         // store file
-        if (excalidrawRef.current && window.utools) {
-          const storedFiles = utools.db
-            .allDocs(FILE_DOC_PREFIX)
-            .map((doc) => doc._id.split("/")[1]);
-          const files = excalidrawRef.current.getFiles();
-          for (let fileKey in files) {
-            if (storedFiles.includes(fileKey)) continue;
-            const fileObjectStr = JSON.stringify(files[fileKey]);
-            storeFile(
-              fileKey,
-              encoder.encode(fileObjectStr),
-              undefined,
-              excalidrawRef.current
-            );
-          }
-        }
+        StoreSystem.storeFile(excalidrawRef.current);
       } catch (error) {
         console.warn(error);
       }
