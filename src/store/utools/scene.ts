@@ -1,7 +1,7 @@
 import { DB_KEY, Scene } from "@/types";
-import { initStore } from "@/store/store";
 import { keyBy, uniq } from "lodash";
 import { log, newAScene } from "@/utils/utils";
+import { initStore } from "..";
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {
@@ -19,8 +19,7 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
   }
 };
 
-export const getSceneByID = (scenes: Scene[], id: string | null) =>
-  id ? keyBy(scenes, "id")[id] : null;
+export const getSceneByID = (scenes: Scene[], id: string | null) => (id ? keyBy(scenes, "id")[id] : null);
 
 // 获取 Scene 数组
 export const getScenes = (): Scene[] => {

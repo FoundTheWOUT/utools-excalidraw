@@ -1,18 +1,10 @@
 import React, { useState, useRef, createContext } from "react";
 import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
-import {
-  BinaryFileData,
-  ExcalidrawImperativeAPI,
-} from "@excalidraw/excalidraw/types/types";
+import { BinaryFileData, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
-import {
-  generatePreviewImage,
-  log,
-  numIsInRange,
-} from "./utils/utils";
+import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
-import { removeScene, storeFile, storeSetItem } from "./store/store";
 import { loadInitialData, restoreFiles } from "./utils/data";
 import { omit } from "lodash";
 import ExportOps from "./components/ExportOps";
@@ -50,7 +42,7 @@ export const updateScene = new EventChanel<{
 }>();
 
 const dropExpiredScene = (id: string) => {
-  removeScene(id);
+  StoreSystem.removeScene(id);
   return true;
 };
 
@@ -61,9 +53,7 @@ function App({ store }: { store: Store }) {
     scenes_map,
   } = store;
 
-  const { data: initialData } = useSWR("init sate", () =>
-    loadInitialData(initScenes, lastActiveDraw!)
-  );
+  const { data: initialData } = useSWR("init sate", () => loadInitialData(initScenes, lastActiveDraw!));
 
   const deletedScene = initScenes.filter((scene) =>
     scene.deleted && scene.deletedAt
@@ -81,13 +71,11 @@ function App({ store }: { store: Store }) {
   const [appSettings, setAppSettings] = useState(store.settings);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
-  const { run: debounceStoreItem } = useDebounceFn(
-    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value)
+  const { run: debounceStoreItem } = useDebounceFn((key: DB_KEY, value: Store[DB_KEY]) =>
+    StoreSystem.storeSetItem(key, value)
   );
 
-  const setAndStoreAppSettings = (
-    settings: Partial<Store[DB_KEY.SETTINGS]>
-  ) => {
+  const setAndStoreAppSettings = (settings: Partial<Store[DB_KEY.SETTINGS]>) => {
     const newSettings = omit(
       {
         ...appSettings,
@@ -250,8 +238,7 @@ function App({ store }: { store: Store }) {
                   const blob = new Blob([data.files[fileID].dataURL]);
                   console.log(blob.size);
                   if (blob.size > TEN_MB) {
-                    excalidrawRef.current &&
-                      excalidrawRef.current.setToast({ message: "hi" });
+                    excalidrawRef.current && excalidrawRef.current.setToast({ message: "hi" });
                     console.log("图片不能大于10MB");
                     return false;
                   }
@@ -275,20 +262,7 @@ function App({ store }: { store: Store }) {
             }}
             onLibraryChange={(items) => {
               log("library change.");
-              if (!window.utools) return;
-              const libraries = window.utools.db.allDocs("library");
-              const stored_lib_ids_set = new Set(
-                libraries.map((lib: any) => lib._id.split("/")[1])
-              );
-              items.forEach((item) => {
-                const { id } = item;
-                window.utools.dbStorage.setItem(`library/${id}`, item);
-                stored_lib_ids_set.delete(id);
-              });
-
-              stored_lib_ids_set.forEach((id) => {
-                window.utools.dbStorage.removeItem(`library/${id}`);
-              });
+              StoreSystem.handleLibraryChange(items);
             }}
           >
             <MainMenu>

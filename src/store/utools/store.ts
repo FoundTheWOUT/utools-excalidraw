@@ -1,29 +1,8 @@
-import { DB_KEY, Scene, Store } from "../types";
-import {
-  extend,
-  generatePreviewImageFromSceneData,
-  log,
-  newAScene,
-} from "../utils/utils";
-import { removeFile, dropDeletedFiles, getFile, storeFile } from "@/store/file";
-import {
-  getScenes,
-  removeScene,
-  restoreScenesArray,
-  storeScene,
-} from "@/store/scene";
-
-export const initStore = (): Store => ({
-  settings: {
-    asideWidth: 300,
-    asideClosed: false,
-    lastActiveDraw: null,
-    closePreview: false,
-    scenesId: [],
-  },
-  scenes: [newAScene({ name: "画布一" })],
-  scenes_map: new Map(),
-});
+import { DB_KEY, Scene, Store } from "@/types";
+import { extend, generatePreviewImageFromSceneData, log } from "@/utils/utils";
+import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
+import { getScenes, removeScene, restoreScenesArray, storeScene } from "./scene";
+import { initStore } from "..";
 
 /**
  *
@@ -43,23 +22,14 @@ export const getStore = async (): Promise<Store> => {
   const defaultStore = initStore();
   const settingsFromDB = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
 
-  const settings = extend(
-    defaultStore[DB_KEY.SETTINGS],
-    settingsFromDB ? settingsFromDB.value : null
-  );
+  const settings = extend(defaultStore[DB_KEY.SETTINGS], settingsFromDB ? settingsFromDB.value : null);
 
-  const { scenes, scenesMap, idArray } = restoreScenesArray(
-    getScenes(),
-    settings.scenesId
-  );
+  const { scenes, scenesMap, idArray } = restoreScenesArray(getScenes(), settings.scenesId);
 
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
   let lastActiveDraw = settings.lastActiveDraw;
-  if (
-    lastActiveDraw &&
-    !scenes.map((scene) => scene.id).includes(lastActiveDraw)
-  ) {
+  if (lastActiveDraw && !scenes.map((scene) => scene.id).includes(lastActiveDraw)) {
     lastActiveDraw = scenes[0].id;
   }
 

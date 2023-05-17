@@ -1,34 +1,29 @@
-import { FILE_DOC_PREFIX } from "@/const";
 import { DB_KEY, Store } from "@/types";
-import { encoder } from "@/utils/utils";
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
-import { storeFile } from "./file";
+import { newAScene } from "@/utils/utils";
+import { ExcalidrawImperativeAPI, LibraryItems } from "@excalidraw/excalidraw/types/types";
+import { StoreSystemCommon } from "./common";
+import { StoreSystemUtools } from "./utools";
 
-interface StoreSystem {
+export interface StoreSystem {
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void;
-  storeFile(excalidrawRef?: ExcalidrawImperativeAPI): void;
+
+  storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void;
+
+  removeScene(id: string): void;
+
+  handleLibraryChange(item: LibraryItems): void;
 }
 
-class StoreSystemUtools implements StoreSystem {
-  storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void {}
-  storeFile(excalidrawRef?: ExcalidrawImperativeAPI) {
-    if (excalidrawRef && window.utools) {
-      const storedFiles = utools.db
-        .allDocs(FILE_DOC_PREFIX)
-        .map((doc) => doc._id.split("/")[1]);
-      const files = excalidrawRef.getFiles();
-      for (let fileKey in files) {
-        if (storedFiles.includes(fileKey)) continue;
-        const fileObjectStr = JSON.stringify(files[fileKey]);
-        storeFile(
-          fileKey,
-          encoder.encode(fileObjectStr),
-          undefined,
-          excalidrawRef
-        );
-      }
-    }
-  }
-}
+export const initStore = (): Store => ({
+  settings: {
+    asideWidth: 300,
+    asideClosed: false,
+    lastActiveDraw: null,
+    closePreview: false,
+    scenesId: [],
+  },
+  scenes: [newAScene({ name: "画布一" })],
+  scenes_map: new Map(),
+});
 
-export default new StoreSystemUtools();
+export default window.utools ? new StoreSystemUtools() : new StoreSystemCommon();
