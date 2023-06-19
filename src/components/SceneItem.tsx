@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
-import { storeScene } from "@/store/scene";
+import SS from "@/store";
 import { MenuIcon, XIcon } from "@heroicons/react/solid";
 import "tippy.js/animations/scale-subtle.css";
 import { SideBarContext } from "./SideBar";
@@ -38,7 +38,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       if (target === id) {
         const appState = excalidrawRef?.current?.getAppState();
         img && URL.revokeObjectURL(img);
-        storeScene(id, { ...scene, ...value });
+        SS.storeScene(id, { ...scene, ...value });
         appState?.viewBackgroundColor &&
           setBgColor(appState?.viewBackgroundColor);
       }
@@ -50,7 +50,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   const moveToTrashcan = (scene: Scene) => {
     setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
-    storeScene(scene.id, scene);
+    SS.storeScene(scene.id, scene);
   };
 
   const handleDeleteScene = () => {
@@ -158,12 +158,12 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           }}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              scenes?.[idx] && storeScene(id, scenes[idx]);
+              scenes?.[idx] && SS.storeScene(id, scenes[idx]);
             }
           }}
           onBlur={() => {
             setSceneName?.(name);
-            scenes?.[idx] && storeScene(id, scenes?.[idx]);
+            scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
           }}
         />
 

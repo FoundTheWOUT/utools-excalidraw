@@ -1,9 +1,9 @@
 import useSWR from "swr";
 import App from "./App";
-import { getStore } from "./store/store";
+import StoreSystem from "./store";
 
 const Wrapper = () => {
-  const { data } = useSWR("store", getStore);
+  const { data } = useSWR("store", StoreSystem.getStore);
   if (!data) return null;
   return <App store={data} />;
 };

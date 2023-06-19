@@ -1,6 +1,6 @@
 import { AppContext, loadScene, updateScene } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
-import { dropDeletedFiles, storeScene } from "@/store/store";
+import SS from "@/store";
 import { Scene } from "@/types";
 import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
@@ -108,10 +108,10 @@ function SceneList() {
         // drop image
         scene.img && URL.revokeObjectURL(scene.img);
         scene.img = undefined;
-        storeScene(scene.id, scene);
+        SS.storeScene(scene.id, scene);
       });
       // drop deleted files
-      dropDeletedFiles(concat(scenes, trashcan));
+      SS.dropDeletedFiles(concat(scenes, trashcan));
     });
 
   window.utools &&

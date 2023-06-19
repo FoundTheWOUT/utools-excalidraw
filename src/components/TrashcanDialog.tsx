@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { XCircleIcon } from "@heroicons/react/outline";
 import { Scene } from "@/types";
 import { SideBarContext } from "./SideBar";
-import { removeScene, storeScene } from "@/store/scene";
+import SS from "@/store";
 import cn from "classnames";
 
 const PAGE_SIZE = 6;
@@ -35,7 +35,7 @@ function TrashcanDialog({
     setScenes?.((scenes) => {
       const restoreScene = { ...scene, deleted: false, deletedAt: null };
       const nextScenes = [...scenes, restoreScene];
-      storeScene(scene.id, restoreScene);
+      SS.storeScene(scene.id, restoreScene);
       setAndStoreAppSettings?.({
         scenesId: nextScenes.filter((s) => !s.deleted).map((s) => s.id),
       });
@@ -45,7 +45,7 @@ function TrashcanDialog({
 
   const handlePermanentRemove = (scene: Scene) => {
     dropSceneInTrashcan(scene.id);
-    removeScene(scene.id);
+    SS.removeScene(scene.id);
   };
 
   const items = trashcan?.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);

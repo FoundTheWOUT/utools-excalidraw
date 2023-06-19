@@ -3,7 +3,7 @@ import { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types/types";
 import { flow, keyBy } from "lodash";
 import { merge } from "lodash/fp";
 import { Scene } from "../types";
-import { getFile } from "../store/store";
+import SS from "../store";
 import { decoder, log } from "./utils";
 import { FONT_FAMILY, restoreLibraryItems } from "@excalidraw/excalidraw";
 
@@ -51,7 +51,7 @@ export const restoreFiles = (
 ): ExcalidrawInitialDataState => {
   for (const el of data.elements ?? [])
     if (el.type == "image" && window.utools && el.fileId) {
-      const unit8arr = getFile(el.fileId);
+      const unit8arr = SS.getFile(el.fileId);
       if (!data.files) data.files = {};
 
       if (unit8arr && unit8arr instanceof Uint8Array) {
