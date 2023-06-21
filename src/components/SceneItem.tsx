@@ -3,7 +3,8 @@ import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import SS from "@/store";
-import { MenuIcon, XIcon } from "@heroicons/react/solid";
+import { XIcon } from "@heroicons/react/solid";
+import { ArrowsExpandIcon } from "@heroicons/react/outline";
 import "tippy.js/animations/scale-subtle.css";
 import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
@@ -90,6 +91,29 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     });
   };
 
+  const handleActiveAction = () => {
+    handleSetActiveDraw?.(id, { scene }, () => {
+      // re gen preview image
+      if (excalidrawRef?.current) {
+        generatePreviewImage(
+          excalidrawRef.current.getSceneElementsIncludingDeleted(),
+          excalidrawRef.current.getAppState(),
+          excalidrawRef.current.getFiles()
+        ).then((path) => {
+          const newScenes = scenes?.map((scene, index) => {
+            if (index != idx) return scene;
+            scene.img && URL.revokeObjectURL(scene.img);
+            return {
+              ...scene,
+              img: appSettings?.closePreview ? undefined : path,
+            };
+          });
+          newScenes && setScenes?.(newScenes);
+        });
+      }
+    });
+  };
+
   return (
     <div key={id} id={id} className="border-b border-gray-300 p-3">
       {!appSettings?.closePreview && (
@@ -106,28 +130,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             background: bgColor,
           }}
           disabled={updatingScene}
-          onClick={() => {
-            handleSetActiveDraw?.(id, { scene }, () => {
-              // re gen preview image
-              if (excalidrawRef?.current) {
-                generatePreviewImage(
-                  excalidrawRef.current.getSceneElementsIncludingDeleted(),
-                  excalidrawRef.current.getAppState(),
-                  excalidrawRef.current.getFiles()
-                ).then((path) => {
-                  const newScenes = scenes?.map((scene, index) => {
-                    if (index != idx) return scene;
-                    scene.img && URL.revokeObjectURL(scene.img);
-                    return {
-                      ...scene,
-                      img: appSettings?.closePreview ? undefined : path,
-                    };
-                  });
-                  newScenes && setScenes?.(newScenes);
-                });
-              }
-            });
-          }}
+          onClick={handleActiveAction}
         >
           {img ? (
             <img
@@ -145,27 +148,37 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           hidden: appSettings?.asideWidth && appSettings.asideWidth <= 150,
         })}
       >
-        <input
-          type="text"
-          className="flex-1 h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
-          value={name}
-          onChange={(e) => {
-            setScenes?.((old) => {
-              const newScenes = [...old];
-              newScenes[idx].name = e.target.value;
-              return newScenes;
-            });
-          }}
-          onKeyDown={(e) => {
-            if (e.key == "Enter") {
-              scenes?.[idx] && SS.storeScene(id, scenes[idx]);
-            }
-          }}
-          onBlur={() => {
-            setSceneName?.(name);
-            scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
-          }}
-        />
+        {appSettings?.closePreview ? (
+          <button
+            className="btn-preset bg-gray-200 hover:text-black font-normal text-left px-3 flex-1 truncate transition"
+            title={name}
+            onClick={handleActiveAction}
+          >
+            {name}
+          </button>
+        ) : (
+          <input
+            type="text"
+            className="flex-1 h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
+            value={name}
+            onChange={(e) => {
+              setScenes?.((old) => {
+                const newScenes = [...old];
+                newScenes[idx].name = e.target.value;
+                return newScenes;
+              });
+            }}
+            onKeyDown={(e) => {
+              if (e.key == "Enter") {
+                scenes?.[idx] && SS.storeScene(id, scenes[idx]);
+              }
+            }}
+            onBlur={() => {
+              setSceneName?.(name);
+              scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
+            }}
+          />
+        )}
 
         <button
           className={cn(
@@ -186,7 +199,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           title="移动"
           {...dragProvided.dragHandleProps}
         >
-          <MenuIcon className="w-5" />
+          <ArrowsExpandIcon className="w-5" />
         </button>
       </div>
     </div>

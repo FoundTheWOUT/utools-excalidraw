@@ -1,7 +1,10 @@
 import React, { useState, useRef, createContext } from "react";
 import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
-import { BinaryFileData, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import {
+  BinaryFileData,
+  ExcalidrawImperativeAPI,
+} from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
@@ -53,7 +56,9 @@ function App({ store }: { store: Store }) {
     scenes_map,
   } = store;
 
-  const { data: initialData } = useSWR("init sate", () => loadInitialData(initScenes, lastActiveDraw!));
+  const { data: initialData } = useSWR("init sate", () =>
+    loadInitialData(initScenes, lastActiveDraw!)
+  );
 
   const deletedScene = initScenes.filter((scene) =>
     scene.deleted && scene.deletedAt
@@ -71,11 +76,13 @@ function App({ store }: { store: Store }) {
   const [appSettings, setAppSettings] = useState(store.settings);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
-  const { run: debounceStoreItem } = useDebounceFn((key: DB_KEY, value: Store[DB_KEY]) =>
-    StoreSystem.storeSetItem(key, value)
+  const { run: debounceStoreItem } = useDebounceFn(
+    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value)
   );
 
-  const setAndStoreAppSettings = (settings: Partial<Store[DB_KEY.SETTINGS]>) => {
+  const setAndStoreAppSettings = (
+    settings: Partial<Store[DB_KEY.SETTINGS]>
+  ) => {
     const newSettings = omit(
       {
         ...appSettings,
@@ -238,7 +245,8 @@ function App({ store }: { store: Store }) {
                   const blob = new Blob([data.files[fileID].dataURL]);
                   console.log(blob.size);
                   if (blob.size > TEN_MB) {
-                    excalidrawRef.current && excalidrawRef.current.setToast({ message: "hi" });
+                    excalidrawRef.current &&
+                      excalidrawRef.current.setToast({ message: "hi" });
                     console.log("图片不能大于10MB");
                     return false;
                   }
