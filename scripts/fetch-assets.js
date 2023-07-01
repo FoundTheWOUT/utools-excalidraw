@@ -22,30 +22,32 @@ async function copyDir(src, dest, includeLang = ["zh-CN"]) {
 }
 
 module.exports = async function main() {
-  fs.access("public/excalidraw-assets")
-    .then(() =>
-      fs.rm("public/excalidraw-assets", {
-        recursive: true,
-      })
-    )
-    .then(() =>
-      copyDir(
-        "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
-        "public/excalidraw-assets"
+  return Promise.all([
+    fs
+      .access("public/excalidraw-assets")
+      .then(() =>
+        fs.rm("public/excalidraw-assets", {
+          recursive: true,
+        })
       )
-    )
-    .catch(() => {});
-  fs.access("public/excalidraw-assets-dev")
-    .then(() =>
-      fs.rm("public/excalidraw-assets", {
-        recursive: true,
-      })
-    )
-    .then(() =>
-      copyDir(
-        "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets-dev",
-        "public/excalidraw-assets-dev"
+      .finally(() =>
+        copyDir(
+          "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
+          "public/excalidraw-assets"
+        )
+      ),
+    fs
+      .access("public/excalidraw-assets-dev")
+      .then(() =>
+        fs.rm("public/excalidraw-assets", {
+          recursive: true,
+        })
       )
-    )
-    .catch(() => {});
+      .finally(() =>
+        copyDir(
+          "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets-dev",
+          "public/excalidraw-assets-dev"
+        )
+      ),
+  ]);
 };
