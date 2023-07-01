@@ -6,6 +6,7 @@ import {
 } from "@excalidraw/excalidraw/types/types";
 import { StoreSystemCommon } from "./common";
 import { StoreSystemUtools } from "./utools";
+import { restoreScenesArray } from "./utools/scene";
 
 export interface StoreSystem {
   getStore(): Promise<Store>;
@@ -25,17 +26,58 @@ export interface StoreSystem {
   dropDeletedFiles(scenes: Scene[]): void;
 }
 
-export const initStore = (): Store => ({
-  settings: {
-    asideWidth: 300,
-    asideClosed: false,
-    lastActiveDraw: null,
-    closePreview: false,
-    scenesId: [],
-  },
-  scenes: [newAScene({ name: "画布一" })],
-  scenes_map: new Map(),
-});
+const DefaultStore = (): Store => {
+  const blank = newAScene({ name: "画布一" });
+  return {
+    settings: {
+      asideWidth: 300,
+      asideClosed: false,
+      lastActiveDraw: blank.id,
+      closePreview: false,
+      scenesId: [blank.id],
+    },
+    scenes: [blank],
+    scenes_map: new Map(),
+  };
+};
+
+export const initStore = (store?: Partial<Store>): Store => {
+  const defaultStore = DefaultStore();
+  const mergeStore = store
+    ? {
+        ...defaultStore,
+        ...store,
+        settings: {
+          ...defaultStore.settings,
+          ...store?.[DB_KEY.SETTINGS],
+        },
+      }
+    : defaultStore;
+  const { scenes, scenesMap, idArray } = restoreScenesArray(
+    mergeStore.scenes,
+    mergeStore[DB_KEY.SETTINGS].scenesId
+  );
+
+  // 自动修复 lastActiveDraw
+  // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
+  let lastActiveDraw = mergeStore[DB_KEY.SETTINGS].lastActiveDraw;
+  if (
+    lastActiveDraw &&
+    !scenes.map((scene) => scene.id).includes(lastActiveDraw)
+  ) {
+    lastActiveDraw = scenes[0].id;
+  }
+
+  return {
+    settings: {
+      ...mergeStore[DB_KEY.SETTINGS],
+      lastActiveDraw,
+      scenesId: idArray,
+    },
+    scenes,
+    scenes_map: scenesMap,
+  };
+};
 
 export default window.utools
   ? new StoreSystemUtools()

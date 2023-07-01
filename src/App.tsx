@@ -55,7 +55,6 @@ function App({ store }: { store: Store }) {
     scenes: initScenes,
     scenes_map,
   } = store;
-
   const { data: initialData } = useSWR("init sate", () =>
     loadInitialData(initScenes, lastActiveDraw!)
   );
@@ -73,7 +72,7 @@ function App({ store }: { store: Store }) {
   const [trashcan, setTrashcan] = useState(deletedScene);
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
-  const [appSettings, setAppSettings] = useState(store.settings);
+  const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
   const { run: debounceStoreItem } = useDebounceFn(

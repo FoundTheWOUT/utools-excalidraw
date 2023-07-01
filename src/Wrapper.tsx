@@ -3,8 +3,11 @@ import App from "./App";
 import StoreSystem from "./store";
 
 const Wrapper = () => {
-  const { data } = useSWR("store", StoreSystem.getStore);
-  if (!data) return null;
+  const { data, error } = useSWR("store", StoreSystem.getStore);
+  if (!data) {
+    error && console.error(error);
+    return null;
+  }
   return <App store={data} />;
 };
 
