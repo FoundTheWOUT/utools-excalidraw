@@ -1,5 +1,5 @@
 import { DB_KEY, Scene, Store } from "@/types";
-import { extend, generatePreviewImageFromSceneData, log } from "@/utils/utils";
+import { generatePreviewImageFromSceneData, log } from "@/utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
 import { getScenes, removeScene, storeScene } from "./scene";
 import { initStore } from "..";

@@ -32,7 +32,7 @@ export const AppContext = createContext<{
       appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
     },
     afterActive?: () => void
-  ) => void;
+  ) => Promise<void>;
   trashcan: Scene[];
   setTrashcan: React.Dispatch<React.SetStateAction<Scene[]>>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -55,7 +55,7 @@ function App({ store }: { store: Store }) {
     scenes: initScenes,
     scenes_map,
   } = store;
-  const { data: initialData } = useSWR("init sate", () =>
+  const { data: initialData, error } = useSWR("init sate", () =>
     loadInitialData(initScenes, lastActiveDraw!)
   );
 
@@ -133,7 +133,7 @@ function App({ store }: { store: Store }) {
     { wait: 300 }
   );
 
-  const handleSetActiveScene = (
+  const handleSetActiveScene = async (
     sceneId: string,
     payload?: {
       scene?: Scene;
@@ -155,7 +155,7 @@ function App({ store }: { store: Store }) {
     // restore scene
     if (data) {
       try {
-        const _data = restoreFiles(JSON.parse(data));
+        const _data = await restoreFiles(JSON.parse(data));
         excalidrawRef.current.updateScene(_data);
         excalidrawRef.current.history.clear();
         if (_data.files) {
@@ -163,6 +163,7 @@ function App({ store }: { store: Store }) {
           _files.length > 0 && excalidrawRef.current.addFiles(_files);
         }
       } catch (error) {
+        console.error(error);
         excalidrawRef.current.setToast({ message: "解析错误" });
       }
     }
@@ -205,7 +206,10 @@ function App({ store }: { store: Store }) {
     loadScene.emit();
   };
 
-  if (!initialData) return null;
+  if (!initialData) {
+    error && console.error(error);
+    return "init data...";
+  }
 
   return (
     <AppContext.Provider

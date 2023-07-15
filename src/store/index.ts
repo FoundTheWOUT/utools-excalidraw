@@ -11,7 +11,7 @@ import { restoreScenesArray } from "./utools/scene";
 export interface StoreSystem {
   getStore(): Promise<Store>;
 
-  getFile(key: string): Uint8Array | null;
+  getFile(key: string): Promise<Uint8Array | null>;
 
   storeScene(key: string | undefined | null, data: Scene): void;
 
@@ -47,6 +47,7 @@ export const initStore = (store?: Partial<Store>): Store => {
     ? {
         ...defaultStore,
         ...store,
+        scenes: store.scenes?.length ? store.scenes : defaultStore.scenes,
         settings: {
           ...defaultStore.settings,
           ...store?.[DB_KEY.SETTINGS],

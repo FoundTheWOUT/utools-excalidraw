@@ -24,9 +24,9 @@ export const storeFile = (
   }
 };
 
-export const getFile = (key: string): Uint8Array | null => {
-  log("get file from db.");
-  return window.utools && window.utools.db.getAttachment(`file/${key}`);
+export const getFile = (key: string) => {
+  log(`get file ${key} from db.`);
+  return window.utools.db.promises.getAttachment(`file/${key}`);
 };
 
 export const removeFile = (key: string | null) => {

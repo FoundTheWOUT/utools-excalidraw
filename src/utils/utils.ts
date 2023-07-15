@@ -42,8 +42,8 @@ export const generatePreviewImageFromSceneData = async (
   data: Scene["data"]
 ) => {
   if (!data) return undefined;
-  const { elements, appState, files } = restoreFiles(JSON.parse(data));
-  return await generatePreviewImage(elements, appState, files);
+  const { elements, appState, files } = await restoreFiles(JSON.parse(data));
+  return generatePreviewImage(elements, appState, files);
 };
 
 // [start, end) -> true

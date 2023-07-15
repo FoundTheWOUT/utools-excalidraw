@@ -1,11 +1,18 @@
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
-import { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types/types";
-import { flow, keyBy } from "lodash";
+import {
+  BinaryFiles,
+  ExcalidrawInitialDataState,
+} from "@excalidraw/excalidraw/types/types";
+import { keyBy } from "lodash";
 import { merge } from "lodash/fp";
 import { Scene } from "../types";
 import SS from "../store";
 import { decoder, log } from "./utils";
 import { FONT_FAMILY, restoreLibraryItems } from "@excalidraw/excalidraw";
+import {
+  ExcalidrawImageElement,
+  FileId,
+} from "@excalidraw/excalidraw/types/element/types";
 
 export const defaultStatue = {
   appState: {
@@ -14,10 +21,10 @@ export const defaultStatue = {
   },
 } as ExcalidrawInitialDataState;
 
-export const loadInitialData = (
+export const loadInitialData = async (
   scenes: Scene[],
   target: string //scene id
-): ExcalidrawInitialDataState | null => {
+): Promise<ExcalidrawInitialDataState | null> => {
   let data = keyBy(
     scenes.filter((scene) => !scene.deleted),
     "id"
@@ -26,19 +33,17 @@ export const loadInitialData = (
   // if can't found data return default config
   if (typeof data !== "string") return defaultStatue;
 
-  const config = flow(
-    JSON.parse,
-    restoreLibrary,
-    restoreFiles,
-    merge(defaultStatue)
-  )(data);
+  const parsedData = JSON.parse(data);
+  restoreLibrary(parsedData);
+  await restoreFiles(parsedData);
+  const config = merge(defaultStatue)(parsedData);
 
   log("load config", config);
   return config;
 };
 
 /**
- * 从 utools 数据库中读取数据对应 id 的文件
+ * 从数据库中读取数据对应 id 的文件
  * 如果 db 中存在该文件，则返回该文件
  * 否则从自带的 files 中尝试读取文件
  *  如果成功读取，则把文件存入数据库
@@ -46,20 +51,30 @@ export const loadInitialData = (
  * @param data Excalidraw 数据
  * @returns
  */
-export const restoreFiles = (
+export const restoreFiles = async (
   data: ImportedDataState
 ): ExcalidrawInitialDataState => {
-  for (const el of data.elements ?? [])
-    if (el.type == "image" && window.utools && el.fileId) {
-      const unit8arr = SS.getFile(el.fileId);
-      if (!data.files) data.files = {};
-
-      if (unit8arr && unit8arr instanceof Uint8Array) {
-        const text = decoder.decode(unit8arr);
-        // restore file to json
-        data.files[el.fileId] = JSON.parse(text);
-      }
-    }
+  data.files = (
+    await Promise.all(
+      (data.elements ?? [])
+        .filter((el) => el.type === "image" && el.fileId)
+        .map(async (el) => {
+          const ele = el as ExcalidrawImageElement & { fileId: FileId };
+          return {
+            id: ele.fileId,
+            file: await SS.getFile(ele.fileId),
+          };
+        })
+    )
+  )
+    .filter((item) => item.file)
+    .reduce<BinaryFiles>(
+      (acc, item) => ({
+        ...acc,
+        [item.id]: JSON.parse(decoder.decode(item.file!)),
+      }),
+      {}
+    );
   return data;
 };
 

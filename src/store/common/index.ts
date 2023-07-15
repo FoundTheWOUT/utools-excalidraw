@@ -1,16 +1,26 @@
 import { DB_KEY, Scene, Store } from "@/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { StoreSystem, initStore } from "..";
+import { encoder } from "@/utils/utils";
 
 const DBOpenReq = indexedDB.open("u2-excalidraw", 4);
 let db: IDBDatabase | undefined;
+
+const createObjectStoreIfNotExist = (
+  key: string,
+  options?: IDBObjectStoreParameters
+) => {
+  if (!db?.objectStoreNames.contains(key)) {
+    db?.createObjectStore(key, options);
+  }
+};
 
 export class StoreSystemCommon implements StoreSystem {
   async getStore() {
     const settings = localStorage.getItem(DB_KEY.SETTINGS);
     return new Promise<Store>((resolve, reject) => {
-      DBOpenReq.onerror = () => {
-        reject(new Error("DB connect fail."));
+      DBOpenReq.onerror = (err) => {
+        reject(err);
       };
       DBOpenReq.onsuccess = () => {
         db = DBOpenReq.result;
@@ -23,38 +33,61 @@ export class StoreSystemCommon implements StoreSystem {
             settings: settings ? JSON.parse(settings) : {},
             scenes,
           });
-          console.log(store);
           resolve(store);
         };
       };
       DBOpenReq.onupgradeneeded = (evt) => {
         // @ts-ignore
         db = evt.target?.result as IDBDatabase;
-        db.createObjectStore("scenes", { keyPath: "id" });
+        createObjectStoreIfNotExist("scenes", { keyPath: "id" });
+        createObjectStoreIfNotExist("files");
       };
     });
   }
-  getFile(key: string): Uint8Array | null {
+  async getFile(key: string) {
+    if (db) {
+      const filesStore = db.transaction("files").objectStore("files");
+      const file = filesStore.get(key);
+      return new Promise<Uint8Array>((resolve, reject) => {
+        file.onsuccess = () => {
+          resolve(file.result);
+        };
+        file.onerror = () => {
+          reject(new Error("get file error."));
+        };
+      });
+    }
     return null;
   }
   storeScene(key: string | null | undefined, data: Scene) {
+    if (!db) {
+      return;
+    }
     if (key) {
       const sceneStore = db
-        ?.transaction("scenes", "readwrite")
+        .transaction("scenes", "readwrite")
         .objectStore("scenes");
-      const sceneReq = sceneStore!.get(key);
-      sceneReq!.onsuccess = () => {
-        const sceneItem = sceneReq?.result;
-        if (sceneItem) {
-          sceneStore?.put(data);
-        } else {
-          sceneStore?.add(data);
-        }
+      const sceneReq = sceneStore.get(key);
+      sceneReq.onsuccess = () => {
+        sceneStore.put(data);
       };
     }
   }
   dropDeletedFiles(scenes: Scene[]): void {}
-  storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void {}
+  storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void {
+    if (!db || !excalidrawRef) {
+      return;
+    }
+
+    const files = excalidrawRef.getFiles();
+    const fileStore = db.transaction("files", "readwrite").objectStore("files");
+    for (const fileKey in files) {
+      const fileReq = fileStore.get(fileKey);
+      fileReq.onsuccess = () => {
+        fileStore.put(encoder.encode(JSON.stringify(files[fileKey])), fileKey);
+      };
+    }
+  }
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]) {
     localStorage.setItem(key, JSON.stringify(value));
   }
