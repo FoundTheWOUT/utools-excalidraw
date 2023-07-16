@@ -231,7 +231,7 @@ function App({ store }: { store: Store }) {
 
   if (!initialData) {
     error && console.error(error);
-    return "init data...";
+    return <div>init data...</div>;
   }
 
   return (
