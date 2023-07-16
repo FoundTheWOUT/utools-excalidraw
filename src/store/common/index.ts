@@ -2,6 +2,7 @@ import { DB_KEY, Scene, Store } from "@/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { StoreSystem, initStore } from "..";
 import { encoder } from "@/utils/utils";
+import { collectAllFileId } from "@/utils/data";
 
 const DBOpenReq = indexedDB.open("u2-excalidraw", 4);
 let db: IDBDatabase | undefined;
@@ -45,35 +46,49 @@ export class StoreSystemCommon implements StoreSystem {
     });
   }
   async getFile(key: string) {
-    if (db) {
-      const filesStore = db.transaction("files").objectStore("files");
-      const file = filesStore.get(key);
-      return new Promise<Uint8Array>((resolve, reject) => {
-        file.onsuccess = () => {
-          resolve(file.result);
-        };
-        file.onerror = () => {
-          reject(new Error("get file error."));
-        };
-      });
+    if (!db) {
+      return null;
     }
-    return null;
+    const filesStore = db.transaction("files").objectStore("files");
+    const file = filesStore.get(key);
+    return new Promise<Uint8Array>((resolve, reject) => {
+      file.onsuccess = () => {
+        resolve(file.result);
+      };
+      file.onerror = () => {
+        reject(new Error("get file error."));
+      };
+    });
   }
-  storeScene(key: string | null | undefined, data: Scene) {
+  storeScene(key: string, data: Scene) {
     if (!db) {
       return;
     }
-    if (key) {
-      const sceneStore = db
-        .transaction("scenes", "readwrite")
-        .objectStore("scenes");
-      const sceneReq = sceneStore.get(key);
-      sceneReq.onsuccess = () => {
-        sceneStore.put(data);
-      };
-    }
+    const sceneStore = db
+      .transaction("scenes", "readwrite")
+      .objectStore("scenes");
+    const sceneReq = sceneStore.get(key);
+    sceneReq.onsuccess = () => {
+      sceneStore.put(data);
+    };
   }
-  dropDeletedFiles(scenes: Scene[]): void {}
+  dropDeletedFiles(scenes: Scene[]): void {
+    if (!db) {
+      return;
+    }
+    const fileStore = db.transaction("files", "readwrite").objectStore("files");
+    const fileKeys = fileStore.getAllKeys();
+
+    const existFileId = collectAllFileId(scenes);
+    fileKeys.onsuccess = () => {
+      const keys = fileKeys.result;
+      keys.forEach((key) => {
+        if (!existFileId.has(key)) {
+          fileStore.delete(key);
+        }
+      });
+    };
+  }
   storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void {
     if (!db || !excalidrawRef) {
       return;
@@ -92,7 +107,14 @@ export class StoreSystemCommon implements StoreSystem {
     localStorage.setItem(key, JSON.stringify(value));
   }
   handleLibraryChange(item: any): void {}
-  removeScene(id: string): void {
-    localStorage.removeItem(id);
+  removeScene(key: string): void {
+    if (!db) {
+      return;
+    }
+    const sceneStore = db
+      .transaction("scenes", "readwrite")
+      .objectStore("scenes");
+
+    sceneStore.delete(key);
   }
 }

@@ -94,3 +94,20 @@ const restoreLibrary = (
   }
   return data;
 };
+
+export const collectAllFileId = (scenes: Scene[]) => {
+  const existFileId = new Set();
+
+  scenes.forEach((scene) => {
+    if (scene.data) {
+      const data = JSON.parse(scene.data) as ImportedDataState;
+      data.elements?.forEach((e) => {
+        if (e.type == "image") {
+          existFileId.add(e.fileId);
+        }
+      });
+    }
+  });
+
+  return existFileId;
+};

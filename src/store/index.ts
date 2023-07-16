@@ -13,13 +13,13 @@ export interface StoreSystem {
 
   getFile(key: string): Promise<Uint8Array | null>;
 
-  storeScene(key: string | undefined | null, data: Scene): void;
+  storeScene(key: string, data: Scene): void;
 
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void;
 
   storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void;
 
-  removeScene(id: string): void;
+  removeScene(key: string): void;
 
   handleLibraryChange(item: LibraryItems): void;
 

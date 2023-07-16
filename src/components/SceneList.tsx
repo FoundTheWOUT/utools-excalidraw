@@ -102,6 +102,14 @@ function SceneList() {
     });
   };
 
+  const cleanup = () => {
+    SS.dropDeletedFiles(concat(scenes, trashcan));
+  };
+
+  useEffect(() => {
+    cleanup();
+  }, []);
+
   window.utools &&
     utools.onPluginOut(() => {
       scenes.forEach((scene) => {
@@ -110,8 +118,6 @@ function SceneList() {
         scene.img = undefined;
         SS.storeScene(scene.id, scene);
       });
-      // drop deleted files
-      SS.dropDeletedFiles(concat(scenes, trashcan));
     });
 
   window.utools &&

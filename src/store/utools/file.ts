@@ -3,6 +3,7 @@ import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { Scene } from "@/types";
 import { log } from "@/utils/utils";
 import { FILE_DOC_PREFIX, TEN_MB } from "@/const";
+import { collectAllFileId } from "@/utils/data";
 
 export const storeFile = (
   key: string,
@@ -40,19 +41,8 @@ export const dropDeletedFiles = (scenes: Scene[]) => {
 
   // 1. get all file in db.
   const files = window.utools.db.allDocs(FILE_DOC_PREFIX);
-  const noneDeletedFileId = new Set();
-
   // 2. find all file in all scenes, set file id to 'none deleted' Set.
-  scenes.map((scene) => {
-    if (scene.data) {
-      const data = JSON.parse(scene.data) as ImportedDataState;
-      data.elements?.forEach((e) => {
-        if (e.type == "image") {
-          noneDeletedFileId.add(e.fileId);
-        }
-      });
-    }
-  });
+  const noneDeletedFileId = collectAllFileId(scenes);
 
   // 3. iter files, and remove it if it's not contain in the 'none deleted' Set.
   files.forEach((doc) => {
