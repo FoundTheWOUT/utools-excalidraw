@@ -1,4 +1,4 @@
-import React, { useState, useRef, createContext } from "react";
+import React, { useState, useRef, createContext, useEffect } from "react";
 import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
 import { useDebounceFn } from "ahooks";
 import {
@@ -12,7 +12,7 @@ import { loadInitialData, restoreFiles } from "./utils/data";
 import { omit } from "lodash";
 import ExportOps from "./components/ExportOps";
 import useSWR from "swr";
-import { TEN_MB } from "./const";
+import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
 import { EventChanel } from "./utils/event";
 import SideBar from "./components/SideBar";
 import dayjs from "dayjs";
@@ -205,6 +205,29 @@ function App({ store }: { store: Store }) {
   const handleSceneLoad = () => {
     loadScene.emit();
   };
+
+  const aLinkHandler = (e: MouseEvent) => {
+    const target = e.target as any;
+    if (!target) {
+      return;
+    }
+    if (target.nodeName !== "A") {
+      return;
+    }
+    if (ALLOW_HOSTS.includes(target.href)) {
+      const targetHref = REDIRECT_HOSTS[target.href] ?? target.href;
+      window.utools && window.utools.shellOpenExternal(targetHref);
+      e.preventDefault();
+      window.open(targetHref, "_blank", "noopener noreferrer");
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", aLinkHandler);
+    return () => {
+      document.removeEventListener("click", aLinkHandler);
+    };
+  }, []);
 
   if (!initialData) {
     error && console.error(error);
