@@ -307,6 +307,7 @@ function App({ store }: { store: Store }) {
               <MainMenu.DefaultItems.ClearCanvas />
               <MainMenu.DefaultItems.ToggleTheme />
               <MainMenu.DefaultItems.ChangeCanvasBackground />
+              <MainMenu.Separator />
             </MainMenu>
           </Excalidraw>
         </main>

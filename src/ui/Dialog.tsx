@@ -23,7 +23,7 @@ export function Dialog({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <HDialog.Panel className="bg-white max-w-2xl p-4 rounded-lg shadow-lg">
+        <HDialog.Panel className="bg-white max-w-2xl min-w-[25rem] p-4 rounded-lg shadow-lg">
           <HDialog.Title className="font-bold text-xl flex">
             <span>{title}</span>
             <XCircleIcon
