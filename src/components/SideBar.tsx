@@ -8,16 +8,45 @@ import {
   TrashIcon,
   CogIcon,
 } from "@heroicons/react/solid";
-import { Scene } from "@/types";
+import { DB_KEY, Scene, Store } from "@/types";
 import { Switch } from "@headlessui/react";
 import SwitchBtn from "@/ui/Switch";
 import TrashcanDialog from "./TrashcanDialog";
 import { Dialog } from "@/ui/Dialog";
+import { t } from "@/i18n";
 
 export const SideBarContext = createContext<{
   scenes: Scene[];
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
 } | null>(null);
+
+function AppSettingsSwitchItem({
+  prop,
+}: {
+  prop: keyof Store[DB_KEY.SETTINGS];
+}) {
+  const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};
+
+  if (!appSettings) {
+    return null;
+  }
+
+  return (
+    <Switch.Group>
+      <div className="flex items-center gap-2">
+        <SwitchBtn
+          checked={!appSettings[prop]}
+          onClick={() =>
+            setAndStoreAppSettings?.({
+              [prop]: !appSettings[prop],
+            })
+          }
+        />
+        <Switch.Label>{t(prop)}</Switch.Label>
+      </div>
+    </Switch.Group>
+  );
+}
 
 function SideBar({ initScenes }: { initScenes: Scene[] }) {
   const { appSettings, setAndStoreAppSettings, setResizing } =
@@ -37,7 +66,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     });
   };
   const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
-  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
+  const [settingDialogOpen, setSettingDialogOpen] = useState(true);
 
   if (!appSettings) {
     return null;
@@ -119,19 +148,39 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           open={settingDialogOpen}
           title="设置"
         >
-          <Switch.Group>
-            <div className="flex items-center gap-2">
-              <SwitchBtn
-                checked={appSettings.closePreview}
-                onClick={() =>
-                  setAndStoreAppSettings?.({
-                    closePreview: appSettings.closePreview,
-                  })
-                }
-              />
-              <Switch.Label>预览</Switch.Label>
-            </div>
-          </Switch.Group>
+          <div className="mt-4 flex flex-col gap-2">
+            <AppSettingsSwitchItem prop="closePreview" />
+
+            <Switch.Group>
+              <div className="flex items-center gap-2">
+                <SwitchBtn
+                  checked={appSettings.closePreview}
+                  onClick={() =>
+                    setAndStoreAppSettings?.({
+                      closePreview: appSettings.closePreview,
+                    })
+                  }
+                />
+                <Switch.Label>删除画布时是否直接删除</Switch.Label>
+              </div>
+            </Switch.Group>
+
+            <AppSettingsSwitchItem prop="asideClosed" />
+
+            <Switch.Group>
+              <div className="flex items-center gap-2">
+                <SwitchBtn
+                  checked={!appSettings.asideClosed}
+                  onClick={() =>
+                    setAndStoreAppSettings?.({
+                      asideClosed: !appSettings.asideClosed,
+                    })
+                  }
+                />
+                <Switch.Label>自动隐藏侧栏</Switch.Label>
+              </div>
+            </Switch.Group>
+          </div>
         </Dialog>
       </>
     </SideBarContext.Provider>
