@@ -3,13 +3,15 @@ import React from "react";
 
 function Switch({
   checked,
+  notAllow = false,
   ...rest
-}: { checked: boolean } & JSX.IntrinsicElements["button"]) {
+}: { checked: boolean; notAllow?: boolean } & JSX.IntrinsicElements["button"]) {
   return (
     <button
       className={cn(
-        "w-10 rounded-full flex items-center cursor-pointer relative h-6",
-        checked ? "bg-[#6965db]" : "bg-gray-300"
+        "w-10 rounded-full flex items-center relative h-6",
+        checked ? "bg-[#6965db]" : "bg-gray-300",
+        notAllow ? "cursor-not-allowed" : "cursor-pointer"
       )}
       {...rest}
     >

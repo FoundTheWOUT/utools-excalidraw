@@ -121,8 +121,16 @@ function SceneList() {
     });
 
   window.utools &&
-    utools.onPluginEnter(({ code, payload }) => {
+    utools.onPluginEnter(({ code, payload, option }) => {
       const pl = payload as Payload[];
+      if (code === "search-scenes") {
+        const { sceneId } = option;
+        const scene = scenes.find((scene) => scene.id === sceneId);
+        if (scene) {
+          handleSetActiveDraw?.(sceneId, { scene });
+        }
+      }
+
       if (code === "load-excalidraw-file" && pl.length) {
         const firstAppendScenesId = six_nanoid();
         const appendScenes = pl.reduce(

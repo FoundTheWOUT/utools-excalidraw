@@ -23,12 +23,26 @@ export const SideBarContext = createContext<{
 function AppSettingsSwitchItem({
   prop,
 }: {
-  prop: keyof Store[DB_KEY.SETTINGS];
+  prop: keyof Store[DB_KEY.SETTINGS] | (string & {});
 }) {
   const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};
 
   if (!appSettings) {
     return null;
+  }
+
+  if (!Object.hasOwn(appSettings, prop)) {
+    return (
+      <Switch.Group>
+        <div className="flex gap-2">
+          <SwitchBtn checked={false} notAllow />
+          <Switch.Label className="flex-1 text-gray-500">
+            <div className="font-semibold">{t(prop)}</div>
+            <div className="text-sm mt-1">{t(`${prop}.Description`)}</div>
+          </Switch.Label>
+        </div>
+      </Switch.Group>
+    );
   }
 
   return (
@@ -153,38 +167,19 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           open={settingDialogOpen}
           title="设置"
         >
-          <div className="flex flex-col gap-4 p-2">
+          <div className="flex flex-col gap-4 p-2 mt-4">
             <AppSettingsSwitchItem prop="closePreview" />
-
-            <Switch.Group>
-              <div className="flex items-center gap-2">
-                <SwitchBtn
-                  checked={appSettings.closePreview}
-                  onClick={() =>
-                    setAndStoreAppSettings?.({
-                      closePreview: appSettings.closePreview,
-                    })
-                  }
-                />
-                <Switch.Label>删除画布时是否直接删除</Switch.Label>
-              </div>
-            </Switch.Group>
-
             <AppSettingsSwitchItem prop="asideClosed" />
 
-            <Switch.Group>
-              <div className="flex items-center gap-2">
-                <SwitchBtn
-                  checked={!appSettings.asideClosed}
-                  onClick={() =>
-                    setAndStoreAppSettings?.({
-                      asideClosed: !appSettings.asideClosed,
-                    })
-                  }
-                />
-                <Switch.Label>自动隐藏侧栏</Switch.Label>
-              </div>
-            </Switch.Group>
+            <div className="relative my-2 select-none">
+              <div className="w-full h-[1px] bg-gray-300"></div>
+              <span className="px-2 text-sm text-gray-500 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white">
+                敬请期待
+              </span>
+            </div>
+
+            <AppSettingsSwitchItem prop="deleteSceneDirectly" />
+            <AppSettingsSwitchItem prop="asideCloseAutomatically" />
           </div>
         </Dialog>
       </>

@@ -18,6 +18,16 @@
           "match": "/\\.excalidraw$/i"
         }
       ]
+    },
+    {
+      "code": "search-scenes",
+      "mainPush": true,
+      "cmds": [
+        {
+          "type": "over",
+          "label": "画布搜索"
+        }
+      ]
     }
   ],
   "development": {

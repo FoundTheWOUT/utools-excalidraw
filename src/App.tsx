@@ -23,7 +23,7 @@ export const AppContext = createContext<{
   updatingScene: boolean;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
-  appSettings: Store[DB_KEY.SETTINGS];
+  appSettings: Store[DB_KEY.SETTINGS] & { [key: string]: unknown };
   setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
   handleSetActiveDraw: (
     id: string,

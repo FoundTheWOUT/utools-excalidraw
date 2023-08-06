@@ -33,3 +33,15 @@ window.readFileSync = fs.readFileSync;
     utools.db.remove(KEY_SCENES);
   }
 })();
+
+utools.onMainPush(({ code, payload, type }) => {
+  const scenes = utools.db.allDocs("scene/");
+  return scenes
+    .filter(
+      ({ value: { name, deleted } }) => !deleted && name.includes(payload)
+    )
+    .map((scene) => ({
+      text: scene.value.name ?? scene._id,
+      sceneId: scene.value.id,
+    }));
+});
