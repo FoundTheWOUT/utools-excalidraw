@@ -33,7 +33,7 @@ function AppSettingsSwitchItem({
 
   return (
     <Switch.Group>
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2">
         <SwitchBtn
           checked={!appSettings[prop]}
           onClick={() =>
@@ -42,7 +42,12 @@ function AppSettingsSwitchItem({
             })
           }
         />
-        <Switch.Label>{t(prop)}</Switch.Label>
+        <Switch.Label className="flex-1">
+          <div className="font-semibold">{t(prop)}</div>
+          <div className="text-sm text-gray-500 mt-1">
+            {t(`${prop}.Description`)}
+          </div>
+        </Switch.Label>
       </div>
     </Switch.Group>
   );
@@ -148,7 +153,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           open={settingDialogOpen}
           title="设置"
         >
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="flex flex-col gap-4 p-2">
             <AppSettingsSwitchItem prop="closePreview" />
 
             <Switch.Group>
