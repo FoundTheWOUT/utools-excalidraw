@@ -85,7 +85,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     });
   };
   const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
-  const [settingDialogOpen, setSettingDialogOpen] = useState(true);
+  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
 
   if (!appSettings) {
     return null;
