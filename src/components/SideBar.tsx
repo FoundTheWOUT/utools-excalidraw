@@ -22,8 +22,10 @@ export const SideBarContext = createContext<{
 
 function AppSettingsSwitchItem({
   prop,
+  reverse = false,
 }: {
   prop: keyof Store[DB_KEY.SETTINGS] | (string & {});
+  reverse?: boolean;
 }) {
   const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};
 
@@ -49,7 +51,7 @@ function AppSettingsSwitchItem({
     <Switch.Group>
       <div className="flex gap-2">
         <SwitchBtn
-          checked={!appSettings[prop]}
+          checked={reverse ? !!appSettings[prop] : !appSettings[prop]}
           onClick={() =>
             setAndStoreAppSettings?.({
               [prop]: !appSettings[prop],
@@ -100,9 +102,15 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     >
       <>
         <aside
-          className="relative h-full bg-gray-100 z-10"
+          className={cn(
+            appSettings.asideClosed ? "fixed" : "relative",
+            "h-full bg-gray-100 z-10 transition-transform"
+          )}
           style={{
-            width: appSettings?.asideClosed ? 0 : appSettings?.asideWidth,
+            transform: appSettings.asideClosed
+              ? `translateX(-${appSettings?.asideWidth}px)`
+              : "",
+            width: appSettings?.asideWidth,
           }}
         >
           <div className="h-full overflow-y-auto">
