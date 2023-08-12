@@ -35,6 +35,7 @@ const DefaultStore = (): Store => {
       lastActiveDraw: blank.id,
       closePreview: false,
       scenesId: [blank.id],
+      asideCloseAutomatically: false,
     },
     scenes: [blank],
     scenes_map: new Map(),

@@ -16,6 +16,7 @@ export type Store = {
     asideClosed: boolean;
     closePreview: boolean;
     scenesId: string[];
+    asideCloseAutomatically: boolean;
   };
   [DB_KEY.SCENES]: Scene[];
   scenes_map: Map<string, Scene>;

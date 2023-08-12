@@ -96,6 +96,14 @@ function App({ store }: { store: Store }) {
   const [resizing, setResizing] = useState(false);
   const [updatingScene, setUpdatingScene] = useState(false);
 
+  const closeAsideAutomatically = () => {
+    if (appSettings.asideCloseAutomatically) {
+      setAndStoreAppSettings({
+        asideClosed: true,
+      });
+    }
+  };
+
   const { run: onSceneUpdate } = useDebounceFn(
     async (elements, state, files, target) => {
       // lock scene.
@@ -258,7 +266,12 @@ function App({ store }: { store: Store }) {
         <SideBar initScenes={initScenes} />
 
         {/* white board */}
-        <main className="flex-1 ml-2">
+        <main
+          className="flex-1 ml-2"
+          onClick={() => {
+            closeAsideAutomatically();
+          }}
+        >
           <Excalidraw
             ref={excalidrawRef}
             initialData={initialData}

@@ -88,6 +88,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
   };
   const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
   const [settingDialogOpen, setSettingDialogOpen] = useState(false);
+  const [openSideBarTemp, setOpenSideBarTemp] = useState(false);
 
   if (!appSettings) {
     return null;
@@ -107,10 +108,14 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
             "h-full bg-gray-100 z-10 transition-transform"
           )}
           style={{
-            transform: appSettings.asideClosed
-              ? `translateX(-${appSettings?.asideWidth}px)`
-              : "",
+            transform:
+              !appSettings.asideClosed || openSideBarTemp
+                ? ""
+                : `translateX(-${appSettings?.asideWidth}px)`,
             width: appSettings?.asideWidth,
+          }}
+          onMouseLeave={() => {
+            setOpenSideBarTemp(false);
           }}
         >
           <div className="h-full overflow-y-auto">
@@ -165,6 +170,16 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           ></div>
         </aside>
 
+        {/* auto open mask */}
+        {appSettings.asideCloseAutomatically && (
+          <div
+            className="z-10 fixed h-5/6 left-0 w-6"
+            onMouseEnter={() => {
+              setOpenSideBarTemp(true);
+            }}
+          ></div>
+        )}
+
         <TrashcanDialog
           open={trashcanDialogOpen}
           onClose={(close) => setTrashcanDialogOpen(close)}
@@ -178,6 +193,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           <div className="flex flex-col gap-4 p-2 mt-4">
             <AppSettingsSwitchItem prop="closePreview" />
             <AppSettingsSwitchItem prop="asideClosed" />
+            <AppSettingsSwitchItem prop="asideCloseAutomatically" reverse />
 
             <div className="relative my-2 select-none">
               <div className="w-full h-[1px] bg-gray-300"></div>
@@ -187,7 +203,6 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
             </div>
 
             <AppSettingsSwitchItem prop="deleteSceneDirectly" />
-            <AppSettingsSwitchItem prop="asideCloseAutomatically" />
           </div>
         </Dialog>
       </>
