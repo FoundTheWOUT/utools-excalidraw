@@ -9,16 +9,16 @@ function Switch({
   return (
     <button
       className={cn(
-        "w-10 rounded-full flex items-center relative h-6",
+        "relative flex h-6 w-10 items-center rounded-full",
         checked ? "bg-[#6965db]" : "bg-gray-300",
-        notAllow ? "cursor-not-allowed" : "cursor-pointer"
+        notAllow ? "cursor-not-allowed" : "cursor-pointer",
       )}
       {...rest}
     >
       <span
         className={cn(
-          "rounded-full h-5 w-5 transition-transform bg-white inline-block",
-          checked ? "translate-x-[1.1rem]" : "translate-x-[0.1rem]"
+          "inline-block h-5 w-5 rounded-full bg-white transition-transform",
+          checked ? "translate-x-[1.1rem]" : "translate-x-[0.1rem]",
         )}
       />
     </button>

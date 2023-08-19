@@ -23,11 +23,11 @@ export const defaultStatue = {
 
 export const loadInitialData = async (
   scenes: Scene[],
-  target: string //scene id
+  target: string, //scene id
 ): Promise<ExcalidrawInitialDataState | null> => {
   let data = keyBy(
     scenes.filter((scene) => !scene.deleted),
-    "id"
+    "id",
   )[target]?.data;
 
   // if can't found data return default config
@@ -52,7 +52,7 @@ export const loadInitialData = async (
  * @returns
  */
 export const restoreFiles = async (
-  data: ImportedDataState
+  data: ImportedDataState,
 ): ExcalidrawInitialDataState => {
   data.files = (
     await Promise.all(
@@ -64,7 +64,7 @@ export const restoreFiles = async (
             id: ele.fileId,
             file: await SS.getFile(ele.fileId),
           };
-        })
+        }),
     )
   )
     .filter((item) => item.file)
@@ -73,14 +73,14 @@ export const restoreFiles = async (
         ...acc,
         [item.id]: JSON.parse(decoder.decode(item.file!)),
       }),
-      {}
+      {},
     );
   return data;
 };
 
 // 恢复Libraries
 const restoreLibrary = (
-  data: ImportedDataState
+  data: ImportedDataState,
 ): ExcalidrawInitialDataState => {
   if (!window.utools) return data;
   log("get library from db.");
@@ -89,7 +89,7 @@ const restoreLibrary = (
   if (libraries.length > 0) {
     data.libraryItems = restoreLibraryItems(
       libraries.map((lib: any) => lib.value),
-      "unpublished"
+      "unpublished",
     );
   }
   return data;

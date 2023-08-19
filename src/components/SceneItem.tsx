@@ -99,7 +99,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         generatePreviewImage(
           excalidrawRef.current.getSceneElementsIncludingDeleted(),
           excalidrawRef.current.getAppState(),
-          excalidrawRef.current.getFiles()
+          excalidrawRef.current.getFiles(),
         ).then((path) => {
           const newScenes = scenes?.map((scene, index) => {
             if (index != idx) return scene;
@@ -124,12 +124,12 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       {!appSettings?.closePreview && (
         <button
           className={cn(
-            "w-full aspect-video bg-white border rounded overflow-hidden cursor-pointer select-none",
+            "aspect-video w-full cursor-pointer select-none overflow-hidden rounded border bg-white",
             updatingScene ? "cursor-wait" : "hover-shadow",
             {
-              "ring ring-offset-2 ring-[#6965db]":
+              "ring ring-[#6965db] ring-offset-2":
                 appSettings?.lastActiveDraw === id,
-            }
+            },
           )}
           style={{
             background: bgColor,
@@ -139,7 +139,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         >
           {img ? (
             <img
-              className="object-contain w-full h-full"
+              className="h-full w-full object-contain"
               src={img}
               alt={name}
             />
@@ -155,7 +155,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       >
         {appSettings?.closePreview ? (
           <button
-            className="btn-preset bg-gray-200 hover:text-black font-normal text-left px-3 flex-1 truncate transition"
+            className="btn-preset flex-1 truncate bg-gray-200 px-3 text-left font-normal transition hover:text-black"
             title={name}
             onClick={handleActiveAction}
           >
@@ -164,7 +164,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         ) : (
           <input
             type="text"
-            className="flex-1 h-9 px-3 focus:ring ring-[#6965db] outline-none bg-gray-200 rounded-lg truncate"
+            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] focus:ring"
             value={name}
             onChange={(e) => {
               setScenes?.((old) => {
@@ -201,19 +201,19 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                   <Popover.Panel
                     ref={refs.setFloating}
                     style={floatingStyles}
-                    className="bg-white rounded-lg p-4 w-36 shadow-lg"
+                    className="w-36 rounded-lg bg-white p-4 shadow-lg"
                   >
                     <div className="mb-2">确定删除画布吗</div>
                     <div className="flex justify-around">
                       <button
-                        className="btn-layout text-sm btn-danger"
+                        className="btn-layout btn-danger text-sm"
                         onClick={() => handleDeleteScene(true)}
                       >
                         确定
                       </button>
 
                       <button
-                        className="btn-layout text-sm btn-safe"
+                        className="btn-layout btn-safe text-sm"
                         onClick={close}
                       >
                         取消
@@ -223,10 +223,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                 </Transition>
                 <Popover.Button
                   className={cn(
-                    "bg-gray-200 p-2 rounded-lg flex",
+                    "flex rounded-lg bg-gray-200 p-2",
                     scenes?.length === 1
                       ? "cursor-not-allowed text-red-300"
-                      : "text-red-500 hover-shadow"
+                      : "hover-shadow text-red-500",
                   )}
                   title="删除"
                   disabled={scenes?.length === 1}
@@ -240,10 +240,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         ) : (
           <button
             className={cn(
-              "bg-gray-200 p-2 rounded-lg flex",
+              "flex rounded-lg bg-gray-200 p-2",
               scenes?.length === 1
                 ? "cursor-not-allowed text-red-300"
-                : "text-red-500 hover-shadow"
+                : "hover-shadow text-red-500",
             )}
             onClick={() => handleDeleteScene()}
             title="删除"
@@ -254,7 +254,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         )}
 
         <button
-          className="bg-gray-200 p-2 rounded-lg hover-shadow flex"
+          className="hover-shadow flex rounded-lg bg-gray-200 p-2"
           title="移动"
           {...dragProvided.dragHandleProps}
         >

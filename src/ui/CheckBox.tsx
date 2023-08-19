@@ -12,7 +12,7 @@ const StyledCheckBox = ({
     <input
       checked={checked}
       type="checkbox"
-      className="w-5 h-5 appearance-none border-2 border-gray-400 rounded checked:bg-[#6965db] form-tick"
+      className="form-tick h-5 w-5 appearance-none rounded border-2 border-gray-400 checked:bg-[#6965db]"
       onChange={onChange}
     />
     {children}

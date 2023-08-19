@@ -36,7 +36,7 @@ const DefaultStore = (): Store => {
       closePreview: false,
       scenesId: [blank.id],
       asideCloseAutomatically: false,
-      deleteSceneDirectly: false
+      deleteSceneDirectly: false,
     },
     scenes: [blank],
     scenes_map: new Map(),
@@ -58,7 +58,7 @@ export const initStore = (store?: Partial<Store>): Store => {
     : defaultStore;
   const { scenes, scenesMap, idArray } = restoreScenesArray(
     mergeStore.scenes,
-    mergeStore[DB_KEY.SETTINGS].scenesId
+    mergeStore[DB_KEY.SETTINGS].scenesId,
   );
 
   // 自动修复 lastActiveDraw

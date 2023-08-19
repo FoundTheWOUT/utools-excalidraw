@@ -9,7 +9,7 @@ let db: IDBDatabase | undefined;
 
 const createObjectStoreIfNotExist = (
   key: string,
-  options?: IDBObjectStoreParameters
+  options?: IDBObjectStoreParameters,
 ) => {
   if (!db?.objectStoreNames.contains(key)) {
     db?.createObjectStore(key, options);

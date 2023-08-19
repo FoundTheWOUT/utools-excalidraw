@@ -10,7 +10,7 @@
 
 @layer components {
   .btn-preset {
-    @apply rounded-lg hover:shadow active:shadow-none font-bold hover:text-white transition duration-300;
+    @apply rounded-lg font-bold transition duration-300 hover:text-white hover:shadow active:shadow-none;
   }
   .btn-layout {
     @apply px-2 py-1;
@@ -19,19 +19,19 @@
     @apply btn-preset bg-gray-200 text-gray-800;
   }
   .btn-safe {
-    @apply btn-preset bg-emerald-100 hover:bg-emerald-500 text-emerald-500;
+    @apply btn-preset bg-emerald-100 text-emerald-500 hover:bg-emerald-500;
   }
   .btn-danger {
-    @apply btn-preset bg-red-100 hover:bg-red-500 text-red-500;
+    @apply btn-preset bg-red-100 text-red-500 hover:bg-red-500;
   }
   .btn-primary {
-    @apply btn-preset bg-[#e3e2fe] hover:bg-[#6965db] text-[#5b57d1];
+    @apply btn-preset bg-[#e3e2fe] text-[#5b57d1] hover:bg-[#6965db];
   }
 }
 
 @layer utilities {
   .hover-shadow {
-    @apply hover:shadow active:shadow-none transition-shadow duration-300;
+    @apply transition-shadow duration-300 hover:shadow active:shadow-none;
   }
 }
 

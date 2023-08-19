@@ -39,8 +39,8 @@ export function Dialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90 leave-to"
           >
-            <HDialog.Panel className="bg-white max-w-2xl min-w-[25rem] p-4 rounded-lg shadow-lg">
-              <HDialog.Title className="font-bold text-xl flex">
+            <HDialog.Panel className="min-w-[25rem] max-w-2xl rounded-lg bg-white p-4 shadow-lg">
+              <HDialog.Title className="flex text-xl font-bold">
                 <span>{title}</span>
                 <XCircleIcon
                   className="ml-auto h-7 cursor-pointer"

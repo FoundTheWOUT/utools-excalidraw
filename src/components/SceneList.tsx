@@ -68,7 +68,7 @@ function SceneList() {
         const data = await fileData.text();
         const name = fileData.name.slice(
           0,
-          fileData.name.length - EXCALIDRAW_EXTENSION.length
+          fileData.name.length - EXCALIDRAW_EXTENSION.length,
         );
         // const data = serializeAsJSON(elements, appState, files, "database");
         const newScene = newAScene({ name, data });
@@ -94,7 +94,7 @@ function SceneList() {
     const reorderScenes = reorder(
       scenes,
       result.source.index,
-      result.destination.index
+      result.destination.index,
     );
     setScenes?.(reorderScenes);
     setAndStoreAppSettings?.({
@@ -147,7 +147,7 @@ function SceneList() {
                     id: idx === 0 ? firstAppendScenesId : six_nanoid(),
                     name: fileName,
                     data: excalidrawFile,
-                  })
+                  }),
                 );
               } catch (error) {
                 excalidrawRef?.current?.setToast({
@@ -157,7 +157,7 @@ function SceneList() {
             }
             return scenes;
           },
-          [] as Scene[]
+          [] as Scene[],
         );
         setScenes?.((scenes) => [...scenes, ...appendScenes]);
         appendScenes.length &&
@@ -198,7 +198,7 @@ function SceneList() {
       </DragDropContext>
       <div className="p-3">
         <div
-          className="w-full aspect-video bg-white cursor-pointer rounded flex items-center justify-center hover-shadow"
+          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded bg-white"
           onClick={() => {
             const newScene = newAScene({ name: `画布${scenes.length}` });
             setScenes?.([...scenes, newScene]);

@@ -19,7 +19,8 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
   }
 };
 
-export const getSceneByID = (scenes: Scene[], id: string | null) => (id ? keyBy(scenes, "id")[id] : null);
+export const getSceneByID = (scenes: Scene[], id: string | null) =>
+  id ? keyBy(scenes, "id")[id] : null;
 
 // 获取 Scene 数组
 export const getScenes = (): Scene[] => {
@@ -45,7 +46,7 @@ export const removeScene = (key: string | null) => {
  */
 export const restoreScenesArray = (
   scenes: Scene[],
-  idArray: string[]
+  idArray: string[],
 ): { scenes: Scene[]; idArray: string[]; scenesMap: Map<string, Scene> } => {
   // if no id array is empty, return the raw scenes arrays.
   if (idArray.length == 0) return { scenes, idArray: [], scenesMap: new Map() };

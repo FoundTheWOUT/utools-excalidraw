@@ -13,7 +13,7 @@ const ToDiskIcon = () => (
     focusable="false"
     role="img"
     viewBox="0 0 512 512"
-    className="w-[2.6rem] h-[2.6rem]"
+    className="h-[2.6rem] w-[2.6rem]"
   >
     <path
       fill="currentColor"
@@ -28,7 +28,7 @@ const ToImageIcon = () => (
     focusable="false"
     role="img"
     viewBox="0 0 576 512"
-    className="w-[2.6rem] h-[2.6rem]"
+    className="h-[2.6rem] w-[2.6rem]"
   >
     <path
       fill="currentColor"
@@ -59,7 +59,7 @@ const ExportOps = () => {
       excalidrawRef.current.getSceneElementsIncludingDeleted(),
       excalidrawRef.current.getAppState(),
       excalidrawRef.current.getFiles(),
-      "local"
+      "local",
     );
     if (name.includes(".")) {
       name += EXCALIDRAW_EXTENSION;
@@ -85,7 +85,7 @@ const ExportOps = () => {
       appState: extend(
         {},
         excalidrawRef.current.getAppState(),
-        omit(exportImageOptions, "exportImageScale")
+        omit(exportImageOptions, "exportImageScale"),
       ),
       files: excalidrawRef.current.getFiles(),
       getDimensions: (w, h) => ({ width: w * scale, height: h * scale, scale }),
@@ -114,12 +114,12 @@ const ExportOps = () => {
     <div className="flex w-full justify-around py-2">
       {/* 保存到本地 */}
       <div className="flex flex-col items-center gap-4 text-white">
-        <div className="text-[2.6em] rounded-full bg-green-500 p-6 flex ">
+        <div className="flex rounded-full bg-green-500 p-6 text-[2.6em] ">
           <ToDiskIcon />
         </div>
-        <p className="text-black mt-4">将画布数据导出为文件，以便以后导入</p>
+        <p className="mt-4 text-black">将画布数据导出为文件，以便以后导入</p>
         <div
-          className="bg-green-500 text-center rounded p-2 hover:bg-green-700 cursor-pointer select-none mt-auto"
+          className="mt-auto cursor-pointer select-none rounded bg-green-500 p-2 text-center hover:bg-green-700"
           onClick={() => {
             if (sceneName) exportToFile(sceneName);
           }}
@@ -129,7 +129,7 @@ const ExportOps = () => {
       </div>
       {/* 保存为图片 */}
       <div className="flex flex-col items-center gap-4 ">
-        <div className="text-[2.6em] rounded-full bg-[#6965db] p-6 flex text-white">
+        <div className="flex rounded-full bg-[#6965db] p-6 text-[2.6em] text-white">
           <ToImageIcon />
         </div>
         <div className="flex flex-col gap-2">
@@ -173,10 +173,10 @@ const ExportOps = () => {
                 <div
                   key={scale}
                   className={classNames(
-                    "flex items-center justify-center rounded-md h-10 w-10 bg-[#6965db] select-none cursor-pointer",
+                    "flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-md bg-[#6965db]",
                     scale === exportImageOptions.exportImageScale
                       ? "bg-[#6965db]"
-                      : "bg-[#6965db]/50"
+                      : "bg-[#6965db]/50",
                   )}
                   onClick={() => {
                     setExportImageOptions({
@@ -192,7 +192,7 @@ const ExportOps = () => {
           </div>
         </div>
         <div
-          className="bg-[#6965db] text-center rounded p-2 hover:bg-[#4e4ba3] cursor-pointer select-none text-white"
+          className="cursor-pointer select-none rounded bg-[#6965db] p-2 text-center text-white hover:bg-[#4e4ba3]"
           onClick={() => {
             if (sceneName)
               exportToPng(sceneName, exportImageOptions.exportImageScale);

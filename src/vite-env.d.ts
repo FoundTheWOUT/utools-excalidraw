@@ -9,7 +9,7 @@ declare global {
       opts?: {
         encoding?: BufferEncoding;
         isArrayBuffer?: boolean;
-      }
+      },
     ) => Promise<unknown>;
 
     readFileSync: typeof fs.readFileSync;

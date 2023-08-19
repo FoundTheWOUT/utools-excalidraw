@@ -5,7 +5,7 @@ import { restoreFiles } from "./data";
 export const six_nanoid = () => nanoid(6);
 
 export function blobToBase64(
-  blob: Blob | null
+  blob: Blob | null,
 ): Promise<string | ArrayBuffer | null> {
   return new Promise((resolve, _) => {
     if (!blob) return resolve(null);
@@ -18,7 +18,7 @@ export function blobToBase64(
 export const generatePreviewImage = async (
   elements: any,
   appState: any,
-  files: any
+  files: any,
 ): Promise<string | undefined> => {
   try {
     const { exportToBlob } = await import("@excalidraw/excalidraw");
@@ -39,7 +39,7 @@ export const generatePreviewImage = async (
 };
 
 export const generatePreviewImageFromSceneData = async (
-  data: Scene["data"]
+  data: Scene["data"],
 ) => {
   if (!data) return undefined;
   const { elements, appState, files } = await restoreFiles(JSON.parse(data));
@@ -73,7 +73,7 @@ const inner_log = function () {
     return console.log.bind(
       window.console,
       "%c utools-exca ",
-      "background-color:#6965db;color:white;padding: 2px 4px; border-radius: 4px;"
+      "background-color:#6965db;color:white;padding: 2px 4px; border-radius: 4px;",
     );
   }
   return () => {};
@@ -84,7 +84,7 @@ export const log = inner_log() as (msg?: any, ...args: any[]) => void;
 export const reorder = <T>(
   list: T[],
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ): T[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);

@@ -31,7 +31,7 @@ export const AppContext = createContext<{
       scene?: Scene;
       appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
     },
-    afterActive?: () => void
+    afterActive?: () => void,
   ) => Promise<void>;
   trashcan: Scene[];
   setTrashcan: React.Dispatch<React.SetStateAction<Scene[]>>;
@@ -56,7 +56,7 @@ function App({ store }: { store: Store }) {
     scenes_map,
   } = store;
   const { data: initialData, error } = useSWR("init sate", () =>
-    loadInitialData(initScenes, lastActiveDraw!)
+    loadInitialData(initScenes, lastActiveDraw!),
   );
 
   const deletedScene = initScenes.filter((scene) =>
@@ -67,7 +67,7 @@ function App({ store }: { store: Store }) {
         : // should put it in trashcan
           true
       : // not a deleted scene
-        false
+        false,
   );
   const [trashcan, setTrashcan] = useState(deletedScene);
 
@@ -76,18 +76,18 @@ function App({ store }: { store: Store }) {
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
   const { run: debounceStoreItem } = useDebounceFn(
-    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value)
+    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value),
   );
 
   const setAndStoreAppSettings = (
-    settings: Partial<Store[DB_KEY.SETTINGS]>
+    settings: Partial<Store[DB_KEY.SETTINGS]>,
   ) => {
     const newSettings = omit(
       {
         ...appSettings,
         ...settings,
       },
-      ["value", "_id", "_rev"]
+      ["value", "_id", "_rev"],
     ) as any;
     setAppSettings(newSettings);
     debounceStoreItem(DB_KEY.SETTINGS, newSettings);
@@ -138,7 +138,7 @@ function App({ store }: { store: Store }) {
 
       // setUpdatingScene(false);
     },
-    { wait: 300 }
+    { wait: 300 },
   );
 
   const handleSetActiveScene = async (
@@ -147,7 +147,7 @@ function App({ store }: { store: Store }) {
       scene?: Scene;
       appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
     },
-    afterActive?: () => void
+    afterActive?: () => void,
   ) => {
     if (!excalidrawRef.current) return;
     payload = payload ?? {};
@@ -258,7 +258,7 @@ function App({ store }: { store: Store }) {
       }}
     >
       <div
-        className="h-screen flex"
+        className="flex h-screen"
         onMouseUp={() => setResizing(false)}
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
@@ -267,7 +267,7 @@ function App({ store }: { store: Store }) {
 
         {/* white board */}
         <main
-          className="flex-1 ml-2"
+          className="ml-2 flex-1"
           onClick={() => {
             closeAsideAutomatically();
           }}

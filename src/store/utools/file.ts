@@ -9,7 +9,7 @@ export const storeFile = (
   key: string,
   data: Uint8Array,
   type?: string | undefined,
-  excalidrawRef?: ExcalidrawImperativeAPI
+  excalidrawRef?: ExcalidrawImperativeAPI,
 ) => {
   if (!type) type = "text/plain";
   if (data.byteLength > TEN_MB) {

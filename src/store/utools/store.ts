@@ -41,8 +41,8 @@ export const getStore = async (): Promise<Store> => {
             } catch (error) {
               rej(error);
             }
-          })
-      )
+          }),
+      ),
     ),
   };
 
