@@ -194,15 +194,15 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
             <AppSettingsSwitchItem prop="closePreview" />
             <AppSettingsSwitchItem prop="asideClosed" />
             <AppSettingsSwitchItem prop="asideCloseAutomatically" reverse />
+            <AppSettingsSwitchItem prop="deleteSceneDirectly" reverse/>
 
-            <div className="relative my-2 select-none">
+            {/* <div className="relative my-2 select-none">
               <div className="w-full h-[1px] bg-gray-300"></div>
               <span className="px-2 text-sm text-gray-500 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white">
                 敬请期待
               </span>
-            </div>
+            </div> */}
 
-            <AppSettingsSwitchItem prop="deleteSceneDirectly" />
           </div>
         </Dialog>
       </>

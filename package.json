@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "0.14.2",
+    "@floating-ui/react-dom": "^2.0.1",
     "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^1.0.6",
-    "@tippyjs/react": "^4.2.6",
     "ahooks": "^3.5.0",
     "classnames": "^2.3.1",
     "dayjs": "^1.11.7",
@@ -24,8 +24,7 @@
     "nanoid": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "swr": "^1.3.0",
-    "tippy.js": "^6.3.7"
+    "swr": "^1.3.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",

@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import SS from "@/store";
 import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
-import "tippy.js/animations/scale-subtle.css";
 import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
 import dayjs from "dayjs";
 import { uniqBy } from "lodash";
+import { Popover, Transition } from "@headlessui/react";
+import { useFloating, offset } from "@floating-ui/react-dom";
 
 interface Props {
   scene: Scene;
@@ -49,23 +50,23 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     };
   }, []);
 
-  const moveToTrashcan = (scene: Scene) => {
+  const moveToTrashcan = () => {
     setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
-    SS.storeScene(scene.id, scene);
+    SS.storeScene(scene.id, {
+      ...scene,
+      deleted: true,
+      deletedAt: dayjs().unix(),
+    });
   };
 
-  const handleDeleteScene = () => {
+  const handleDeleteScene = (permanent = false) => {
+    if (permanent) {
+      SS.removeScene(scene.id);
+    } else {
+      moveToTrashcan();
+    }
     setScenes?.((scenes) => {
-      const newScenes = scenes.reduce((nextScenes, curScene) => {
-        curScene.id === id
-          ? moveToTrashcan({
-              ...curScene,
-              deleted: true,
-              deletedAt: dayjs().unix(),
-            })
-          : nextScenes.push(curScene);
-        return nextScenes;
-      }, [] as Scene[]);
+      const newScenes = scenes.filter((s) => s.id !== id);
       // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
       if (appSettings?.lastActiveDraw === id) {
         //if delete the last scenes, reselect it fore scene
@@ -113,6 +114,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       }
     });
   };
+  const { refs, floatingStyles } = useFloating({
+    placement: "top",
+    middleware: [offset(10)],
+  });
 
   return (
     <div key={id} id={id} className="border-b border-gray-300 p-3">
@@ -180,19 +185,73 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           />
         )}
 
-        <button
-          className={cn(
-            "bg-gray-200 p-2 rounded-lg flex",
-            scenes?.length === 1
-              ? "cursor-not-allowed text-red-300"
-              : "text-red-500 hover-shadow"
-          )}
-          onClick={handleDeleteScene}
-          title="删除"
-          disabled={scenes?.length === 1}
-        >
-          <XIcon className="w-5" />
-        </button>
+        {appSettings?.deleteSceneDirectly ? (
+          <Popover className="relative">
+            {({ close }) => (
+              <>
+                <Transition
+                  as={Fragment}
+                  enter="transition-opacity ease-out duration-70"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="transition-opacity ease-in duration-150"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Popover.Panel
+                    ref={refs.setFloating}
+                    style={floatingStyles}
+                    className="bg-white rounded-lg p-4 w-36 shadow-lg"
+                  >
+                    <div className="mb-2">确定删除画布吗</div>
+                    <div className="flex justify-around">
+                      <button
+                        className="btn-layout text-sm btn-danger"
+                        onClick={() => handleDeleteScene(true)}
+                      >
+                        确定
+                      </button>
+
+                      <button
+                        className="btn-layout text-sm btn-safe"
+                        onClick={close}
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </Popover.Panel>
+                </Transition>
+                <Popover.Button
+                  className={cn(
+                    "bg-gray-200 p-2 rounded-lg flex",
+                    scenes?.length === 1
+                      ? "cursor-not-allowed text-red-300"
+                      : "text-red-500 hover-shadow"
+                  )}
+                  title="删除"
+                  disabled={scenes?.length === 1}
+                  ref={refs.setReference}
+                >
+                  <XIcon className="w-5" />
+                </Popover.Button>
+              </>
+            )}
+          </Popover>
+        ) : (
+          <button
+            className={cn(
+              "bg-gray-200 p-2 rounded-lg flex",
+              scenes?.length === 1
+                ? "cursor-not-allowed text-red-300"
+                : "text-red-500 hover-shadow"
+            )}
+            onClick={() => handleDeleteScene()}
+            title="删除"
+            disabled={scenes?.length === 1}
+          >
+            <XIcon className="w-5" />
+          </button>
+        )}
 
         <button
           className="bg-gray-200 p-2 rounded-lg hover-shadow flex"
