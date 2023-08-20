@@ -6,7 +6,7 @@ import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
 import { concat } from "lodash";
-import React, { memo, useContext, useEffect } from "react";
+import { memo, useContext, useEffect } from "react";
 import {
   DragDropContext,
   Draggable,

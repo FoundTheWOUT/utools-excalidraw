@@ -25,7 +25,7 @@ export const loadInitialData = async (
   scenes: Scene[],
   target: string, //scene id
 ): Promise<ExcalidrawInitialDataState | null> => {
-  let data = keyBy(
+  const data = keyBy(
     scenes.filter((scene) => !scene.deleted),
     "id",
   )[target]?.data;

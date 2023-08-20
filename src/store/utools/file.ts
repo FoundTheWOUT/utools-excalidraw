@@ -1,4 +1,3 @@
-import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { Scene } from "@/types";
 import { log } from "@/utils/utils";

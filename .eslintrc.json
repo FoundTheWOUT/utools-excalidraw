@@ -8,5 +8,9 @@
     "plugin:react-hooks/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["dist/**/*", "public/**/*", "scripts/**/*"]
+  "ignorePatterns": ["dist/**/*", "public/**/*", "scripts/**/*"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-comment": "off"
+  }
 }

@@ -1,4 +1,4 @@
-import { DB_KEY, Scene, Store } from "@/types";
+import { DB_KEY, Store } from "@/types";
 import { generatePreviewImageFromSceneData, log } from "@/utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
 import { getScenes, removeScene, storeScene } from "./scene";
@@ -29,19 +29,11 @@ export const getStore = async (): Promise<Store> => {
     ...rest,
     scenes: await Promise.all(
       // 恢复图片
-      scenes.map(
-        (scene) =>
-          new Promise<Scene>(async (res, rej) => {
-            try {
-              const img = await generatePreviewImageFromSceneData(scene.data);
-              res({
-                ...scene,
-                img,
-              });
-            } catch (error) {
-              rej(error);
-            }
-          }),
+      scenes.map((scene) =>
+        generatePreviewImageFromSceneData(scene.data).then((img) => ({
+          ...scene,
+          img,
+        })),
       ),
     ),
   };

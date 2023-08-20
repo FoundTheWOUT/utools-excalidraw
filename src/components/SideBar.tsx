@@ -24,7 +24,7 @@ function AppSettingsSwitchItem({
   prop,
   reverse = false,
 }: {
-  prop: keyof Store[DB_KEY.SETTINGS] | (string & {});
+  prop: keyof Store[DB_KEY.SETTINGS] | (string & NonNullable<unknown>);
   reverse?: boolean;
 }) {
   const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};

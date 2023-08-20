@@ -94,7 +94,7 @@ function App({ store }: { store: Store }) {
   };
 
   const [resizing, setResizing] = useState(false);
-  const [updatingScene, setUpdatingScene] = useState(false);
+  const [updatingScene] = useState(false);
 
   const closeAsideAutomatically = () => {
     if (appSettings.asideCloseAutomatically) {
@@ -115,7 +115,9 @@ function App({ store }: { store: Store }) {
           imagePath = await generatePreviewImage(elements, state, files);
         }
 
-        let data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
+        const data = JSON.parse(
+          serializeAsJSON(elements, state, {}, "database"),
+        );
         data.appState.zoom = state.zoom;
         data.appState.scrollX = state.scrollX;
         data.appState.scrollY = state.scrollY;
@@ -278,9 +280,9 @@ function App({ store }: { store: Store }) {
             onChange={(elements, state, files) => {
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }}
-            onPaste={(data, event) => {
+            onPaste={(data) => {
               if (data.files && Object.keys(data.files).length > 0) {
-                for (let fileID in data.files) {
+                for (const fileID in data.files) {
                   const blob = new Blob([data.files[fileID].dataURL]);
                   console.log(blob.size);
                   if (blob.size > TEN_MB) {

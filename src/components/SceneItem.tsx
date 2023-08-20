@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import cn from "classnames";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
@@ -70,7 +70,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
       if (appSettings?.lastActiveDraw === id) {
         //if delete the last scenes, reselect it fore scene
-        let updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
+        const updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
         handleSetActiveDraw?.(newScenes[updateScenesIndex].id, {
           scene: newScenes[updateScenesIndex],
           appSettings: {

@@ -4,7 +4,7 @@ import { extend } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import classNames from "classnames";
 import { omit } from "lodash";
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import StyledCheckBox from "../ui/CheckBox";
 
 const ToDiskIcon = () => (
@@ -43,8 +43,6 @@ const ToImageIcon = () => (
 
 const ExportOps = () => {
   const appContext = useContext(AppContext);
-  if (!appContext) return null;
-  const { sceneName, excalidrawRef } = appContext;
 
   const [exportImageOptions, setExportImageOptions] = useState({
     exportBackground: true,
@@ -52,6 +50,9 @@ const ExportOps = () => {
     exportEmbedScene: false,
     exportImageScale: 1,
   });
+
+  if (!appContext) return null;
+  const { sceneName, excalidrawRef } = appContext;
 
   const exportToFile = (name: string) => {
     if (!excalidrawRef.current) return;

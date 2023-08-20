@@ -106,7 +106,8 @@ export class StoreSystemCommon implements StoreSystem {
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]) {
     localStorage.setItem(key, JSON.stringify(value));
   }
-  handleLibraryChange(item: any): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  handleLibraryChange(_item: any): void {}
   removeScene(key: string): void {
     if (!db) {
       return;

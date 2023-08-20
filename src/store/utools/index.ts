@@ -31,7 +31,7 @@ export class StoreSystemUtools implements StoreSystem {
         .allDocs(FILE_DOC_PREFIX)
         .map((doc) => doc._id.split("/")[1]);
       const files = excalidrawRef.getFiles();
-      for (let fileKey in files) {
+      for (const fileKey in files) {
         if (storedFiles.includes(fileKey)) continue;
         const fileObjectStr = JSON.stringify(files[fileKey]);
         storeFile(

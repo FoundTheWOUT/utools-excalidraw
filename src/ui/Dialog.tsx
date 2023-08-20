@@ -56,8 +56,12 @@ export function Dialog({
   );
 }
 
-Dialog.Description = ({ children }: PropsWithChildren<{}>) => (
-  <HDialog.Description className="text-xs text-gray-400">
-    {children}
-  </HDialog.Description>
-);
+Dialog.Description = function DialogDescription({
+  children,
+}: PropsWithChildren<unknown>) {
+  return (
+    <HDialog.Description className="text-xs text-gray-400">
+      {children}
+    </HDialog.Description>
+  );
+};

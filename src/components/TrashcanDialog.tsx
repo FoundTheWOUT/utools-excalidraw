@@ -1,6 +1,6 @@
 import { AppContext } from "@/App";
 import { Dialog } from "@/ui/Dialog";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import dayjs from "dayjs";
 import { Scene } from "@/types";
 import { SideBarContext } from "./SideBar";
