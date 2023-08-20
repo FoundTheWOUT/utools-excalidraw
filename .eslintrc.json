@@ -1,6 +1,12 @@
 {
   "root": true,
-  "plugins": ["react-hooks"],
-  "extends": ["eslint:recommended", "plugin:react-hooks/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
   "ignorePatterns": ["dist/**/*", "public/**/*", "scripts/**/*"]
 }
