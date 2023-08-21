@@ -3,8 +3,7 @@ import {
   BinaryFiles,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
-import { keyBy } from "lodash";
-import { merge } from "lodash/fp";
+import { keyBy, merge } from "lodash-es";
 import { Scene } from "../types";
 import SS from "../store";
 import { decoder, log } from "./utils";
@@ -36,7 +35,7 @@ export const loadInitialData = async (
   const parsedData = JSON.parse(data);
   restoreLibrary(parsedData);
   await restoreFiles(parsedData);
-  const config = merge(defaultStatue)(parsedData);
+  const config = merge(defaultStatue, parsedData);
 
   log("load config", config);
   return config;

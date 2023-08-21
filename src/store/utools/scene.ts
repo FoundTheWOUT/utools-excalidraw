@@ -1,5 +1,5 @@
 import { DB_KEY, Scene } from "@/types";
-import { keyBy, uniq } from "lodash";
+import { keyBy, uniq } from "lodash-es";
 import { log, newAScene } from "@/utils/utils";
 import { initStore } from "..";
 

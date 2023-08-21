@@ -8,7 +8,7 @@ import { ArrowsExpandIcon } from "@heroicons/react/outline";
 import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
 import dayjs from "dayjs";
-import { uniqBy } from "lodash";
+import { uniqBy } from "lodash-es";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
 

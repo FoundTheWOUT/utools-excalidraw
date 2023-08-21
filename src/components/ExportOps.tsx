@@ -3,7 +3,7 @@ import { EXCALIDRAW_EXTENSION } from "@/const";
 import { extend } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import cn from "clsx";
-import { omit } from "lodash";
+import { omit } from "lodash-es";
 import { useState, useContext } from "react";
 import StyledCheckBox from "../ui/CheckBox";
 

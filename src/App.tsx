@@ -8,7 +8,7 @@ import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { loadInitialData, restoreFiles } from "./utils/data";
-import { omit, debounce } from "lodash";
+import { omit, debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
 import useSWR from "swr";
 import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
