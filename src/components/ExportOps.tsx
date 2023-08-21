@@ -2,7 +2,7 @@ import { AppContext } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import { extend } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
-import classNames from "classnames";
+import cn from "clsx";
 import { omit } from "lodash";
 import { useState, useContext } from "react";
 import StyledCheckBox from "../ui/CheckBox";
@@ -173,7 +173,7 @@ const ExportOps = () => {
               {[1, 2, 3].map((scale) => (
                 <div
                   key={scale}
-                  className={classNames(
+                  className={cn(
                     "flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-md bg-[#6965db]",
                     scale === exportImageOptions.exportImageScale
                       ? "bg-[#6965db]"

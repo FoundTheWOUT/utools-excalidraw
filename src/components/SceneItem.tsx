@@ -1,5 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from "react";
-import cn from "classnames";
+import cn from "clsx";
 import { AppContext, updateScene } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import SS from "@/store";

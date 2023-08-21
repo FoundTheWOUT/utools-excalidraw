@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { Scene } from "@/types";
 import { SideBarContext } from "./SideBar";
 import SS from "@/store";
-import cn from "classnames";
+import cn from "clsx";
 
 // TODO: calculate page size
 const PAGE_SIZE = 5;

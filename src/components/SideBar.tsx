@@ -1,5 +1,5 @@
 import React, { createContext, memo, useContext, useState } from "react";
-import cn from "classnames";
+import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
 import {
