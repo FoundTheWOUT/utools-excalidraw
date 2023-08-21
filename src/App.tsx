@@ -1,6 +1,5 @@
 import React, { useState, useRef, createContext, useEffect } from "react";
 import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
-import { useDebounceFn } from "ahooks";
 import {
   BinaryFileData,
   ExcalidrawImperativeAPI,
@@ -9,7 +8,7 @@ import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { loadInitialData, restoreFiles } from "./utils/data";
-import { omit } from "lodash";
+import { omit, debounce } from "lodash";
 import ExportOps from "./components/ExportOps";
 import useSWR from "swr";
 import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
@@ -75,22 +74,22 @@ function App({ store }: { store: Store }) {
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
-  const { run: debounceStoreItem } = useDebounceFn(
-    (key: DB_KEY, value: Store[DB_KEY]) => StoreSystem.storeSetItem(key, value),
+  const debounceStoreItem = debounce((key: DB_KEY, value: Store[DB_KEY]) =>
+    StoreSystem.storeSetItem(key, value),
   );
 
   const setAndStoreAppSettings = (
     settings: Partial<Store[DB_KEY.SETTINGS]>,
   ) => {
-    const newSettings = omit(
+    const nextSettings = omit(
       {
         ...appSettings,
         ...settings,
       },
       ["value", "_id", "_rev"],
-    ) as any;
-    setAppSettings(newSettings);
-    debounceStoreItem(DB_KEY.SETTINGS, newSettings);
+    ) as Store[DB_KEY.SETTINGS];
+    setAppSettings(nextSettings);
+    debounceStoreItem(DB_KEY.SETTINGS, nextSettings);
   };
 
   const [resizing, setResizing] = useState(false);
@@ -104,44 +103,39 @@ function App({ store }: { store: Store }) {
     }
   };
 
-  const { run: onSceneUpdate } = useDebounceFn(
-    async (elements, state, files, target) => {
-      // lock scene.
-      // setUpdatingScene(true);
+  const onSceneUpdate = debounce(async (elements, state, files, target) => {
+    // lock scene.
+    // setUpdatingScene(true);
 
-      try {
-        let imagePath: string | undefined = undefined;
-        if (!appSettings.closePreview) {
-          imagePath = await generatePreviewImage(elements, state, files);
-        }
-
-        const data = JSON.parse(
-          serializeAsJSON(elements, state, {}, "database"),
-        );
-        data.appState.zoom = state.zoom;
-        data.appState.scrollX = state.scrollX;
-        data.appState.scrollY = state.scrollY;
-        const data_stringified = JSON.stringify(data);
-
-        // emit update event
-        updateScene.emit({
-          target,
-          value: {
-            img: imagePath,
-            data: data_stringified,
-          },
-        });
-
-        // store file
-        StoreSystem.storeFile(excalidrawRef.current);
-      } catch (error) {
-        console.warn(error);
+    try {
+      let imagePath: string | undefined = undefined;
+      if (!appSettings.closePreview) {
+        imagePath = await generatePreviewImage(elements, state, files);
       }
 
-      // setUpdatingScene(false);
-    },
-    { wait: 300 },
-  );
+      const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
+      data.appState.zoom = state.zoom;
+      data.appState.scrollX = state.scrollX;
+      data.appState.scrollY = state.scrollY;
+      const data_stringified = JSON.stringify(data);
+
+      // emit update event
+      updateScene.emit({
+        target,
+        value: {
+          img: imagePath,
+          data: data_stringified,
+        },
+      });
+
+      // store file
+      StoreSystem.storeFile(excalidrawRef.current);
+    } catch (error) {
+      console.warn(error);
+    }
+
+    // setUpdatingScene(false);
+  }, 300);
 
   const handleSetActiveScene = async (
     sceneId: string,
@@ -217,7 +211,7 @@ function App({ store }: { store: Store }) {
   };
 
   const aLinkHandler = (e: MouseEvent) => {
-    const target = e.target as any;
+    const target = e.currentTarget as HTMLLinkElement;
     if (!target) {
       return;
     }

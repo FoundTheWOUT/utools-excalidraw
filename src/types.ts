@@ -30,5 +30,5 @@ export enum DB_KEY {
 
 export type DBItem = {
   _id: string;
-  value: Array<any> | object | string | number;
+  value: Array<unknown> | object | string | number;
 };

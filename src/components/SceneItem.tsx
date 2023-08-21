@@ -120,7 +120,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   });
 
   return (
-    <div key={id} id={id} className="border-b border-gray-300 p-3">
+    <div key={id} id={id} className="p-3">
       {!appSettings?.closePreview && (
         <button
           className={cn(
@@ -149,7 +149,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         </button>
       )}
       <div
-        className={cn("mt-2 flex gap-2", {
+        className={cn("mt-1.5 flex gap-2", {
           hidden: appSettings?.asideWidth && appSettings.asideWidth <= 150,
         })}
       >
@@ -164,7 +164,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         ) : (
           <input
             type="text"
-            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] focus:ring"
+            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] focus:ring ring-offset-2"
             value={name}
             onChange={(e) => {
               setScenes?.((old) => {

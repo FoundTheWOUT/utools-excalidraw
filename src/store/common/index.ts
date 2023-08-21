@@ -26,10 +26,12 @@ export class StoreSystemCommon implements StoreSystem {
       DBOpenReq.onsuccess = () => {
         db = DBOpenReq.result;
 
-        const scenesStore = db.transaction("scenes").objectStore("scenes");
-        scenesStore.getAll().onsuccess = (evt) => {
-          // @ts-ignore
-          const scenes = evt.target?.result as Scene[];
+        const scenesReq = db
+          .transaction("scenes")
+          .objectStore("scenes")
+          .getAll();
+        scenesReq.onsuccess = () => {
+          const scenes = scenesReq.result as Scene[];
           const store = initStore({
             settings: settings ? JSON.parse(settings) : {},
             scenes,
@@ -37,9 +39,8 @@ export class StoreSystemCommon implements StoreSystem {
           resolve(store);
         };
       };
-      DBOpenReq.onupgradeneeded = (evt) => {
-        // @ts-ignore
-        db = evt.target?.result as IDBDatabase;
+      DBOpenReq.onupgradeneeded = () => {
+        db = DBOpenReq.result;
         createObjectStoreIfNotExist("scenes", { keyPath: "id" });
         createObjectStoreIfNotExist("files");
       };
@@ -106,8 +107,7 @@ export class StoreSystemCommon implements StoreSystem {
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]) {
     localStorage.setItem(key, JSON.stringify(value));
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleLibraryChange(_item: any): void {}
+  handleLibraryChange() {}
   removeScene(key: string): void {
     if (!db) {
       return;
