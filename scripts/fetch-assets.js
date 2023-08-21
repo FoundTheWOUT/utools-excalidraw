@@ -11,7 +11,7 @@ async function copyDir(src, dest, includeLang = ["zh-CN"]) {
     if (src.match("locales")) {
       const isLangInclude = includeLang.reduce(
         (acc, lang) => acc && !!entry.name.match(lang),
-        true
+        true,
       );
       if (!isLangInclude) continue;
     }
@@ -28,26 +28,28 @@ module.exports = async function main() {
       .then(() =>
         fs.rm("public/excalidraw-assets", {
           recursive: true,
-        })
+        }),
       )
+      .catch(() => {})
       .finally(() =>
         copyDir(
           "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
-          "public/excalidraw-assets"
-        )
+          "public/excalidraw-assets",
+        ),
       ),
     fs
       .access("public/excalidraw-assets-dev")
       .then(() =>
         fs.rm("public/excalidraw-assets", {
           recursive: true,
-        })
+        }),
       )
+      .catch(() => {})
       .finally(() =>
         copyDir(
           "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets-dev",
-          "public/excalidraw-assets-dev"
-        )
+          "public/excalidraw-assets-dev",
+        ),
       ),
   ]);
 };
