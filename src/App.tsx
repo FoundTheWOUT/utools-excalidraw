@@ -180,10 +180,10 @@ function App({ store }: { store: Store }) {
     let width = e.pageX;
     let closed = appSettings.asideClosed;
 
-    // mouse position in [0,70)
+    // mouse position in (-∞,70)
     // 1. remember current width(90)
     // 2. close the panel
-    if (numIsInRange(width, 0, 30)) {
+    if (numIsInRange(width, Number.NEGATIVE_INFINITY, 30)) {
       width = 90;
       closed = true;
     } else {
