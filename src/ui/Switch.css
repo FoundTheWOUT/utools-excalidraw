@@ -1,0 +1,17 @@
+.switch {
+  appearance: none;
+  height: 1.5rem;
+  width: 2.5rem;
+  --handleoffsetcalculator: -1rem;
+  --bgColor: #D1D5DB;
+  border-radius: 9999px;
+  box-shadow:
+    var(--handleoffsetcalculator) 0 0px 2px var(--bgColor) inset,
+    0 0 0 2px var(--bgColor) inset;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.switch:checked {
+  --handleoffsetcalculator: calc(1rem);
+  --bgColor: #6965db;
+}
