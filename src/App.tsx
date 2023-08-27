@@ -70,9 +70,7 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
-  const debounceStoreItem = debounce((key: DB_KEY, value: Store[DB_KEY]) =>
-    StoreSystem.storeSetItem(key, value),
-  );
+  const debounceStoreItem = debounce(StoreSystem.storeSetItem);
 
   const setAndStoreAppSettings = (
     settings: Partial<Store[DB_KEY.SETTINGS]>,
