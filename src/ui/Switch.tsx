@@ -15,6 +15,7 @@ function Switch({
         "switch relative",
         notAllow ? "cursor-not-allowed" : "cursor-pointer",
       )}
+      onChange={() => {}}
       {...rest}
     />
   );

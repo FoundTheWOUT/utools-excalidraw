@@ -7,10 +7,9 @@ import {
 import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
-import { loadInitialData, restoreFiles } from "./utils/data";
+import { restoreFiles } from "./utils/data";
 import { omit, debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
-import useSWR from "swr";
 import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
 import { EventChanel } from "./utils/event";
 import SideBar from "./components/SideBar";
@@ -48,17 +47,14 @@ const dropExpiredScene = (id: string) => {
   return true;
 };
 
-function App({ store }: { store: Store }) {
+function App({ initialData, store }: { initialData: any; store: Store }) {
   const {
     settings: { lastActiveDraw },
-    scenes: initScenes,
+    scenes,
     scenes_map,
   } = store;
-  const { data: initialData, error } = useSWR("init sate", () =>
-    loadInitialData(initScenes, lastActiveDraw!),
-  );
 
-  const deletedScene = initScenes.filter((scene) =>
+  const deletedScene = scenes.filter((scene) =>
     scene.deleted && scene.deletedAt
       ? dayjs.unix(scene.deletedAt).diff(dayjs(), "d") >= 30
         ? // grater than 30 days, remove it
@@ -233,11 +229,6 @@ function App({ store }: { store: Store }) {
     };
   }, []);
 
-  if (!initialData) {
-    error && console.error(error);
-    return <div>init data...</div>;
-  }
-
   return (
     <AppContext.Provider
       value={{
@@ -259,7 +250,7 @@ function App({ store }: { store: Store }) {
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
       >
-        <SideBar initScenes={initScenes} />
+        <SideBar initScenes={scenes} />
 
         {/* white board */}
         <main

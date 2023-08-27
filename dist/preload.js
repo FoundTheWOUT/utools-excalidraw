@@ -44,7 +44,8 @@ window.readFileSync = fs.readFileSync;
   }
   utools.dbStorage.setItem(SETTINGS_KEY, {
     ...settings,
-    asideWidth: asideWidth < MIN_WIDTH ? DEFAULT_WIDTH : asideWidth,
+    asideWidth:
+      settings.asideWidth < MIN_WIDTH ? DEFAULT_WIDTH : settings.asideWidth,
   });
 })();
 
