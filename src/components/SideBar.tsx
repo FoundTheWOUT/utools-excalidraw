@@ -14,18 +14,24 @@ import SwitchBtn from "@/ui/Switch";
 import TrashcanDialog from "./TrashcanDialog";
 import { Dialog } from "@/ui/Dialog";
 import { t } from "@/i18n";
+import { setDocumentDarkMode } from "@/utils/utils";
 
 export const SideBarContext = createContext<{
   scenes: Scene[];
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
 } | null>(null);
 
+type MayBeSettingKey =
+  | keyof Store[DB_KEY.SETTINGS]
+  | (string & NonNullable<unknown>);
 function AppSettingsSwitchItem({
   prop,
   reverse = false,
+  ...rest
 }: {
-  prop: keyof Store[DB_KEY.SETTINGS] | (string & NonNullable<unknown>);
+  prop: MayBeSettingKey;
   reverse?: boolean;
+  onChange?: (value: boolean) => void;
 }) {
   const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};
 
@@ -52,15 +58,16 @@ function AppSettingsSwitchItem({
       <div className="flex gap-2">
         <SwitchBtn
           checked={reverse ? !!appSettings[prop] : !appSettings[prop]}
-          onClick={() =>
+          onClick={() => {
             setAndStoreAppSettings?.({
               [prop]: !appSettings[prop],
-            })
-          }
+            });
+            rest.onChange?.(!appSettings[prop]);
+          }}
         />
         <Switch.Label className="flex-1">
-          <div className="font-semibold">{t(prop)}</div>
-          <div className="mt-1 text-sm text-gray-500">
+          <div className="font-semibold dark:text-white">{t(prop)}</div>
+          <div className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
             {t(`${prop}.Description`)}
           </div>
         </Switch.Label>
@@ -87,7 +94,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     });
   };
   const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
-  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
+  const [settingDialogOpen, setSettingDialogOpen] = useState(true);
   const [openSideBarTemp, setOpenSideBarTemp] = useState(false);
 
   if (!appSettings) {
@@ -105,7 +112,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
         <aside
           className={cn(
             appSettings.asideClosed ? "fixed" : "relative",
-            "z-10 h-full bg-gray-100 transition-transform",
+            "z-10 h-full bg-gray-100 transition-transform dark:bg-zinc-800",
           )}
           style={{
             transform:
@@ -138,7 +145,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
                   }}
                   title="设置"
                 >
-                  <CogIcon className="w-5 text-gray-500" />
+                  <CogIcon className="w-5 text-gray-500 dark:text-gray-300" />
                 </button>
               </div>
             )}
@@ -147,7 +154,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
           {/* controller */}
           <button
             className={cn(
-              "absolute -right-3 bottom-12 rounded-full bg-white shadow transition-transform",
+              "absolute -right-3 bottom-12 rounded-full bg-white shadow transition-transform dark:bg-zinc-600 dark:text-white",
               appSettings?.asideClosed && "translate-x-4",
             )}
             onClick={handleAsideControllerClick}
@@ -196,12 +203,13 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
             <AppSettingsSwitchItem prop="asideCloseAutomatically" reverse />
             <AppSettingsSwitchItem prop="deleteSceneDirectly" reverse />
 
-            {/* <div className="relative my-2 select-none">
-              <div className="w-full h-[1px] bg-gray-300"></div>
-              <span className="px-2 text-sm text-gray-500 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white">
-                敬请期待
-              </span>
-            </div> */}
+            <AppSettingsSwitchItem
+              prop="darkMode"
+              reverse
+              onChange={(dark) => {
+                setDocumentDarkMode(dark);
+              }}
+            />
           </div>
         </Dialog>
       </>

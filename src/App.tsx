@@ -1,11 +1,16 @@
 import React, { useState, useRef, createContext, useEffect } from "react";
-import { Excalidraw, MainMenu, serializeAsJSON } from "@excalidraw/excalidraw";
+import {
+  Excalidraw,
+  MainMenu,
+  THEME,
+  serializeAsJSON,
+} from "@excalidraw/excalidraw";
 import {
   BinaryFileData,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
-import { generatePreviewImage, log, numIsInRange } from "./utils/utils";
+import { generatePreviewImage, log, numIsInRange, setDocumentDarkMode } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import { omit, debounce } from "lodash-es";
@@ -68,6 +73,7 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
 
   const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
+  setDocumentDarkMode(appSettings.darkMode);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
   const debounceStoreItem = debounce(StoreSystem.storeSetItem);
@@ -177,7 +183,7 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
     // mouse position in (-∞,70)
     // 1. remember current width(90)
     // 2. close the panel
-    if (numIsInRange(width, Number.NEGATIVE_INFINITY, 30)) {
+    if (width < 30) {
       width = 90;
       closed = true;
     } else {
@@ -243,7 +249,7 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
       }}
     >
       <div
-        className="flex h-screen"
+        className="flex h-screen dark:bg-[#121212]"
         onMouseUp={() => setResizing(false)}
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
@@ -263,6 +269,7 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
             onChange={(elements, state, files) => {
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }}
+            theme={appSettings.darkMode ? THEME.DARK : THEME.LIGHT}
             onPaste={(data) => {
               if (data.files && Object.keys(data.files).length > 0) {
                 for (const fileID in data.files) {

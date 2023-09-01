@@ -92,3 +92,7 @@ export const reorder = <T>(
 
   return result;
 };
+
+export const setDocumentDarkMode = (darkMode: boolean) => {
+  document.documentElement.classList[darkMode ? "add" : "remove"]("dark");
+};

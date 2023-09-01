@@ -164,7 +164,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         ) : (
           <input
             type="text"
-            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] focus:ring ring-offset-2"
+            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
             value={name}
             onChange={(e) => {
               setScenes?.((old) => {
@@ -240,7 +240,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         ) : (
           <button
             className={cn(
-              "flex rounded-lg bg-gray-200 p-2",
+              "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
               scenes?.length === 1
                 ? "cursor-not-allowed text-red-300"
                 : "hover-shadow text-red-500",
@@ -254,7 +254,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         )}
 
         <button
-          className="hover-shadow flex rounded-lg bg-gray-200 p-2"
+          className="hover-shadow flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600 dark:text-white"
           title="移动"
           {...dragProvided.dragHandleProps}
         >

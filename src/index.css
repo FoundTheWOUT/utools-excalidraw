@@ -16,7 +16,7 @@
     @apply px-2 py-1;
   }
   .btn-base {
-    @apply btn-preset bg-gray-200 text-gray-800;
+    @apply btn-preset bg-gray-200 text-gray-800 dark:bg-zinc-600;
   }
   .btn-safe {
     @apply btn-preset bg-emerald-100 text-emerald-500 hover:bg-emerald-500;

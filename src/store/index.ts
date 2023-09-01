@@ -37,6 +37,7 @@ const DefaultStore = (): Store => {
       scenesId: [blank.id],
       asideCloseAutomatically: false,
       deleteSceneDirectly: false,
+      darkMode: false,
     },
     scenes: [blank],
     scenes_map: new Map(),

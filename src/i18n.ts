@@ -11,6 +11,8 @@ const i18n = {
     deleteSceneDirectly: "直接删除画布",
     "deleteSceneDirectly.Description":
       "开启后，当删除画布时，不将画布放入回收站，而是弹窗提示是否直接删除",
+    darkMode: "黑暗模式",
+    "darkMode.Description": "是否开启黑暗模式(仅供utools使用)",
   },
 } as { zh_CN: Record<string, string> };
 

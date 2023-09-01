@@ -198,7 +198,7 @@ function SceneList() {
       </DragDropContext>
       <div className="p-3">
         <div
-          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded bg-white"
+          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded bg-white dark:bg-zinc-600 dark:shadow-zinc-950"
           onClick={() => {
             const newScene = newAScene({ name: `画布${scenes.length}` });
             setScenes?.([...scenes, newScene]);
@@ -211,7 +211,7 @@ function SceneList() {
             });
           }}
         >
-          <PlusIcon className="h-10 text-gray-500" />
+          <PlusIcon className="h-10 text-gray-500 dark:text-white" />
         </div>
       </div>
     </>
