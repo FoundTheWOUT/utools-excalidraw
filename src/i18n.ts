@@ -8,14 +8,20 @@ const i18n = {
     asideCloseAutomatically: "自动关闭侧栏",
     "asideCloseAutomatically.Description":
       "当绘画时，自动关闭侧栏，鼠标移至画布左侧可临时打开侧栏",
-    deleteSceneDirectly: "直接删除画布",
+    deleteSceneDirectly: "启用回收站",
     "deleteSceneDirectly.Description":
-      "开启后，当删除画布时，不将画布放入回收站，而是弹窗提示是否直接删除",
+      "开启回收站，删除画布时，会将画布直接放入回收站，若关闭则用弹窗提示是否立即删除画布",
     darkMode: "黑暗模式",
-    "darkMode.Description": "是否开启黑暗模式(仅供utools使用)",
+    "darkMode.Description": "是否开启黑暗模式",
+    "Theme.Light": "光亮主题",
+    "Theme.Dark": "黑暗主题",
+    "Theme.FollowApp": "跟随应用",
   },
-} as { zh_CN: Record<string, string> };
+} as const;
 
-export const t = (id: string) => {
-  return i18n.zh_CN?.[id] ?? id;
+export const t = (
+  id: keyof typeof i18n.zh_CN | (string & NonNullable<unknown>),
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (i18n.zh_CN as any)?.[id] ?? id;
 };

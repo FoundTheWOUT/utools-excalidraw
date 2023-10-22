@@ -19,6 +19,7 @@ export type Store = {
     asideCloseAutomatically: boolean;
     deleteSceneDirectly: boolean;
     darkMode: boolean;
+    theme: Theme;
   };
   [DB_KEY.SCENES]: Scene[];
   scenes_map: Map<string, Scene>;
@@ -33,3 +34,9 @@ export type DBItem = {
   _id: string;
   value: Array<unknown> | object | string | number;
 };
+
+export enum Theme {
+  Light = "LIGHT",
+  Dark = "DARK",
+  App = "APP",
+}

@@ -3,18 +3,20 @@ import { XCircleIcon } from "@heroicons/react/outline";
 import { Fragment, PropsWithChildren } from "react";
 import cn from "clsx";
 
+export type DialogProps = PropsWithChildren<{
+  className?: string;
+  open: boolean;
+  title: string;
+  onClose: (value: boolean) => void;
+}>;
+
 export function Dialog({
   children,
   open,
   onClose,
   title,
   className,
-}: PropsWithChildren<{
-  className?: string;
-  open: boolean;
-  title: string;
-  onClose: (value: boolean) => void;
-}>) {
+}: DialogProps) {
   return (
     <Transition show={open}>
       <HDialog className={cn(className, "relative z-50")} onClose={onClose}>
@@ -43,7 +45,7 @@ export function Dialog({
               <HDialog.Title className="flex text-xl font-bold dark:text-white">
                 <span>{title}</span>
                 <XCircleIcon
-                  className="ml-auto h-7 cursor-pointer"
+                  className="ml-auto h-7 cursor-pointer text-gray-400"
                   onClick={() => onClose(false)}
                 />
               </HDialog.Title>

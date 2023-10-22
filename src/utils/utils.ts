@@ -1,4 +1,4 @@
-import { Scene } from "@/types";
+import { Scene, Theme } from "@/types";
 import { nanoid } from "nanoid";
 import { restoreFiles } from "./data";
 
@@ -93,6 +93,14 @@ export const reorder = <T>(
   return result;
 };
 
-export const setDocumentDarkMode = (darkMode: boolean) => {
-  document.documentElement.classList[darkMode ? "add" : "remove"]("dark");
+export const isDark = (theme: Theme) => {
+  const appDark = window.utools ? utools.isDarkColors() : null;
+
+  return appDark !== null && theme === Theme.App
+    ? appDark
+    : theme === Theme.Dark;
+};
+
+export const setTheme = (theme: Theme) => {
+  document.documentElement.classList[isDark(theme) ? "add" : "remove"]("dark");
 };

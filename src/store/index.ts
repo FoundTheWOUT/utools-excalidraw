@@ -1,4 +1,4 @@
-import { DB_KEY, Scene, Store } from "@/types";
+import { DB_KEY, Scene, Store, Theme } from "@/types";
 import { newAScene } from "@/utils/utils";
 import {
   ExcalidrawImperativeAPI,
@@ -38,6 +38,7 @@ const DefaultStore = (): Store => {
       asideCloseAutomatically: false,
       deleteSceneDirectly: false,
       darkMode: false,
+      theme: Theme.App,
     },
     scenes: [blank],
     scenes_map: new Map(),
