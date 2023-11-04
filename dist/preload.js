@@ -1,4 +1,5 @@
 const fs = require("node:fs");
+console.log('hi');
 window.utools = utools;
 
 window.writeFile = (path, data, opts) => {

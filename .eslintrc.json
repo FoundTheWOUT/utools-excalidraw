@@ -8,7 +8,10 @@
     "plugin:react-hooks/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["dist/**/*", "public/**/*", "scripts/**/*"],
+  "ignorePatterns": [
+    "dist/**/*",
+    "public/**/*"
+  ],
   "settings": {
     "react": {
       "version": "detect"

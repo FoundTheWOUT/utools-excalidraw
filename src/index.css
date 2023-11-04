@@ -43,3 +43,17 @@
 .enter-form {
   transform: perspective(400px) rotateY(3deg);
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+  background: white;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar {
+  background: #121212;
+}
