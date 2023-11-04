@@ -1,5 +1,5 @@
 import { Dialog, DialogProps } from "@/ui/Dialog.tsx";
-import { log, setTheme } from "@/utils/utils.ts";
+import { setTheme } from "@/utils/utils.ts";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { AppContext } from "@/App.tsx";
 import { Switch, Listbox, Transition } from "@headlessui/react";
@@ -110,12 +110,12 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md border bg-white py-1 text-base shadow-lg focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm">
+              <Listbox.Options className="absolute right-0 mt-1 max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm">
                 {themeOptions.map((person, personIdx) => (
                   <Listbox.Option
                     key={personIdx}
                     className={({ active }) =>
-                      `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                      `relative cursor-default select-none p-2 px-4 ${
                         active
                           ? "bg-[#6965db] text-white"
                           : "text-gray-900 dark:text-zinc-400"

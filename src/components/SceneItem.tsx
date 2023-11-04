@@ -30,6 +30,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     setTrashcan,
     setAndStoreAppSettings,
   } = appContext ?? {};
+  const appState = excalidrawRef?.current?.getAppState();
 
   const [bgColor, setBgColor] = useState("");
 
@@ -119,6 +120,13 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     middleware: [offset(10)],
   });
 
+  const deleteBtnClass = cn(
+    "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
+    scenes?.length === 1
+      ? "cursor-not-allowed text-red-300"
+      : "hover-shadow text-red-500",
+  );
+
   return (
     <div key={id} id={id} className="p-3">
       {!appSettings?.closePreview && (
@@ -132,6 +140,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             },
           )}
           style={{
+            filter:
+              appState?.theme === "dark"
+                ? "invert(93%) hue-rotate(180deg)"
+                : undefined,
             background: bgColor,
           }}
           disabled={updatingScene}
@@ -222,12 +234,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                   </Popover.Panel>
                 </Transition>
                 <Popover.Button
-                  className={cn(
-                    "flex rounded-lg bg-gray-200 p-2",
-                    scenes?.length === 1
-                      ? "cursor-not-allowed text-red-300"
-                      : "hover-shadow text-red-500",
-                  )}
+                  className={deleteBtnClass}
                   title="删除"
                   disabled={scenes?.length === 1}
                   ref={refs.setReference}
@@ -239,12 +246,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           </Popover>
         ) : (
           <button
-            className={cn(
-              "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
-              scenes?.length === 1
-                ? "cursor-not-allowed text-red-300"
-                : "hover-shadow text-red-500",
-            )}
+            className={deleteBtnClass}
             onClick={() => handleDeleteScene()}
             title="删除"
             disabled={scenes?.length === 1}
