@@ -1,5 +1,6 @@
-import React from "react";
-import * as ReactDOM from "react-dom";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+
 import "./index.css";
 import App from "./App";
 import StoreSystem from "./store";
@@ -12,12 +13,14 @@ async function main() {
     settings: { lastActiveDraw },
   } = store;
   const initialData = await loadInitialData(scenes, lastActiveDraw!);
-  
-  ReactDOM.render(
-    <React.StrictMode>
+
+  const container = document.getElementById("root");
+  const root = createRoot(container!);
+
+  root.render(
+    <StrictMode>
       <App store={store} initialData={initialData} />
-    </React.StrictMode>,
-    document.getElementById("root"),
+    </StrictMode>,
   );
 }
 

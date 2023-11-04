@@ -12,6 +12,7 @@ import {
   ExcalidrawImageElement,
   FileId,
 } from "@excalidraw/excalidraw/types/element/types";
+import { RestoredDataState } from "@excalidraw/excalidraw/types/data/restore";
 
 export const defaultStatue = {
   appState: {
@@ -52,7 +53,7 @@ export const loadInitialData = async (
  */
 export const restoreFiles = async (
   data: ImportedDataState,
-): ExcalidrawInitialDataState => {
+): Promise<RestoredDataState> => {
   data.files = (
     await Promise.all(
       (data.elements ?? [])
@@ -74,7 +75,7 @@ export const restoreFiles = async (
       }),
       {},
     );
-  return data;
+  return data as RestoredDataState;
 };
 
 // 恢复Libraries
@@ -87,7 +88,7 @@ const restoreLibrary = (
 
   if (libraries.length > 0) {
     data.libraryItems = restoreLibraryItems(
-      libraries.map((lib: any) => lib.value),
+      libraries.map((lib) => lib.value),
       "unpublished",
     );
   }

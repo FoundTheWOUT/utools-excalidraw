@@ -8,6 +8,7 @@ import {
 import {
   BinaryFileData,
   ExcalidrawImperativeAPI,
+  ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, isDark, log, numIsInRange } from "./utils/utils";
@@ -52,7 +53,13 @@ const dropExpiredScene = (id: string) => {
   return true;
 };
 
-function App({ initialData, store }: { initialData: any; store: Store }) {
+function App({
+  initialData,
+  store,
+}: {
+  initialData: ExcalidrawInitialDataState | null;
+  store: Store;
+}) {
   const {
     settings: { lastActiveDraw },
     scenes,
@@ -159,7 +166,11 @@ function App({ initialData, store }: { initialData: any; store: Store }) {
     if (data) {
       try {
         const _data = await restoreFiles(JSON.parse(data));
-        excalidrawRef.current.updateScene(_data);
+        excalidrawRef.current.updateScene({
+          appState: _data.appState,
+          elements: _data.elements,
+          commitToHistory: false,
+        });
         excalidrawRef.current.history.clear();
         if (_data.files) {
           const _files = Object.values(_data.files) as BinaryFileData[];
