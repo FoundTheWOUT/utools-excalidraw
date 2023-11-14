@@ -5,7 +5,6 @@ import { Scene } from "@/types";
 import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
-import { concat } from "lodash-es";
 import { memo, useContext, useEffect } from "react";
 import {
   DragDropContext,
@@ -103,7 +102,7 @@ function SceneList() {
   };
 
   const cleanup = () => {
-    SS.dropDeletedFiles(concat(scenes, trashcan));
+    SS.dropDeletedFiles(scenes.concat(trashcan));
   };
 
   useEffect(() => {

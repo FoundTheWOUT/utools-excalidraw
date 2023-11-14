@@ -35,9 +35,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     });
   };
   const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
-  const [settingDialogOpen, setSettingDialogOpen] = useState(
-    import.meta.env.DEV ? true : false,
-  );
+  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
   const [openSideBarTemp, setOpenSideBarTemp] = useState(false);
 
   if (!appSettings) {

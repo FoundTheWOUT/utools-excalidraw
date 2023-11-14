@@ -3,10 +3,10 @@ import {
   Excalidraw,
   MainMenu,
   THEME,
+  restore,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
 import {
-  BinaryFileData,
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
@@ -14,7 +14,7 @@ import { FolderIcon } from "@heroicons/react/outline";
 import { generatePreviewImage, isDark, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
-import { omit, debounce } from "lodash-es";
+import { debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
 import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
 import { EventChanel } from "./utils/event";
@@ -87,15 +87,9 @@ function App({
   const setAndStoreAppSettings = (
     settings: Partial<Store[DB_KEY.SETTINGS]>,
   ) => {
-    const nextSettings = omit(
-      {
-        ...appSettings,
-        ...settings,
-      },
-      ["value", "_id", "_rev"],
-    ) as Store[DB_KEY.SETTINGS];
-    setAppSettings(nextSettings);
-    debounceStoreItem(DB_KEY.SETTINGS, nextSettings);
+    const { value, _id, _rev, ...rest } = { ...appSettings, ...settings };
+    setAppSettings(rest);
+    debounceStoreItem(DB_KEY.SETTINGS, rest);
   };
 
   const [resizing, setResizing] = useState(false);
@@ -163,23 +157,26 @@ function App({
     });
 
     // restore scene
-    if (data) {
-      try {
-        const _data = await restoreFiles(JSON.parse(data));
-        excalidrawRef.current.updateScene({
-          appState: _data.appState,
-          elements: _data.elements,
-          commitToHistory: false,
-        });
-        excalidrawRef.current.history.clear();
-        if (_data.files) {
-          const _files = Object.values(_data.files) as BinaryFileData[];
-          _files.length > 0 && excalidrawRef.current.addFiles(_files);
-        }
-      } catch (error) {
-        console.error(error);
-        excalidrawRef.current.setToast({ message: "解析错误" });
-      }
+    if (!data) {
+      return;
+    }
+    try {
+      const _data = await restoreFiles(JSON.parse(data));
+      excalidrawRef.current.history.clear();
+      excalidrawRef.current.updateScene(
+        restore(
+          {
+            appState: _data.appState,
+            elements: _data.elements,
+            files: _data.files,
+          },
+          null,
+          null,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+      excalidrawRef.current.setToast({ message: "解析错误" });
     }
 
     afterActive && afterActive();
@@ -258,6 +255,24 @@ function App({
         setTrashcan,
       }}
     >
+      {import.meta.env.DEV && (
+        <div className="flex gap-4">
+          <button
+            onClick={() => {
+              log(excalidrawRef.current?.getAppState());
+            }}
+          >
+            Get AppState
+          </button>
+          <button
+            onClick={() => {
+              log(excalidrawRef.current?.getSceneElements());
+            }}
+          >
+            Get Elements
+          </button>
+        </div>
+      )}
       <div
         className="flex h-screen dark:bg-[#121212]"
         onMouseUp={() => setResizing(false)}

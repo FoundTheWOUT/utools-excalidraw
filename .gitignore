@@ -22,5 +22,6 @@ dist-ssr
 *.sln
 *.sw?
 
+tmp
 public/excalidraw-*
 stats.html

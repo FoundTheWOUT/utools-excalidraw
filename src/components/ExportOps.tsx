@@ -3,7 +3,6 @@ import { EXCALIDRAW_EXTENSION } from "@/const";
 import { extend } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import cn from "clsx";
-import { omit } from "lodash-es";
 import { useState, useContext } from "react";
 import StyledCheckBox from "../ui/CheckBox";
 
@@ -81,13 +80,10 @@ const ExportOps = () => {
 
   const exportToPng = (name: string, scale: number) => {
     if (!excalidrawRef.current) return;
+    const { exportImageScale, ...rest } = exportImageOptions;
     exportToBlob({
       elements: excalidrawRef.current.getSceneElementsIncludingDeleted(),
-      appState: extend(
-        {},
-        excalidrawRef.current.getAppState(),
-        omit(exportImageOptions, "exportImageScale"),
-      ),
+      appState: extend({}, excalidrawRef.current.getAppState(), rest),
       files: excalidrawRef.current.getFiles(),
       getDimensions: (w, h) => ({ width: w * scale, height: h * scale, scale }),
     })

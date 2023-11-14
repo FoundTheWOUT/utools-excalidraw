@@ -1,5 +1,5 @@
 import { DB_KEY, Scene } from "@/types";
-import { keyBy, uniq } from "lodash-es";
+import { keyBy } from "lodash-es";
 import { log, newAScene } from "@/utils/utils";
 import { initStore } from "..";
 
@@ -62,7 +62,7 @@ export const restoreScenesArray = (
   }
 
   // remove the sceneId that point to null scene.
-  idArray = uniq(idArray.filter((id) => scenesMap.has(id)));
+  idArray = [...new Set(idArray.filter((id) => scenesMap.has(id)))];
 
   return {
     scenes: idArray.map((id) => scenesMap.get(id) as Scene),
