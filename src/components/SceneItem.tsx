@@ -1,6 +1,6 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import cn from "clsx";
-import { AppContext, updateScene } from "@/App";
+import { AppContext } from "@/App";
 import { generatePreviewImage } from "@/utils/utils";
 import SS from "@/store";
 import { XIcon } from "@heroicons/react/solid";
@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { uniqBy } from "lodash-es";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
+import { updateScene } from "@/event";
 
 interface Props {
   scene: Scene;

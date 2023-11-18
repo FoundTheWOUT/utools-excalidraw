@@ -17,10 +17,10 @@ import { restoreFiles } from "./utils/data";
 import { debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
 import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
-import { EventChanel } from "./utils/event";
 import SideBar from "./components/SideBar";
 import dayjs from "dayjs";
 import StoreSystem from "./store";
+import { loadScene, updateScene } from "./event";
 
 export const AppContext = createContext<{
   excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
@@ -41,12 +41,6 @@ export const AppContext = createContext<{
   setTrashcan: React.Dispatch<React.SetStateAction<Scene[]>>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
-
-export const loadScene = new EventChanel();
-export const updateScene = new EventChanel<{
-  target: string;
-  value: Partial<Scene>;
-}>();
 
 const dropExpiredScene = (id: string) => {
   StoreSystem.removeScene(id);
@@ -87,7 +81,12 @@ function App({
   const setAndStoreAppSettings = (
     settings: Partial<Store[DB_KEY.SETTINGS]>,
   ) => {
-    const { value, _id, _rev, ...rest } = { ...appSettings, ...settings };
+    const {
+      value = undefined,
+      _id = undefined,
+      _rev = undefined,
+      ...rest
+    } = { ...appSettings, ...settings };
     setAppSettings(rest);
     debounceStoreItem(DB_KEY.SETTINGS, rest);
   };
@@ -162,11 +161,15 @@ function App({
     }
     try {
       const _data = await restoreFiles(JSON.parse(data));
+      const theme = isDark(appSettings.theme) ? THEME.DARK : THEME.LIGHT;
       excalidrawRef.current.history.clear();
       excalidrawRef.current.updateScene(
         restore(
           {
-            appState: _data.appState,
+            appState: {
+              ..._data.appState,
+              theme,
+            },
             elements: _data.elements,
             files: _data.files,
           },

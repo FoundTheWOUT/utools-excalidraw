@@ -1,4 +1,4 @@
-import { AppContext, loadScene, updateScene } from "@/App";
+import { AppContext } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import SS from "@/store";
 import { Scene } from "@/types";
@@ -14,6 +14,7 @@ import {
 } from "react-beautiful-dnd";
 import SceneItem from "./SceneItem";
 import { SideBarContext } from "./SideBar";
+import { loadScene, updateScene } from "@/event";
 
 type Payload = Partial<{
   isFile: boolean;
