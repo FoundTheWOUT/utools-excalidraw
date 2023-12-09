@@ -177,6 +177,8 @@ function App({
           null,
         ),
       );
+      const files = Object.values(_data.files);
+      files.length && excalidrawRef.current.addFiles(files);
     } catch (error) {
       console.error(error);
       excalidrawRef.current.setToast({ message: "解析错误" });
