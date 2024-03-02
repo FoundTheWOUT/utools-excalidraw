@@ -1,8 +1,7 @@
 import { AppContext } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import SS from "@/store";
-import { Scene } from "@/types";
-import { log, newAScene, reorder, six_nanoid } from "@/utils/utils";
+import { log, newAScene, reorder } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
 import { memo, useContext, useEffect } from "react";
@@ -15,12 +14,6 @@ import {
 import SceneItem from "./SceneItem";
 import { SideBarContext } from "./SideBar";
 import { loadScene, updateScene } from "@/event";
-
-type Payload = Partial<{
-  isFile: boolean;
-  name: string;
-  path: string;
-}>;
 
 function SceneList() {
   const {
@@ -110,6 +103,7 @@ function SceneList() {
     cleanup();
   }, []);
 
+  // TODO: extract this callback
   window.utools &&
     utools.onPluginOut(() => {
       scenes.forEach((scene) => {
@@ -118,53 +112,6 @@ function SceneList() {
         scene.img = undefined;
         SS.storeScene(scene.id, scene);
       });
-    });
-
-  window.utools &&
-    utools.onPluginEnter(({ code, payload, option }) => {
-      const pl = payload as Payload[];
-      if (code === "search-scenes") {
-        const { sceneId } = option;
-        const scene = scenes.find((scene) => scene.id === sceneId);
-        if (scene) {
-          handleSetActiveDraw?.(sceneId, { scene });
-        }
-      }
-
-      if (code === "load-excalidraw-file" && pl.length) {
-        const firstAppendScenesId = six_nanoid();
-        const appendScenes = pl.reduce(
-          (scenes, { isFile, path, name }, idx) => {
-            if (isFile && path && name) {
-              const [fileName] = name.split(".");
-              const excalidrawFile = window.readFileSync(path, {
-                encoding: "utf-8",
-              });
-              try {
-                JSON.parse(excalidrawFile);
-                scenes.push(
-                  newAScene({
-                    id: idx === 0 ? firstAppendScenesId : six_nanoid(),
-                    name: fileName,
-                    data: excalidrawFile,
-                  }),
-                );
-              } catch (error) {
-                excalidrawRef?.current?.setToast({
-                  message: `${name} 解析错误`,
-                });
-              }
-            }
-            return scenes;
-          },
-          [] as Scene[],
-        );
-        setScenes?.((scenes) => [...scenes, ...appendScenes]);
-        appendScenes.length &&
-          handleSetActiveDraw?.(firstAppendScenesId, {
-            scene: appendScenes[0],
-          });
-      }
     });
 
   return (

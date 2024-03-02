@@ -40,3 +40,9 @@ export enum Theme {
   Dark = "DARK",
   App = "APP",
 }
+
+export type Payload = Partial<{
+  isFile: boolean;
+  name: string;
+  path: string;
+}>;

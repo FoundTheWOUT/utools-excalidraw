@@ -43,38 +43,37 @@ export const loadInitialData = async (
 };
 
 /**
- * 从数据库中读取数据对应 id 的文件
- * 如果 db 中存在该文件，则返回该文件
- * 否则从自带的 files 中尝试读取文件
- *  如果成功读取，则把文件存入数据库
- *  否则什么也不做（文件丢失）
+ * 合并自身 files，以及数据库中 files
  * @param data Excalidraw 数据
  * @returns
  */
 export const restoreFiles = async (
   data: ImportedDataState,
 ): Promise<RestoredDataState> => {
-  data.files = (
-    await Promise.all(
-      (data.elements ?? [])
-        .filter((el) => el.type === "image" && el.fileId)
-        .map(async (el) => {
-          const ele = el as ExcalidrawImageElement & { fileId: FileId };
-          return {
-            id: ele.fileId,
-            file: await SS.getFile(ele.fileId),
-          };
-        }),
+  data.files = {
+    ...(data.files ? data.files : {}),
+    ...(
+      await Promise.all(
+        (data.elements ?? [])
+          .filter((el) => el.type === "image" && el.fileId)
+          .map(async (el) => {
+            const ele = el as ExcalidrawImageElement & { fileId: FileId };
+            return {
+              id: ele.fileId,
+              file: await SS.getFile(ele.fileId),
+            };
+          }),
+      )
     )
-  )
-    .filter((item) => item.file)
-    .reduce<BinaryFiles>(
-      (acc, item) => ({
-        ...acc,
-        [item.id]: JSON.parse(decoder.decode(item.file!)),
-      }),
-      {},
-    );
+      .filter((item) => item.file)
+      .reduce<BinaryFiles>(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: JSON.parse(decoder.decode(item.file!)),
+        }),
+        {},
+      ),
+  };
   return data as RestoredDataState;
 };
 

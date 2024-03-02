@@ -60,3 +60,14 @@ utools.onMainPush(({ code, payload, type }) => {
       sceneId: scene.value.id,
     }));
 });
+
+let enterAction = new Promise((resolve) => {
+  utools.onPluginEnter((action) => {
+    resolve(action);
+  });
+});
+
+window.resolveEnterAction = async (key) => {
+  const action = await enterAction;
+  return action?.code == key ? action : null;
+};

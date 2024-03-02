@@ -16,7 +16,7 @@ import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import { debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
-import { ALLOW_HOSTS, REDIRECT_HOSTS, TEN_MB } from "./const";
+import { TEN_MB } from "./const";
 import SideBar from "./components/SideBar";
 import dayjs from "dayjs";
 import StoreSystem from "./store";
@@ -221,29 +221,6 @@ function App({
   const handleSceneLoad = () => {
     loadScene.emit();
   };
-
-  const aLinkHandler = (e: MouseEvent) => {
-    const target = e.currentTarget as HTMLLinkElement;
-    if (!target) {
-      return;
-    }
-    if (target.nodeName !== "A") {
-      return;
-    }
-    if (ALLOW_HOSTS.includes(target.href)) {
-      const targetHref = REDIRECT_HOSTS[target.href] ?? target.href;
-      window.utools && window.utools.shellOpenExternal(targetHref);
-      e.preventDefault();
-      window.open(targetHref, "_blank", "noopener noreferrer");
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("click", aLinkHandler);
-    return () => {
-      document.removeEventListener("click", aLinkHandler);
-    };
-  }, []);
 
   return (
     <AppContext.Provider
