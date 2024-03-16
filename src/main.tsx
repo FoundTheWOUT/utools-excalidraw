@@ -41,6 +41,17 @@ async function main() {
   const root = createRoot(container!);
   registerALinkHandler();
 
+  window.utools &&
+    utools.onPluginOut(() => {
+      scenes.forEach((scene) => {
+        // drop image
+        scene.img && URL.revokeObjectURL(scene.img);
+        scene.img = undefined;
+        StoreSystem.storeScene(scene.id, scene);
+      });
+      StoreSystem.dropDeletedFiles(scenes);
+    });
+
   root.render(
     <StrictMode>
       <App store={store} initialData={initialData} />

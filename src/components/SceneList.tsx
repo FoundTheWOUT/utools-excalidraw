@@ -1,6 +1,5 @@
 import { AppContext } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
-import SS from "@/store";
 import { log, newAScene, reorder } from "@/utils/utils";
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
@@ -21,7 +20,6 @@ function SceneList() {
     setAndStoreAppSettings,
     appSettings,
     handleSetActiveDraw,
-    trashcan = [],
   } = useContext(AppContext) ?? {};
   const { scenes = [], setScenes } = useContext(SideBarContext) ?? {};
 
@@ -94,25 +92,6 @@ function SceneList() {
       scenesId: reorderScenes.map((scene) => scene.id),
     });
   };
-
-  const cleanup = () => {
-    SS.dropDeletedFiles(scenes.concat(trashcan));
-  };
-
-  useEffect(() => {
-    cleanup();
-  }, []);
-
-  // TODO: extract this callback
-  window.utools &&
-    utools.onPluginOut(() => {
-      scenes.forEach((scene) => {
-        // drop image
-        scene.img && URL.revokeObjectURL(scene.img);
-        scene.img = undefined;
-        SS.storeScene(scene.id, scene);
-      });
-    });
 
   return (
     <>

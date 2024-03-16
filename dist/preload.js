@@ -61,7 +61,7 @@ utools.onMainPush(({ code, payload, type }) => {
     }));
 });
 
-let enterAction = new Promise((resolve) => {
+const enterAction = new Promise((resolve) => {
   utools.onPluginEnter((action) => {
     resolve(action);
   });

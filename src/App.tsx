@@ -1,4 +1,4 @@
-import React, { useState, useRef, createContext, useEffect } from "react";
+import React, { useState, useRef, createContext } from "react";
 import {
   Excalidraw,
   MainMenu,

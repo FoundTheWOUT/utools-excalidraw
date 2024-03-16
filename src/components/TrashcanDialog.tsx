@@ -7,7 +7,6 @@ import { SideBarContext } from "./SideBar";
 import SS from "@/store";
 import cn from "clsx";
 
-// TODO: calculate page size
 const PAGE_SIZE = 5;
 
 function TrashcanDialog({

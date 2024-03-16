@@ -1,6 +1,5 @@
 {
-  "cSpell.words": [
-    "Excalidraw",
-    "utools"
-  ],
+  "cSpell.words": ["Excalidraw", "utools"],
+  "todohighlight.include": ["src/**"],
+  "vitest.commandLine": "pnpm test"
 }

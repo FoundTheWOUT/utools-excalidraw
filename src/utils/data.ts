@@ -94,19 +94,25 @@ const restoreLibrary = (
   return data;
 };
 
-export const collectAllFileId = (scenes: Scene[]) => {
-  const existFileId = new Set();
-
-  scenes.forEach((scene) => {
-    if (scene.data) {
-      const data = JSON.parse(scene.data) as ImportedDataState;
-      data.elements?.forEach((e) => {
-        if (e.type == "image") {
-          existFileId.add(e.fileId);
+export const collectAllFileId = (scenes: Scene[]) =>
+  new Set(
+    scenes
+      .map((scene) => {
+        if (!scene.data) {
+          return void 0;
         }
-      });
-    }
-  });
-
-  return existFileId;
-};
+        try {
+          return JSON.parse(scene.data) as ImportedDataState;
+        } catch {
+          return void 0;
+        }
+      })
+      .filter(Boolean)
+      .map(
+        (sceneData) =>
+          sceneData?.elements
+            ?.filter((el) => el.type === "image")
+            .map((el) => (el as ExcalidrawImageElement).fileId),
+      )
+      .flat<unknown>(),
+  );
