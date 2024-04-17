@@ -38,6 +38,7 @@ jobs:
         run: pnpm install
 
   build:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Build package
@@ -46,6 +47,7 @@ jobs:
         run: pnpm pack-ext
 
   release:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Archive production artifacts
