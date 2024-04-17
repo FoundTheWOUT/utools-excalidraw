@@ -1,4 +1,4 @@
-import React, { useState, useRef, createContext } from "react";
+import React, { useState, createContext } from "react";
 import {
   Excalidraw,
   MainMenu,
@@ -23,7 +23,7 @@ import StoreSystem from "./store";
 import { loadScene, updateScene } from "./event";
 
 export const AppContext = createContext<{
-  excalidrawRef: React.MutableRefObject<ExcalidrawImperativeAPI | null>;
+  excalidrawRef: { current: ExcalidrawImperativeAPI | null };
   updatingScene: boolean;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
@@ -72,7 +72,8 @@ function App({
   );
   const [trashcan, setTrashcan] = useState(deletedScene);
 
-  const excalidrawRef = useRef<ExcalidrawImperativeAPI | null>(null);
+  const [excalidrawAPI, setExcalidrawAPI] =
+    useState<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
   const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
 
@@ -128,7 +129,7 @@ function App({
       });
 
       // store file
-      StoreSystem.storeFile(excalidrawRef.current);
+      StoreSystem.storeFile(excalidrawAPI);
     } catch (error) {
       console.warn(error);
     }
@@ -144,7 +145,7 @@ function App({
     },
     afterActive?: () => void,
   ) => {
-    if (!excalidrawRef.current) return;
+    if (!excalidrawAPI) return;
     payload = payload ?? {};
 
     const { data } = payload.scene ?? {};
@@ -162,8 +163,8 @@ function App({
     try {
       const _data = await restoreFiles(JSON.parse(data));
       const theme = isDark(appSettings.theme) ? THEME.DARK : THEME.LIGHT;
-      excalidrawRef.current.history.clear();
-      excalidrawRef.current.updateScene(
+      excalidrawAPI.history.clear();
+      excalidrawAPI.updateScene(
         restore(
           {
             appState: {
@@ -178,10 +179,10 @@ function App({
         ),
       );
       const files = Object.values(_data.files);
-      files.length && excalidrawRef.current.addFiles(files);
+      files.length && excalidrawAPI.addFiles(files);
     } catch (error) {
       console.error(error);
-      excalidrawRef.current.setToast({ message: "解析错误" });
+      excalidrawAPI.setToast({ message: "解析错误" });
     }
 
     afterActive && afterActive();
@@ -225,7 +226,7 @@ function App({
   return (
     <AppContext.Provider
       value={{
-        excalidrawRef,
+        excalidrawRef: { current: excalidrawAPI },
         appSettings,
         setAndStoreAppSettings,
         updatingScene,
@@ -241,14 +242,14 @@ function App({
         <div className="flex gap-4">
           <button
             onClick={() => {
-              log(excalidrawRef.current?.getAppState());
+              log(excalidrawAPI?.getAppState());
             }}
           >
             Get AppState
           </button>
           <button
             onClick={() => {
-              log(excalidrawRef.current?.getSceneElements());
+              log(excalidrawAPI?.getSceneElements());
             }}
           >
             Get Elements
@@ -271,7 +272,7 @@ function App({
           }}
         >
           <Excalidraw
-            ref={excalidrawRef}
+            excalidrawAPI={(api) => setExcalidrawAPI(api)}
             initialData={initialData}
             onChange={(elements, state, files) => {
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
@@ -281,16 +282,13 @@ function App({
               if (data.files && Object.keys(data.files).length > 0) {
                 for (const fileID in data.files) {
                   const blob = new Blob([data.files[fileID].dataURL]);
-                  console.log(blob.size);
                   if (blob.size > TEN_MB) {
-                    excalidrawRef.current &&
-                      excalidrawRef.current.setToast({ message: "hi" });
+                    excalidrawAPI?.setToast({ message: "hi" });
                     console.log("图片不能大于10MB");
                     return false;
                   }
                 }
               }
-              // console.log("图片不能大于10MB");
               return true;
             }}
             langCode="zh-CN"
@@ -298,7 +296,6 @@ function App({
             name={name}
             UIOptions={{
               canvasActions: {
-                // export: false,
                 export: {
                   saveFileToDisk: false,
                   renderCustomUI: () => <ExportOps />,

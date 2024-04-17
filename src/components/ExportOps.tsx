@@ -52,7 +52,6 @@ const ExportOps = () => {
 
   if (!appContext) return null;
   const { sceneName, excalidrawRef } = appContext;
-
   const exportToFile = (name: string) => {
     if (!excalidrawRef.current) return;
     const text = serializeAsJSON(

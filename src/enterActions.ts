@@ -1,10 +1,13 @@
 import { newAScene, six_nanoid } from "./utils/utils";
 import { DB_KEY, Store } from "./types";
 import { ENTER_ACTION } from "./const";
+import { noop } from "lodash-es";
+
+const resolveEnterAction = window.resolveEnterAction || noop;
 
 // TODO: add test for this function
 export async function handleFileLoadAction(store: Store) {
-  const action = await window.resolveEnterAction(ENTER_ACTION.LOAD_FILE);
+  const action = await resolveEnterAction(ENTER_ACTION.LOAD_FILE);
   if (!action) {
     return;
   }
@@ -37,7 +40,7 @@ export async function handleFileLoadAction(store: Store) {
 }
 
 export async function handleSearchSceneAction(store: Store) {
-  const action = await window.resolveEnterAction(ENTER_ACTION.FOCUS_SCENE);
+  const action = await resolveEnterAction(ENTER_ACTION.FOCUS_SCENE);
   if (!action) {
     return;
   }
