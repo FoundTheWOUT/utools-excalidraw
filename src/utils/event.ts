@@ -6,6 +6,11 @@ export class EventChanel<T> {
       this.events.delete(cb);
     };
   }
+  once(cb: (context: T) => void) {
+    const clear = this.subscribe(cb);
+    this.events.add(clear);
+    return clear;
+  }
   emit(context?: T) {
     this.events.forEach((cb) => cb(context as T));
   }
