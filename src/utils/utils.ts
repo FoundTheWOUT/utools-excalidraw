@@ -1,8 +1,5 @@
 import { Scene, Theme } from "@/types";
-import { nanoid } from "nanoid";
 import { restoreFiles } from "./data";
-
-export const six_nanoid = () => nanoid(6);
 
 export function blobToBase64(
   blob: Blob | null,
@@ -55,19 +52,6 @@ export const extend = Object.assign;
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
 
-export const newAScene = ({
-  id,
-  ...rest
-}: Partial<Scene> & { name: string }): Scene => {
-  return {
-    id: id ? id : six_nanoid(),
-    sticky: false,
-    deleted: false,
-    deletedAt: null,
-    ...rest,
-  };
-};
-
 const inner_log = function () {
   if (import.meta.env.MODE === "development") {
     return console.log.bind(
@@ -104,3 +88,5 @@ export const isDark = (theme: Theme) => {
 export const setTheme = (theme: Theme) => {
   document.documentElement.classList[isDark(theme) ? "add" : "remove"]("dark");
 };
+
+export * from "./scene";

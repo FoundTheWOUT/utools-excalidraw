@@ -45,11 +45,13 @@ function SceneList() {
           0,
           fileData.name.length - EXCALIDRAW_EXTENSION.length,
         );
-        // const data = serializeAsJSON(elements, appState, files, "database");
         const newScene = newAScene({ name, data });
-        // TODO: ?
-        // setScenes?.((oldScene) => [...oldScene, newScene]);
-        handleSetActiveDraw?.(newScene.id, { scene: newScene });
+        sceneCollection?.set(newScene.id, newScene);
+        handleSetActiveDraw?.(newScene.id, {
+          appSettings: {
+            scenesId: appSettings?.scenesId.concat(newScene.id),
+          },
+        });
       } catch (error) {
         log(error);
         excalidrawRef?.current?.setToast({ message: (error as Error).message });
@@ -72,20 +74,18 @@ function SceneList() {
       result.source.index,
       result.destination.index,
     );
-    // TODO: reorder id
-    // setScenes?.(reorderScenes);
     setAndStoreAppSettings?.({
       scenesId: reorderScenes.map((scene) => scene.id),
     });
   };
 
+  // TODO: refactor this can merge with load scene
   const handleAddScene = () => {
     const newScene = newAScene({ name: `画布${scenes.length}` });
     excalidrawRef?.current && excalidrawRef.current.resetScene();
     sceneCollection?.set(newScene.id, newScene);
     handleSetActiveDraw?.(newScene.id, {
       appSettings: {
-        lastActiveDraw: newScene.id,
         scenesId: appSettings?.scenesId.concat(newScene.id),
       },
     });

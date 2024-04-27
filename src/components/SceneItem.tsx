@@ -11,11 +11,12 @@ import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
 import { updateScene } from "@/event";
 import dayjs from "dayjs";
+import { DraggableProvided } from "react-beautiful-dnd";
 
 interface Props {
   scene: Scene;
   idx: number;
-  dragProvided?: any;
+  dragProvided: DraggableProvided;
 }
 
 const SceneItem = ({ scene, idx, dragProvided }: Props) => {
@@ -23,6 +24,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const { scenes } = useContext(SideBarContext) ?? {};
   const {
     appSettings,
+    scenes: sceneCollection,
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
@@ -83,13 +85,11 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         deletedAt: dayjs().unix(),
       });
     }
-    setAndStoreAppSettings?.({
-      ...(appSettings?.lastActiveDraw === id
-        ? {
-            lastActiveDraw: nextScenesId[updateScenesIndex],
-          }
-        : {}),
-      scenesId: nextScenesId,
+    handleSetActiveDraw?.(nextScenesId[updateScenesIndex], {
+      scene: sceneCollection?.get(nextScenesId[updateScenesIndex]),
+      appSettings: {
+        scenesId: nextScenesId,
+      },
     });
   };
 

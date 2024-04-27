@@ -64,7 +64,13 @@ export const restoreScenesArray = (
   }
 
   // remove the sceneId that point to null scene.
-  idArray = [...new Set(idArray.filter((id) => scenes.has(id)))];
+  idArray = [
+    ...new Set(
+      idArray
+        .filter((id) => scenes.has(id))
+        .filter((id) => !scenes.get(id)?.deleted),
+    ),
+  ];
 
   return {
     idArray,

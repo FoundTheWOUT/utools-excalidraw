@@ -17,4 +17,8 @@ export default defineConfig({
     outDir: "dist/web",
   },
   plugins: [react(), visualizer() as PluginOption],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./setup-test.ts"],
+  },
 });
