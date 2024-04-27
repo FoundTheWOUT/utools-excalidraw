@@ -1,7 +1,6 @@
-import { DB_KEY, Scene } from "@/types";
+import { Scene } from "@/types";
 import { keyBy } from "lodash-es";
 import { log, newAScene } from "@/utils/utils";
-import { initStore } from "..";
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {

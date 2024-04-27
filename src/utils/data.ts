@@ -3,7 +3,7 @@ import {
   BinaryFiles,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
-import { keyBy, merge } from "lodash-es";
+import { merge } from "lodash-es";
 import { Scene } from "../types";
 import SS from "../store";
 import { decoder, log } from "./utils";

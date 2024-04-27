@@ -1,8 +1,7 @@
-import React, { createContext, memo, useContext, useState } from "react";
+import { createContext, memo, useContext, useState } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
-import SS from "@/store";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -12,8 +11,6 @@ import {
 import { Scene } from "@/types";
 import TrashcanDialog from "./TrashcanDialog";
 import SettingDialog from "@/components/SettingDialog.tsx";
-import { uniqBy } from "lodash-es";
-import dayjs from "dayjs";
 
 export const SideBarContext = createContext<{
   scenes: Scene[];

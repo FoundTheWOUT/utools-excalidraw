@@ -24,5 +24,6 @@
     "types": ["utools-api-types", "@types/wicg-file-system-access"]
   },
   "include": ["src/**/*", "dist/preload.js"],
+  "exclude": ["**/*.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

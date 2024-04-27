@@ -35,7 +35,9 @@ export async function handleFileLoadAction(store: Store) {
       }
     });
 
-  store[DB_KEY.SCENES] = store[DB_KEY.SCENES].concat(scenes);
+  for (const scene of scenes) {
+    store[DB_KEY.SCENES].set(scene.id, scene);
+  }
   store[DB_KEY.SETTINGS].lastActiveDraw = firstSceneId;
 }
 
@@ -45,7 +47,7 @@ export async function handleSearchSceneAction(store: Store) {
     return;
   }
   const { sceneId } = action.option;
-  const scene = store[DB_KEY.SCENES].find((scene) => scene.id === sceneId);
+  const scene = store[DB_KEY.SCENES].get(sceneId);
   if (scene?.id) {
     store[DB_KEY.SETTINGS].lastActiveDraw = scene.id;
   }

@@ -86,7 +86,7 @@ function App({
     }
   };
 
-  const onSceneUpdate = debounce(async (elements, state, files, target) => {
+  const onSceneUpdate = debounce(async (elements, state, _, target) => {
     try {
       const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
       data.appState.zoom = state.zoom;
