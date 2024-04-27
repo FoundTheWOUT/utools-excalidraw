@@ -5,7 +5,6 @@ export type Scene = {
   deleted: boolean;
   deletedAt: number | null;
 
-  img?: string; //preview img base64
   data?: string;
 };
 

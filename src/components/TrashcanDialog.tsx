@@ -57,6 +57,7 @@ function TrashcanDialog({
   const trashcan = Array.from(scenes?.values() ?? [])
     .filter((scene) => scene.deleted)
     .sort((a, b) => b.deletedAt! - a.deletedAt!);
+  // TODO: generate preview img
 
   const pages = new Array(Math.ceil((trashcan?.length ?? 0) / PAGE_SIZE));
   for (let i = 0; i < pages.length; i++) {
@@ -116,7 +117,7 @@ function TrashcanDialog({
                 {/* TODO: fix image */}
                 <img
                   className="aspect-video w-48 rounded-lg border-2 object-contain"
-                  src={scene.img}
+                  src=""
                 />
                 {/* content */}
                 <div className="flex w-48 flex-1 flex-col">

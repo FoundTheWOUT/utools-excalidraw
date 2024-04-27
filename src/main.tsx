@@ -43,12 +43,6 @@ async function main() {
 
   window.utools &&
     utools.onPluginOut(() => {
-      scenes.forEach((scene) => {
-        // drop image
-        scene.img && URL.revokeObjectURL(scene.img);
-        scene.img = undefined;
-        StoreSystem.storeScene(scene.id, scene);
-      });
       StoreSystem.dropDeletedFiles(scenes);
     });
 
