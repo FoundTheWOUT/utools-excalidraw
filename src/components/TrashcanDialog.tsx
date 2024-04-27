@@ -3,7 +3,6 @@ import { Dialog } from "@/ui/Dialog";
 import { useContext, useState } from "react";
 import dayjs from "dayjs";
 import { Scene } from "@/types";
-import { SideBarContext } from "./SideBar";
 import SS from "@/store";
 import cn from "clsx";
 
@@ -16,9 +15,13 @@ function TrashcanDialog({
   open: boolean;
   onClose: (value: boolean) => void;
 }) {
-  const { trashcan, setTrashcan, setAndStoreAppSettings } =
+  const { scenes, setAndStoreAppSettings, appSettings } =
     useContext(AppContext) ?? {};
-  const { setScenes } = useContext(SideBarContext) ?? {};
+
+  //TODO: should re compute
+  const trashcan = Array.from(scenes?.values() ?? [])
+    .filter((scene) => scene.deleted)
+    .sort((a, b) => b.deletedAt! - a.deletedAt!);
 
   const pages = new Array(Math.ceil((trashcan?.length ?? 0) / PAGE_SIZE));
   for (let i = 0; i < pages.length; i++) {
@@ -26,24 +29,18 @@ function TrashcanDialog({
   }
   const [curPage, setCurPage] = useState(1);
 
-  const dropSceneInTrashcan = (id: string) =>
-    setTrashcan?.((scenes) => scenes.filter((s) => s.id !== id));
+  // const dropSceneInTrashcan = (id: string) =>
+  //   setTrashcan?.((scenes) => scenes.filter((s) => s.id !== id));
 
   const handleRestoreScene = (scene: Scene) => {
-    dropSceneInTrashcan(scene.id);
-    setScenes?.((scenes) => {
-      const restoreScene = { ...scene, deleted: false, deletedAt: null };
-      const nextScenes = [...scenes, restoreScene];
-      SS.storeScene(scene.id, restoreScene);
-      setAndStoreAppSettings?.({
-        scenesId: nextScenes.filter((s) => !s.deleted).map((s) => s.id),
-      });
-      return nextScenes;
+    const restoreScene = { ...scene, deleted: false, deletedAt: null };
+    SS.storeScene(scene.id, restoreScene);
+    setAndStoreAppSettings?.({
+      scenesId: [...appSettings!.scenesId, scene.id],
     });
   };
 
   const handlePermanentRemove = (scene: Scene) => {
-    dropSceneInTrashcan(scene.id);
     SS.removeScene(scene.id);
   };
 

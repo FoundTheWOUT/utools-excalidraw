@@ -27,6 +27,8 @@ function registerALinkHandler() {
 }
 
 async function main() {
+  // TODO: if scene is expired, dropExpiredScene
+
   const store = await StoreSystem.getStore();
   await handleFileLoadAction(store);
   await handleSearchSceneAction(store);

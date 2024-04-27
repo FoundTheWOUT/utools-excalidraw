@@ -15,10 +15,8 @@ import SettingDialog from "@/components/SettingDialog.tsx";
 import { uniqBy } from "lodash-es";
 import dayjs from "dayjs";
 
-type DelSceneArgs = { id: string; permanent: boolean };
 export const SideBarContext = createContext<{
   scenes: Scene[];
-  delScene: (params: DelSceneArgs) => void;
 } | null>(null);
 
 function SideBar({
@@ -26,40 +24,11 @@ function SideBar({
 }: {
   scenesCollection: Map<string, Scene>;
 }) {
-  const { appSettings, setAndStoreAppSettings, setResizing, setTrashcan } =
+  const { appSettings, setAndStoreAppSettings, setResizing } =
     useContext(AppContext) ?? {};
 
   const scenes =
     appSettings?.scenesId.map((id) => scenesCollection.get(id)!) ?? [];
-
-  const moveToTrashcan = (id: string) => {
-    const scene = scenes.find((scene) => scene.id === id)!;
-    setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
-    SS.storeScene(id, {
-      ...scene,
-      deleted: true,
-      deletedAt: dayjs().unix(),
-    });
-  };
-
-  const delScene = ({ id, permanent }: DelSceneArgs) => {
-    const idx = scenes.findIndex((scene) => scene.id === id);
-    if (permanent) {
-      SS.removeScene(id);
-    } else {
-      moveToTrashcan(id);
-    }
-    const newScenes = scenes.filter((scene) => scene.id !== id);
-    const updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
-    setAndStoreAppSettings?.({
-      ...(appSettings?.lastActiveDraw === id
-        ? {
-            lastActiveDraw: newScenes[updateScenesIndex].id,
-          }
-        : {}),
-      scenesId: newScenes.map((scene) => scene.id),
-    });
-  };
 
   const handleAsideControllerClick = () => {
     setAndStoreAppSettings?.({
@@ -78,7 +47,6 @@ function SideBar({
     <SideBarContext.Provider
       value={{
         scenes,
-        delScene,
       }}
     >
       <aside

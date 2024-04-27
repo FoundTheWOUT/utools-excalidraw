@@ -23,6 +23,7 @@ import StoreSystem from "./store";
 import { loadScene, updateScene } from "./event";
 
 export const AppContext = createContext<{
+  scenes: Map<string, Scene>;
   excalidrawRef: { current: ExcalidrawImperativeAPI | null };
   updatingScene: boolean;
   sceneName: string;
@@ -37,15 +38,8 @@ export const AppContext = createContext<{
     },
     afterActive?: () => void,
   ) => Promise<void>;
-  trashcan: Scene[];
-  setTrashcan: React.Dispatch<React.SetStateAction<Scene[]>>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
-
-const dropExpiredScene = (id: string) => {
-  StoreSystem.removeScene(id);
-  return true;
-};
 
 function App({
   initialData,
@@ -58,18 +52,6 @@ function App({
     settings: { lastActiveDraw },
     scenes,
   } = store;
-
-  // const deletedScene = scenes.filter((scene) =>
-  //   scene.deleted && scene.deletedAt
-  //     ? dayjs.unix(scene.deletedAt).diff(dayjs(), "d") >= 30
-  //       ? // grater than 30 days, remove it
-  //         !dropExpiredScene(scene.id)
-  //       : // should put it in trashcan
-  //         true
-  //     : // not a deleted scene
-  //       false,
-  // );
-  const [trashcan, setTrashcan] = useState([] as Scene[]);
 
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
@@ -225,6 +207,7 @@ function App({
   return (
     <AppContext.Provider
       value={{
+        scenes,
         excalidrawRef: { current: excalidrawAPI },
         appSettings,
         setAndStoreAppSettings,
@@ -232,9 +215,7 @@ function App({
         handleSetActiveDraw: handleSetActiveScene,
         setSceneName: setName,
         sceneName: name,
-        trashcan,
         setResizing,
-        setTrashcan,
       }}
     >
       {import.meta.env.DEV && (

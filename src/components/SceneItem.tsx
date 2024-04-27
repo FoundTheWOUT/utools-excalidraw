@@ -10,6 +10,7 @@ import { Scene } from "@/types";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
 import { updateScene } from "@/event";
+import dayjs from "dayjs";
 
 interface Props {
   scene: Scene;
@@ -19,13 +20,14 @@ interface Props {
 
 const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
-  const { scenes, delScene } = useContext(SideBarContext) ?? {};
+  const { scenes } = useContext(SideBarContext) ?? {};
   const {
     appSettings,
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
     setSceneName,
+    setAndStoreAppSettings,
   } = appContext ?? {};
   const appState = excalidrawRef?.current?.getAppState();
 
@@ -53,7 +55,6 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   useEffect(() => {
     const unsubscribe = updateScene.subscribe(({ target, value }) => {
       if (target === id) {
-        console.log("update");
         const appState = excalidrawRef?.current?.getAppState();
         generateCurrentPreviewImage();
         SS.storeScene(id, { ...scene, ...value });
@@ -67,9 +68,28 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   }, []);
 
   const handleDeleteScene = (permanent = false) => {
-    delScene?.({
-      id,
-      permanent,
+    const scenesId = appSettings?.scenesId;
+    if (!scenesId) {
+      return;
+    }
+    const nextScenesId = scenesId.filter((sceneId) => sceneId !== id);
+    const updateScenesIndex = idx == scenesId.length ? idx - 1 : idx;
+    if (permanent) {
+      SS.removeScene(id);
+    } else {
+      SS.storeScene(id, {
+        ...scene,
+        deleted: true,
+        deletedAt: dayjs().unix(),
+      });
+    }
+    setAndStoreAppSettings?.({
+      ...(appSettings?.lastActiveDraw === id
+        ? {
+            lastActiveDraw: nextScenesId[updateScenesIndex],
+          }
+        : {}),
+      scenesId: nextScenesId,
     });
   };
 
@@ -89,6 +109,12 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       ? "cursor-not-allowed text-red-300"
       : "hover-shadow text-red-500",
   );
+
+  const handleSceneNameBlur = () => {
+    // TODO: update scene name
+    setSceneName?.(name);
+    scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
+  };
 
   return (
     <div key={id} id={id} className="p-3">
@@ -140,23 +166,13 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           <input
             type="text"
             className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
-            value={name}
-            onChange={(e) => {
-              // setScenes?.((old) => {
-              //   const newScenes = [...old];
-              //   newScenes[idx].name = e.target.value;
-              //   return newScenes;
-              // });
-            }}
+            defaultValue={name}
             onKeyDown={(e) => {
               if (e.key == "Enter") {
                 scenes?.[idx] && SS.storeScene(id, scenes[idx]);
               }
             }}
-            onBlur={() => {
-              setSceneName?.(name);
-              scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
-            }}
+            onBlur={handleSceneNameBlur}
           />
         )}
 

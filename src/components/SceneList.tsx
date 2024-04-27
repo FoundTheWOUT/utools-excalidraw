@@ -20,6 +20,7 @@ function SceneList() {
     setAndStoreAppSettings,
     appSettings,
     handleSetActiveDraw,
+    scenes: sceneCollection,
   } = useContext(AppContext) ?? {};
   const { scenes = [] } = useContext(SideBarContext) ?? {};
 
@@ -46,7 +47,8 @@ function SceneList() {
         );
         // const data = serializeAsJSON(elements, appState, files, "database");
         const newScene = newAScene({ name, data });
-        setScenes?.((oldScene) => [...oldScene, newScene]);
+        // TODO: ?
+        // setScenes?.((oldScene) => [...oldScene, newScene]);
         handleSetActiveDraw?.(newScene.id, { scene: newScene });
       } catch (error) {
         log(error);
@@ -70,9 +72,22 @@ function SceneList() {
       result.source.index,
       result.destination.index,
     );
-    setScenes?.(reorderScenes);
+    // TODO: reorder id
+    // setScenes?.(reorderScenes);
     setAndStoreAppSettings?.({
       scenesId: reorderScenes.map((scene) => scene.id),
+    });
+  };
+
+  const handleAddScene = () => {
+    const newScene = newAScene({ name: `画布${scenes.length}` });
+    excalidrawRef?.current && excalidrawRef.current.resetScene();
+    sceneCollection?.set(newScene.id, newScene);
+    handleSetActiveDraw?.(newScene.id, {
+      appSettings: {
+        lastActiveDraw: newScene.id,
+        scenesId: appSettings?.scenesId.concat(newScene.id),
+      },
     });
   };
 
@@ -108,17 +123,7 @@ function SceneList() {
       <div className="p-3">
         <div
           className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded bg-white dark:bg-zinc-600 dark:shadow-zinc-950"
-          onClick={() => {
-            const newScene = newAScene({ name: `画布${scenes.length}` });
-            setScenes?.([...scenes, newScene]);
-            excalidrawRef?.current && excalidrawRef.current.resetScene();
-            handleSetActiveDraw?.(newScene.id, {
-              appSettings: {
-                lastActiveDraw: newScene.id,
-                scenesId: appSettings?.scenesId.concat(newScene.id),
-              },
-            });
-          }}
+          onClick={handleAddScene}
         >
           <PlusIcon className="h-10 text-gray-500 dark:text-white" />
         </div>
