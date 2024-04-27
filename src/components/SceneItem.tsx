@@ -7,8 +7,6 @@ import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
 import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
-import dayjs from "dayjs";
-import { uniqBy } from "lodash-es";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
 import { updateScene } from "@/event";
@@ -21,27 +19,43 @@ interface Props {
 
 const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
-  const { scenes, setScenes } = useContext(SideBarContext) ?? {};
+  const { scenes, delScene } = useContext(SideBarContext) ?? {};
   const {
     appSettings,
     updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
     setSceneName,
-    setTrashcan,
-    setAndStoreAppSettings,
   } = appContext ?? {};
   const appState = excalidrawRef?.current?.getAppState();
 
   const [bgColor, setBgColor] = useState("");
+  const [previewImg, setPreviewImg] = useState("");
 
-  const { img, id, name } = scene;
+  const generateCurrentPreviewImage = () => {
+    if (previewImg) {
+      URL.revokeObjectURL(previewImg);
+    }
+    // re gen preview image
+    if (excalidrawRef?.current) {
+      generatePreviewImage(
+        excalidrawRef.current.getSceneElementsIncludingDeleted(),
+        excalidrawRef.current.getAppState(),
+        excalidrawRef.current.getFiles(),
+      ).then((path) => {
+        setPreviewImg(path ?? "");
+      });
+    }
+  };
+
+  const { id, name } = scene;
 
   useEffect(() => {
     const unsubscribe = updateScene.subscribe(({ target, value }) => {
       if (target === id) {
+        console.log("update");
         const appState = excalidrawRef?.current?.getAppState();
-        img && URL.revokeObjectURL(img);
+        generateCurrentPreviewImage();
         SS.storeScene(id, { ...scene, ...value });
         appState?.viewBackgroundColor &&
           setBgColor(appState?.viewBackgroundColor);
@@ -52,68 +66,16 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     };
   }, []);
 
-  const moveToTrashcan = () => {
-    setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
-    SS.storeScene(scene.id, {
-      ...scene,
-      deleted: true,
-      deletedAt: dayjs().unix(),
-    });
-  };
-
   const handleDeleteScene = (permanent = false) => {
-    if (permanent) {
-      SS.removeScene(scene.id);
-    } else {
-      moveToTrashcan();
-    }
-    setScenes?.((scenes) => {
-      const newScenes = scenes.filter((s) => s.id !== id);
-      // 只有当当前选中画布为删除画布时，才需要重新修改当前激活画布
-      if (appSettings?.lastActiveDraw === id) {
-        //if delete the last scenes, reselect it fore scene
-        const updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
-        handleSetActiveDraw?.(newScenes[updateScenesIndex].id, {
-          scene: newScenes[updateScenesIndex],
-          appSettings: {
-            scenesId: newScenes.map((scene) => scene.id),
-          },
-        });
-      } else {
-        // handleSetActiveDraw 会使用该方法
-        // 而存 db 操作是经过debounce的，连续调用的话之前的存储操作可能会被丢弃
-        // 因此需要保证一个操作只调用一次这个方法
-        // 优化~
-        setAndStoreAppSettings?.({
-          scenesId: newScenes
-            .filter((s) => !s.deleted)
-            .map((scene) => scene.id),
-        });
-      }
-      return newScenes;
+    delScene?.({
+      id,
+      permanent,
     });
   };
 
   const handleActiveAction = () => {
     handleSetActiveDraw?.(id, { scene }, () => {
-      // re gen preview image
-      if (excalidrawRef?.current) {
-        generatePreviewImage(
-          excalidrawRef.current.getSceneElementsIncludingDeleted(),
-          excalidrawRef.current.getAppState(),
-          excalidrawRef.current.getFiles(),
-        ).then((path) => {
-          const newScenes = scenes?.map((scene, index) => {
-            if (index != idx) return scene;
-            scene.img && URL.revokeObjectURL(scene.img);
-            return {
-              ...scene,
-              img: appSettings?.closePreview ? undefined : path,
-            };
-          });
-          newScenes && setScenes?.(newScenes);
-        });
-      }
+      generateCurrentPreviewImage();
     });
   };
   const { refs, floatingStyles } = useFloating({
@@ -150,10 +112,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
           disabled={updatingScene}
           onClick={handleActiveAction}
         >
-          {img ? (
+          {previewImg ? (
             <img
               className="h-full w-full object-contain"
-              src={img}
+              src={previewImg}
               alt={name}
             />
           ) : (
@@ -180,11 +142,11 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
             value={name}
             onChange={(e) => {
-              setScenes?.((old) => {
-                const newScenes = [...old];
-                newScenes[idx].name = e.target.value;
-                return newScenes;
-              });
+              // setScenes?.((old) => {
+              //   const newScenes = [...old];
+              //   newScenes[idx].name = e.target.value;
+              //   return newScenes;
+              // });
             }}
             onKeyDown={(e) => {
               if (e.key == "Enter") {

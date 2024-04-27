@@ -23,10 +23,10 @@ export interface StoreSystem {
 
   handleLibraryChange(item: LibraryItems): void;
 
-  dropDeletedFiles(scenes: Scene[]): void;
+  dropDeletedFiles(scenes: Map<string, Scene>): void;
 }
 
-const DefaultStore = (): Store => {
+const DefaultStore = (store?: Partial<Store>): Store => {
   const blank = newAScene({ name: "画布一" });
   return {
     settings: {
@@ -39,48 +39,34 @@ const DefaultStore = (): Store => {
       deleteSceneDirectly: false,
       darkMode: false,
       theme: Theme.App,
+      ...store?.[DB_KEY.SETTINGS],
     },
-    scenes: [blank],
-    scenes_map: new Map(),
+    scenes: store?.[DB_KEY.SCENES] ?? new Map([[blank.id, blank]]),
   };
 };
 
 export const initStore = (store?: Partial<Store>): Store => {
-  const defaultStore = DefaultStore();
-  const mergeStore = store
-    ? {
-        ...defaultStore,
-        ...store,
-        scenes: store.scenes?.length ? store.scenes : defaultStore.scenes,
-        settings: {
-          ...defaultStore.settings,
-          ...store?.[DB_KEY.SETTINGS],
-        },
-      }
-    : defaultStore;
-  const { scenes, scenesMap, idArray } = restoreScenesArray(
-    mergeStore.scenes,
-    mergeStore[DB_KEY.SETTINGS].scenesId,
+  const _store = DefaultStore(store);
+  const { idArray } = restoreScenesArray(
+    _store.scenes,
+    _store[DB_KEY.SETTINGS].scenesId,
   );
 
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
-  let lastActiveDraw = mergeStore[DB_KEY.SETTINGS].lastActiveDraw;
-  if (
-    lastActiveDraw &&
-    !scenes.map((scene) => scene.id).includes(lastActiveDraw)
-  ) {
-    lastActiveDraw = scenes[0].id;
+  let lastActiveDraw = _store[DB_KEY.SETTINGS].lastActiveDraw;
+  if (lastActiveDraw && !_store[DB_KEY.SCENES].has(lastActiveDraw)) {
+    const [id] = _store[DB_KEY.SCENES].keys();
+    lastActiveDraw = id;
   }
 
   return {
     settings: {
-      ...mergeStore[DB_KEY.SETTINGS],
+      ..._store[DB_KEY.SETTINGS],
       lastActiveDraw,
       scenesId: idArray,
     },
-    scenes,
-    scenes_map: scenesMap,
+    scenes: _store[DB_KEY.SCENES],
   };
 };
 

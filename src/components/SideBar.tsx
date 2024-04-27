@@ -2,6 +2,7 @@ import React, { createContext, memo, useContext, useState } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
+import SS from "@/store";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -11,23 +12,54 @@ import {
 import { Scene } from "@/types";
 import TrashcanDialog from "./TrashcanDialog";
 import SettingDialog from "@/components/SettingDialog.tsx";
+import { uniqBy } from "lodash-es";
+import dayjs from "dayjs";
 
+type DelSceneArgs = { id: string; permanent: boolean };
 export const SideBarContext = createContext<{
   scenes: Scene[];
-  setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
+  delScene: (params: DelSceneArgs) => void;
 } | null>(null);
 
-function SideBar({ initScenes }: { initScenes: Scene[] }) {
-  const { appSettings, setAndStoreAppSettings, setResizing } =
+function SideBar({
+  scenesCollection,
+}: {
+  scenesCollection: Map<string, Scene>;
+}) {
+  const { appSettings, setAndStoreAppSettings, setResizing, setTrashcan } =
     useContext(AppContext) ?? {};
 
-  /**
-   * 把状态放在子组件中，通过事件进行 setState 避免 App.tsx 在 onSceneUpdate 时直接 setState。
-   * 若在 App.tsx 中直接 setState 会触发 excalidraw 更新(onChange)，进而导致无限的循环。
-   */
-  const [scenes, setScenes] = useState<Scene[]>(
-    initScenes.filter((scene) => !scene.deleted),
-  );
+  const scenes =
+    appSettings?.scenesId.map((id) => scenesCollection.get(id)!) ?? [];
+
+  const moveToTrashcan = (id: string) => {
+    const scene = scenes.find((scene) => scene.id === id)!;
+    setTrashcan?.((scenes) => uniqBy([...scenes, scene], "id"));
+    SS.storeScene(id, {
+      ...scene,
+      deleted: true,
+      deletedAt: dayjs().unix(),
+    });
+  };
+
+  const delScene = ({ id, permanent }: DelSceneArgs) => {
+    const idx = scenes.findIndex((scene) => scene.id === id);
+    if (permanent) {
+      SS.removeScene(id);
+    } else {
+      moveToTrashcan(id);
+    }
+    const newScenes = scenes.filter((scene) => scene.id !== id);
+    const updateScenesIndex = idx == newScenes.length ? idx - 1 : idx;
+    setAndStoreAppSettings?.({
+      ...(appSettings?.lastActiveDraw === id
+        ? {
+            lastActiveDraw: newScenes[updateScenesIndex].id,
+          }
+        : {}),
+      scenesId: newScenes.map((scene) => scene.id),
+    });
+  };
 
   const handleAsideControllerClick = () => {
     setAndStoreAppSettings?.({
@@ -46,7 +78,7 @@ function SideBar({ initScenes }: { initScenes: Scene[] }) {
     <SideBarContext.Provider
       value={{
         scenes,
-        setScenes,
+        delScene,
       }}
     >
       <aside

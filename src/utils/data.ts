@@ -22,13 +22,10 @@ export const defaultStatue = {
 } as ExcalidrawInitialDataState;
 
 export const loadInitialData = async (
-  scenes: Scene[],
+  scenes: Map<string, Scene>,
   target: string, //scene id
 ): Promise<ExcalidrawInitialDataState | null> => {
-  const data = keyBy(
-    scenes.filter((scene) => !scene.deleted),
-    "id",
-  )[target]?.data;
+  const data = scenes.get(target)?.data;
 
   // if can't found data return default config
   if (typeof data !== "string") return defaultStatue;
@@ -94,8 +91,10 @@ const restoreLibrary = (
   return data;
 };
 
-export const collectAllFileId = (scenes: Scene[]) =>
-  new Set(
+export const collectAllFileId = (scenesCollections: Map<string, Scene>) => {
+  const scenes = Array.from(scenesCollections.values());
+
+  return new Set(
     scenes
       .map((scene) => {
         if (!scene.data) {
@@ -108,11 +107,11 @@ export const collectAllFileId = (scenes: Scene[]) =>
         }
       })
       .filter(Boolean)
-      .map(
-        (sceneData) =>
-          sceneData?.elements
-            ?.filter((el) => el.type === "image")
-            .map((el) => (el as ExcalidrawImageElement).fileId),
+      .map((sceneData) =>
+        sceneData?.elements
+          ?.filter((el) => el.type === "image")
+          .map((el) => (el as ExcalidrawImageElement).fileId),
       )
       .flat<unknown>(),
   );
+};

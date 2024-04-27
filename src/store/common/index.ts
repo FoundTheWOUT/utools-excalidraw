@@ -34,7 +34,7 @@ export class StoreSystemCommon implements StoreSystem {
           const scenes = scenesReq.result as Scene[];
           const store = initStore({
             settings: settings ? JSON.parse(settings) : {},
-            scenes,
+            scenes: new Map(scenes.map((scene) => [scene.id, scene])),
           });
           resolve(store);
         };
@@ -73,7 +73,7 @@ export class StoreSystemCommon implements StoreSystem {
       sceneStore.put(data);
     };
   }
-  dropDeletedFiles(scenes: Scene[]): void {
+  dropDeletedFiles(scenes: Map<string, Scene>): void {
     if (!db) {
       return;
     }

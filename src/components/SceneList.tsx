@@ -12,7 +12,7 @@ import {
 } from "react-beautiful-dnd";
 import SceneItem from "./SceneItem";
 import { SideBarContext } from "./SideBar";
-import { loadScene, updateScene } from "@/event";
+import { loadScene } from "@/event";
 
 function SceneList() {
   const {
@@ -21,24 +21,7 @@ function SceneList() {
     appSettings,
     handleSetActiveDraw,
   } = useContext(AppContext) ?? {};
-  const { scenes = [], setScenes } = useContext(SideBarContext) ?? {};
-
-  useEffect(() => {
-    const unsubscribe = updateScene.subscribe(({ target, value }) => {
-      setScenes?.((scenes) => {
-        return scenes.map((scene) => {
-          if (scene.id !== target) return scene;
-          return {
-            ...scene,
-            ...value,
-          };
-        });
-      });
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const { scenes = [] } = useContext(SideBarContext) ?? {};
 
   useEffect(() => {
     appSettings?.lastActiveDraw &&

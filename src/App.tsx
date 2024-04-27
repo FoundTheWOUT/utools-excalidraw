@@ -57,25 +57,24 @@ function App({
   const {
     settings: { lastActiveDraw },
     scenes,
-    scenes_map,
   } = store;
 
-  const deletedScene = scenes.filter((scene) =>
-    scene.deleted && scene.deletedAt
-      ? dayjs.unix(scene.deletedAt).diff(dayjs(), "d") >= 30
-        ? // grater than 30 days, remove it
-          !dropExpiredScene(scene.id)
-        : // should put it in trashcan
-          true
-      : // not a deleted scene
-        false,
-  );
-  const [trashcan, setTrashcan] = useState(deletedScene);
+  // const deletedScene = scenes.filter((scene) =>
+  //   scene.deleted && scene.deletedAt
+  //     ? dayjs.unix(scene.deletedAt).diff(dayjs(), "d") >= 30
+  //       ? // grater than 30 days, remove it
+  //         !dropExpiredScene(scene.id)
+  //       : // should put it in trashcan
+  //         true
+  //     : // not a deleted scene
+  //       false,
+  // );
+  const [trashcan, setTrashcan] = useState([] as Scene[]);
 
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
-  const [name, setName] = useState(scenes_map.get(lastActiveDraw!)?.name ?? "");
+  const [name, setName] = useState(scenes.get(lastActiveDraw!)?.name ?? "");
 
   const debounceStoreItem = debounce(StoreSystem.storeSetItem);
 
@@ -262,7 +261,7 @@ function App({
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
       >
-        <SideBar initScenes={scenes} />
+        <SideBar scenesCollection={scenes} />
 
         {/* white board */}
         <main

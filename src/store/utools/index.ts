@@ -53,7 +53,7 @@ export class StoreSystemUtools implements StoreSystem {
     if (!window.utools) return;
     const libraries = window.utools.db.allDocs("library");
     const stored_lib_ids_set = new Set(
-      libraries.map((lib: any) => lib._id.split("/")[1]),
+      libraries.map((lib) => lib._id.split("/")[1]),
     );
     items.forEach((item) => {
       const { id } = item;

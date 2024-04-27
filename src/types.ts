@@ -21,8 +21,7 @@ export type Store = {
     darkMode: boolean;
     theme: Theme;
   };
-  [DB_KEY.SCENES]: Scene[];
-  scenes_map: Map<string, Scene>;
+  [DB_KEY.SCENES]: Map<string, Scene>;
 };
 
 export enum DB_KEY {

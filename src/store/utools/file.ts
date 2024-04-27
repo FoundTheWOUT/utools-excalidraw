@@ -35,7 +35,7 @@ export const removeFile = (key: string | null) => {
   return window.utools && window.utools.db.remove(`${FILE_DOC_PREFIX}/${key}`);
 };
 
-export const dropDeletedFiles = (scenes: Scene[]) => {
+export const dropDeletedFiles = (scenes: Map<string, Scene>) => {
   if (!window.utools) return;
 
   // 1. get all file in db.
