@@ -6,3 +6,5 @@ export const updateScene = new EventChanel<{
   target: string;
   value: Partial<Scene>;
 }>();
+export const startUpdateScene = new EventChanel();
+export const endUpdateScene = new EventChanel();

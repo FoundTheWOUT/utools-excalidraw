@@ -18,7 +18,6 @@ function TrashcanDialog({
   const { scenes, setAndStoreAppSettings, appSettings } =
     useContext(AppContext) ?? {};
 
-  //TODO: should re compute
   const trashcan = Array.from(scenes?.values() ?? [])
     .filter((scene) => scene.deleted)
     .sort((a, b) => b.deletedAt! - a.deletedAt!);
@@ -34,6 +33,7 @@ function TrashcanDialog({
 
   const handleRestoreScene = (scene: Scene) => {
     const restoreScene = { ...scene, deleted: false, deletedAt: null };
+    scenes?.set(scene.id, restoreScene);
     SS.storeScene(scene.id, restoreScene);
     setAndStoreAppSettings?.({
       scenesId: [...appSettings!.scenesId, scene.id],
@@ -82,12 +82,12 @@ function TrashcanDialog({
                 />
                 {/* content */}
                 <div className="flex w-48 flex-1 flex-col">
-                  <div className="font-bold">ID: {scene.id}</div>
-                  <div className="font-bold">别名: {scene.name}</div>
+                  <div className="font-bold">{scene.name}</div>
+                  <div className="text-xs">ID: {scene.id}</div>
                   {scene.deletedAt && (
-                    <div>
-                      <span className="text-sm">删除时间: </span>
-                      <time className="text-sm italic">
+                    <div className="text-xs">
+                      <span>删除时间: </span>
+                      <time className="italic">
                         {dayjs.unix(scene.deletedAt).format("YYYY MM-DD HH:mm")}
                       </time>
                     </div>

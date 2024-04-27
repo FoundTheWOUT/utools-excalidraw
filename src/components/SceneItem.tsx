@@ -1,7 +1,10 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
-import { generatePreviewImage } from "@/utils/utils";
+import {
+  generatePreviewImage,
+  generatePreviewImageFromSceneData,
+} from "@/utils/utils";
 import SS from "@/store";
 import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
@@ -9,7 +12,7 @@ import { SideBarContext } from "./SideBar";
 import { Scene } from "@/types";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
-import { updateScene } from "@/event";
+import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
 import dayjs from "dayjs";
 import { DraggableProvided } from "react-beautiful-dnd";
 
@@ -25,16 +28,40 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   const {
     appSettings,
     scenes: sceneCollection,
-    updatingScene,
     excalidrawRef,
     handleSetActiveDraw,
     setSceneName,
-    setAndStoreAppSettings,
   } = appContext ?? {};
   const appState = excalidrawRef?.current?.getAppState();
 
   const [bgColor, setBgColor] = useState("");
   const [previewImg, setPreviewImg] = useState("");
+  const [lock, setLock] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = startUpdateScene.subscribe(() => {
+      setLock(true);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = endUpdateScene.subscribe(() => {
+      setLock(false);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    // generate preview image on mounted
+    generatePreviewImageFromSceneData(scene.data).then((path) => {
+      setPreviewImg(path ?? "");
+    });
+  }, []);
 
   const generateCurrentPreviewImage = () => {
     if (previewImg) {
@@ -59,7 +86,9 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       if (target === id) {
         const appState = excalidrawRef?.current?.getAppState();
         generateCurrentPreviewImage();
-        SS.storeScene(id, { ...scene, ...value });
+        const newScene = { ...scene, ...value };
+        sceneCollection?.set(id, newScene);
+        SS.storeScene(id, newScene);
         appState?.viewBackgroundColor &&
           setBgColor(appState?.viewBackgroundColor);
       }
@@ -77,13 +106,16 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     const nextScenesId = scenesId.filter((sceneId) => sceneId !== id);
     const updateScenesIndex = idx == scenesId.length ? idx - 1 : idx;
     if (permanent) {
+      sceneCollection?.delete(id);
       SS.removeScene(id);
     } else {
-      SS.storeScene(id, {
+      const newScene = {
         ...scene,
         deleted: true,
         deletedAt: dayjs().unix(),
-      });
+      };
+      sceneCollection?.set(id, newScene);
+      SS.storeScene(id, newScene);
     }
     handleSetActiveDraw?.(nextScenesId[updateScenesIndex], {
       scene: sceneCollection?.get(nextScenesId[updateScenesIndex]),
@@ -111,9 +143,10 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   );
 
   const handleSceneNameBlur = () => {
-    // TODO: update scene name
     setSceneName?.(name);
-    scenes?.[idx] && SS.storeScene(id, scenes?.[idx]);
+    const newScene = { ...scene, name };
+    sceneCollection?.set(id, newScene);
+    SS.storeScene(id, newScene);
   };
 
   return (
@@ -122,7 +155,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
         <button
           className={cn(
             "aspect-video w-full cursor-pointer select-none overflow-hidden rounded border bg-white",
-            updatingScene ? "cursor-wait" : "hover-shadow",
+            lock ? "cursor-wait" : "hover-shadow",
             {
               "ring ring-[#6965db] ring-offset-2":
                 appSettings?.lastActiveDraw === id,
@@ -135,7 +168,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                 : undefined,
             background: bgColor,
           }}
-          disabled={updatingScene}
+          disabled={lock}
           onClick={handleActiveAction}
         >
           {previewImg ? (

@@ -1,5 +1,5 @@
 import { DB_KEY, Store } from "@/types";
-import { generatePreviewImageFromSceneData, log } from "@/utils/utils";
+import { log } from "@/utils/utils";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
 import { getScenes, removeScene, storeScene } from "./scene";
 import { initStore } from "..";
@@ -18,27 +18,12 @@ import { initStore } from "..";
  */
 
 export const getStore = async (): Promise<Store> => {
-  const settingsFromDB = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+  const settings = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
 
-  const { scenes, ...rest } = initStore({
+  const store = initStore({
     scenes: getScenes(),
-    settings: settingsFromDB ? settingsFromDB.value : {},
+    settings: settings ? settings.value : {},
   });
-
-  const store: Store = {
-    ...rest,
-    scenes: await Promise.all(
-      // 恢复图片
-      scenes.map((scene) =>
-        generatePreviewImageFromSceneData(scene.data).then((img) => ({
-          ...scene,
-          img,
-        })),
-      ),
-    ),
-  };
-
-  storeSetItem(DB_KEY.SETTINGS, store[DB_KEY.SETTINGS]);
 
   return store;
 };

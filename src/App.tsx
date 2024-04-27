@@ -11,21 +11,24 @@ import {
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
-import { generatePreviewImage, isDark, log, numIsInRange } from "./utils/utils";
+import { isDark, log, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import { debounce } from "lodash-es";
 import ExportOps from "./components/ExportOps";
 import { TEN_MB } from "./const";
 import SideBar from "./components/SideBar";
-import dayjs from "dayjs";
 import StoreSystem from "./store";
-import { loadScene, updateScene } from "./event";
+import {
+  endUpdateScene,
+  loadScene,
+  startUpdateScene,
+  updateScene,
+} from "./event";
 
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
   excalidrawRef: { current: ExcalidrawImperativeAPI | null };
-  updatingScene: boolean;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
   appSettings: Store[DB_KEY.SETTINGS] & { [key: string]: unknown };
@@ -74,7 +77,6 @@ function App({
   };
 
   const [resizing, setResizing] = useState(false);
-  const [updatingScene] = useState(false);
 
   const closeAsideAutomatically = () => {
     if (appSettings.asideCloseAutomatically) {
@@ -85,15 +87,7 @@ function App({
   };
 
   const onSceneUpdate = debounce(async (elements, state, files, target) => {
-    // lock scene.
-    // setUpdatingScene(true);
-
     try {
-      let imagePath: string | undefined = undefined;
-      if (!appSettings.closePreview) {
-        imagePath = await generatePreviewImage(elements, state, files);
-      }
-
       const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
       data.appState.zoom = state.zoom;
       data.appState.scrollX = state.scrollX;
@@ -104,7 +98,6 @@ function App({
       updateScene.emit({
         target,
         value: {
-          img: imagePath,
           data: data_stringified,
         },
       });
@@ -113,9 +106,10 @@ function App({
       StoreSystem.storeFile(excalidrawAPI);
     } catch (error) {
       console.warn(error);
+    } finally {
+      log("setUpdatingScene false");
+      endUpdateScene.emit();
     }
-
-    // setUpdatingScene(false);
   }, 300);
 
   const handleSetActiveScene = async (
@@ -211,7 +205,6 @@ function App({
         excalidrawRef: { current: excalidrawAPI },
         appSettings,
         setAndStoreAppSettings,
-        updatingScene,
         handleSetActiveDraw: handleSetActiveScene,
         setSceneName: setName,
         sceneName: name,
@@ -255,6 +248,7 @@ function App({
             excalidrawAPI={(api) => setExcalidrawAPI(api)}
             initialData={initialData}
             onChange={(elements, state, files) => {
+              startUpdateScene.emit();
               onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
             }}
             theme={isDark(appSettings.theme) ? THEME.DARK : THEME.LIGHT}

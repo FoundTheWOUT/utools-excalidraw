@@ -13,6 +13,7 @@ export interface StoreSystem {
 
   getFile(key: string): Promise<Uint8Array | null>;
 
+  // TODO: update scenesCollection after store
   storeScene(key: string, data: Scene): void;
 
   storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void;
@@ -55,9 +56,8 @@ export const initStore = (store?: Partial<Store>): Store => {
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
   let lastActiveDraw = _store[DB_KEY.SETTINGS].lastActiveDraw;
-  if (lastActiveDraw && !_store[DB_KEY.SCENES].has(lastActiveDraw)) {
-    const [id] = _store[DB_KEY.SCENES].keys();
-    lastActiveDraw = id;
+  if (lastActiveDraw && !idArray.includes(lastActiveDraw)) {
+    lastActiveDraw = idArray[0];
   }
 
   return {

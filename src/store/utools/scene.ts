@@ -23,9 +23,7 @@ export const getSceneByID = (scenes: Scene[], id: string | null) =>
   id ? keyBy(scenes, "id")[id] : null;
 
 // 获取 Scene 数组
-export const getScenes = (): Map<string, Scene> => {
-  const _initStore = initStore();
-  if (!window.utools) return _initStore[DB_KEY.SCENES];
+export const getScenes = (): Map<string, Scene> | undefined => {
   log("get scene from db.");
   const scenes_from_db = window.utools.db.allDocs("scene/");
   return Array.isArray(scenes_from_db) && scenes_from_db.length > 0
@@ -35,7 +33,7 @@ export const getScenes = (): Map<string, Scene> => {
           return [normalizeScene.id, normalizeScene];
         }),
       )
-    : _initStore[DB_KEY.SCENES];
+    : undefined;
 };
 
 export const removeScene = (key: string | null) => {
