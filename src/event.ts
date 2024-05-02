@@ -1,10 +1,13 @@
-import { Scene } from "./types";
+import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { EventChanel } from "./utils/event";
+import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
 
 export const loadScene = new EventChanel();
 export const updateScene = new EventChanel<{
   target: string;
-  value: Partial<Scene>;
+  elements: readonly ExcalidrawElement[];
+  state: AppState;
+  file: BinaryFiles;
 }>();
 export const startUpdateScene = new EventChanel();
 export const endUpdateScene = new EventChanel();

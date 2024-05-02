@@ -15,6 +15,8 @@ import { useFloating, offset } from "@floating-ui/react-dom";
 import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
 import dayjs from "dayjs";
 import { DraggableProvided } from "react-beautiful-dnd";
+import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
 
 interface Props {
   scene: Scene;
@@ -63,36 +65,32 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     });
   }, []);
 
-  const generateCurrentPreviewImage = () => {
+  const generateCurrentPreviewImage = (
+    elements: readonly ExcalidrawElement[],
+    appState: AppState,
+    files: BinaryFiles,
+  ) => {
     if (previewImg) {
       URL.revokeObjectURL(previewImg);
     }
     // re gen preview image
-    if (excalidrawRef?.current) {
-      generatePreviewImage(
-        excalidrawRef.current.getSceneElementsIncludingDeleted(),
-        excalidrawRef.current.getAppState(),
-        excalidrawRef.current.getFiles(),
-      ).then((path) => {
-        setPreviewImg(path ?? "");
-      });
-    }
+    generatePreviewImage(elements, appState, files).then((path) => {
+      setPreviewImg(path ?? "");
+      appState?.viewBackgroundColor &&
+        setBgColor(appState?.viewBackgroundColor);
+    });
   };
 
   const { id, name } = scene;
 
   useEffect(() => {
-    const unsubscribe = updateScene.subscribe(({ target, value }) => {
-      if (target === id) {
-        const appState = excalidrawRef?.current?.getAppState();
-        generateCurrentPreviewImage();
-        const newScene = { ...scene, ...value };
-        sceneCollection?.set(id, newScene);
-        SS.storeScene(id, newScene);
-        appState?.viewBackgroundColor &&
-          setBgColor(appState?.viewBackgroundColor);
-      }
-    });
+    const unsubscribe = updateScene.subscribe(
+      ({ target, elements, state, file }) => {
+        if (target === id) {
+          generateCurrentPreviewImage(elements, state, file);
+        }
+      },
+    );
     return () => {
       unsubscribe();
     };
@@ -126,9 +124,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
   };
 
   const handleActiveAction = () => {
-    handleSetActiveDraw?.(id, { scene }, () => {
-      generateCurrentPreviewImage();
-    });
+    handleSetActiveDraw?.(id, { scene });
   };
   const { refs, floatingStyles } = useFloating({
     placement: "top",
@@ -151,6 +147,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   return (
     <div key={id} id={id} className="p-3">
+      {import.meta.env.DEV && id}
       {!appSettings?.closePreview && (
         <button
           className={cn(

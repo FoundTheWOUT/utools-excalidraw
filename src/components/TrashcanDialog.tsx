@@ -113,6 +113,7 @@ function TrashcanDialog({
           <>
             {items?.map((scene) => (
               <div key={scene.id} className="flex gap-4">
+                {/* TODO: fix image */}
                 <img
                   className="aspect-video w-48 rounded-lg border-2 object-contain"
                   src={scene.img}

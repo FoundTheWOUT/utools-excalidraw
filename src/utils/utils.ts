@@ -1,5 +1,7 @@
 import { Scene, Theme } from "@/types";
 import { restoreFiles } from "./data";
+import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
 
 export function blobToBase64(
   blob: Blob | null,
@@ -13,15 +15,18 @@ export function blobToBase64(
 }
 
 export const generatePreviewImage = async (
-  elements: any,
-  appState: any,
-  files: any,
+  elements: readonly ExcalidrawElement[],
+  appState: Partial<AppState>,
+  files: BinaryFiles,
 ): Promise<string | undefined> => {
   try {
     const { exportToBlob } = await import("@excalidraw/excalidraw");
     const blob = await exportToBlob({
       elements,
-      appState,
+      appState: {
+        ...appState,
+        exportBackground: true,
+      },
       files,
       mimeType: "image/jpeg",
       quality: 0.51,
@@ -52,7 +57,8 @@ export const extend = Object.assign;
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
 
-const inner_log = function () {
+export const noop = () => {};
+export const log = (function () {
   if (import.meta.env.MODE === "development") {
     return console.log.bind(
       window.console,
@@ -60,10 +66,8 @@ const inner_log = function () {
       "background-color:#6965db;color:white;padding: 2px 4px; border-radius: 4px;",
     );
   }
-  return () => {};
-};
-
-export const log = inner_log() as (msg?: any, ...args: any[]) => void;
+  return noop;
+})();
 
 export const reorder = <T>(
   list: T[],

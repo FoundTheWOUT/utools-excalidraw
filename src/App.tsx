@@ -11,7 +11,7 @@ import {
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
 import { FolderIcon } from "@heroicons/react/outline";
-import { isDark, log, numIsInRange } from "./utils/utils";
+import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import { debounce } from "lodash-es";
@@ -26,39 +26,10 @@ import {
   updateScene,
 } from "./event";
 
-// TODO: replace api with _files
-const handleSceneUpdate = debounce(
-  async (elements, state, _files, target, api) => {
-    try {
-      const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
-      data.appState.zoom = state.zoom;
-      data.appState.scrollX = state.scrollX;
-      data.appState.scrollY = state.scrollY;
-      const data_stringified = JSON.stringify(data);
-
-      // emit update event
-      updateScene.emit({
-        target,
-        value: {
-          data: data_stringified,
-        },
-      });
-
-      // store file
-      StoreSystem.storeFile(api);
-    } catch (error) {
-      console.warn(error);
-    } finally {
-      log("setUpdatingScene false");
-      endUpdateScene.emit();
-    }
-  },
-  300,
-);
-
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
   excalidrawRef: { current: ExcalidrawImperativeAPI | null };
+  excalidrawAPI: ExcalidrawImperativeAPI | null;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
   appSettings: Store[DB_KEY.SETTINGS] & { [key: string]: unknown };
@@ -69,7 +40,6 @@ export const AppContext = createContext<{
       scene?: Scene;
       appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
     },
-    afterActive?: () => void,
   ) => Promise<void>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
@@ -92,6 +62,44 @@ function App({
   const [name, setName] = useState(scenes.get(lastActiveDraw!)?.name ?? "");
 
   const debounceStoreItem = debounce(StoreSystem.storeSetItem);
+
+  const handleSceneUpdate = debounce(
+    async (elements, state, _files, target, api) => {
+      startUpdateScene.emit();
+      try {
+        const currentScene = scenes.get(target)!;
+        const data = JSON.parse(
+          serializeAsJSON(elements, state, {}, "database"),
+        );
+        data.appState.zoom = state.zoom;
+        data.appState.scrollX = state.scrollX;
+        data.appState.scrollY = state.scrollY;
+        const data_stringified = JSON.stringify(data);
+
+        // emit update event
+        updateScene.emit({
+          target,
+          elements,
+          state,
+          file: _files,
+        });
+
+        const newScene = newAScene({
+          ...currentScene,
+          data: data_stringified,
+        });
+        scenes.set(target, newScene);
+        StoreSystem.storeScene(target, newScene);
+        StoreSystem.storeFile(api);
+      } catch (error) {
+        console.warn(error);
+      } finally {
+        log("setUpdatingScene false");
+        endUpdateScene.emit();
+      }
+    },
+    300,
+  );
 
   const setAndStoreAppSettings = (
     settings: Partial<Store[DB_KEY.SETTINGS]>,
@@ -116,13 +124,12 @@ function App({
     }
   };
 
-  const handleSetActiveScene = async (
+  const handleSetActiveDraw = async (
     sceneId: string,
     payload?: {
       scene?: Scene;
       appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
     },
-    afterActive?: () => void,
   ) => {
     if (!excalidrawAPI) return;
     payload = payload ?? {};
@@ -163,8 +170,6 @@ function App({
       console.error(error);
       excalidrawAPI.setToast({ message: "解析错误" });
     }
-
-    afterActive && afterActive();
   };
 
   const handleScreenMouseMove = (e: React.MouseEvent) => {
@@ -207,9 +212,10 @@ function App({
       value={{
         scenes,
         excalidrawRef: { current: excalidrawAPI },
+        excalidrawAPI,
         appSettings,
         setAndStoreAppSettings,
-        handleSetActiveDraw: handleSetActiveScene,
+        handleSetActiveDraw,
         setSceneName: setName,
         sceneName: name,
         setResizing,
@@ -249,10 +255,9 @@ function App({
           }}
         >
           <Excalidraw
-            excalidrawAPI={(api) => setExcalidrawAPI(api)}
+            excalidrawAPI={setExcalidrawAPI}
             initialData={initialData}
             onChange={(elements, state, files) => {
-              startUpdateScene.emit();
               handleSceneUpdate(
                 elements,
                 state,

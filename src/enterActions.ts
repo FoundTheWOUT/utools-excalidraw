@@ -1,7 +1,6 @@
-import { newAScene, six_nanoid } from "./utils/utils";
+import { newAScene, six_nanoid, noop } from "./utils/utils";
 import { DB_KEY, Store } from "./types";
 import { ENTER_ACTION } from "./const";
-import { noop } from "lodash-es";
 
 const resolveEnterAction = window.resolveEnterAction || noop;
 
