@@ -1,12 +1,43 @@
 import { AppContext } from "@/App";
 import { Dialog } from "@/ui/Dialog";
-import { useContext, useState } from "react";
+import { useContext, useState, useSyncExternalStore } from "react";
 import dayjs from "dayjs";
 import { Scene } from "@/types";
 import SS from "@/store";
 import cn from "clsx";
+import { newAScene } from "@/utils/scene";
 
 const PAGE_SIZE = 5;
+
+let listeners = [];
+
+function emitChange() {
+  for (let listener of listeners) {
+    listener();
+  }
+}
+
+const trashcanStore = {
+  remove(id: string, scenes: Map<string, Scene> | undefined) {
+    if (!scenes) {
+      return;
+    }
+    scenes.delete(id);
+    SS.removeScene(id);
+    emitChange();
+  },
+  subscribe(listener) {
+    listeners = [...listeners, listener];
+    return () => {
+      listeners = listeners.filter((l) => l !== listener);
+    };
+  },
+  getSnapshot(scenes: Map<string, Scene> | undefined) {
+    return () => {
+      return scenes?.size;
+    };
+  },
+};
 
 function TrashcanDialog({
   open,
@@ -18,6 +49,11 @@ function TrashcanDialog({
   const { scenes, setAndStoreAppSettings, appSettings } =
     useContext(AppContext) ?? {};
 
+  useSyncExternalStore(
+    trashcanStore.subscribe,
+    trashcanStore.getSnapshot(scenes),
+  );
+
   const trashcan = Array.from(scenes?.values() ?? [])
     .filter((scene) => scene.deleted)
     .sort((a, b) => b.deletedAt! - a.deletedAt!);
@@ -28,11 +64,12 @@ function TrashcanDialog({
   }
   const [curPage, setCurPage] = useState(1);
 
-  // const dropSceneInTrashcan = (id: string) =>
-  //   setTrashcan?.((scenes) => scenes.filter((s) => s.id !== id));
-
   const handleRestoreScene = (scene: Scene) => {
-    const restoreScene = { ...scene, deleted: false, deletedAt: null };
+    const restoreScene = newAScene({
+      ...scene,
+      deleted: false,
+      deletedAt: null,
+    });
     scenes?.set(scene.id, restoreScene);
     SS.storeScene(scene.id, restoreScene);
     setAndStoreAppSettings?.({
@@ -41,7 +78,7 @@ function TrashcanDialog({
   };
 
   const handlePermanentRemove = (scene: Scene) => {
-    SS.removeScene(scene.id);
+    trashcanStore.remove(scene.id, scenes);
   };
 
   const items = trashcan?.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);

@@ -21,7 +21,12 @@ async function copyDir(src, dest, includeLang = ["zh-CN"]) {
   }
 }
 
-module.exports = async function main() {
+const run = process.argv.includes("-r");
+if (run) {
+  main();
+}
+
+async function main() {
   return Promise.all([
     fs
       .access("public/excalidraw-assets")
@@ -52,4 +57,6 @@ module.exports = async function main() {
         ),
       ),
   ]);
-};
+}
+
+module.exports = main;

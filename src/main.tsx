@@ -27,8 +27,6 @@ function registerALinkHandler() {
 }
 
 async function main() {
-  // FIXME: if scene is expired, dropExpiredScene
-
   const store = await StoreSystem.getStore();
   await handleFileLoadAction(store);
   await handleSearchSceneAction(store);

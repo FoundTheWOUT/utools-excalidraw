@@ -26,6 +26,36 @@ import {
   updateScene,
 } from "./event";
 
+// TODO: replace api with _files
+const handleSceneUpdate = debounce(
+  async (elements, state, _files, target, api) => {
+    try {
+      const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
+      data.appState.zoom = state.zoom;
+      data.appState.scrollX = state.scrollX;
+      data.appState.scrollY = state.scrollY;
+      const data_stringified = JSON.stringify(data);
+
+      // emit update event
+      updateScene.emit({
+        target,
+        value: {
+          data: data_stringified,
+        },
+      });
+
+      // store file
+      StoreSystem.storeFile(api);
+    } catch (error) {
+      console.warn(error);
+    } finally {
+      log("setUpdatingScene false");
+      endUpdateScene.emit();
+    }
+  },
+  300,
+);
+
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
   excalidrawRef: { current: ExcalidrawImperativeAPI | null };
@@ -85,32 +115,6 @@ function App({
       });
     }
   };
-
-  const onSceneUpdate = debounce(async (elements, state, _, target) => {
-    try {
-      const data = JSON.parse(serializeAsJSON(elements, state, {}, "database"));
-      data.appState.zoom = state.zoom;
-      data.appState.scrollX = state.scrollX;
-      data.appState.scrollY = state.scrollY;
-      const data_stringified = JSON.stringify(data);
-
-      // emit update event
-      updateScene.emit({
-        target,
-        value: {
-          data: data_stringified,
-        },
-      });
-
-      // store file
-      StoreSystem.storeFile(excalidrawAPI);
-    } catch (error) {
-      console.warn(error);
-    } finally {
-      log("setUpdatingScene false");
-      endUpdateScene.emit();
-    }
-  }, 300);
 
   const handleSetActiveScene = async (
     sceneId: string,
@@ -249,7 +253,13 @@ function App({
             initialData={initialData}
             onChange={(elements, state, files) => {
               startUpdateScene.emit();
-              onSceneUpdate(elements, state, files, appSettings.lastActiveDraw);
+              handleSceneUpdate(
+                elements,
+                state,
+                files,
+                appSettings.lastActiveDraw,
+                excalidrawAPI,
+              );
             }}
             theme={isDark(appSettings.theme) ? THEME.DARK : THEME.LIGHT}
             onPaste={(data) => {

@@ -1,6 +1,12 @@
 import { Scene } from "@/types";
 import { keyBy } from "lodash-es";
 import { log, newAScene } from "@/utils/utils";
+import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 export const storeScene = (key: string | undefined | null, data: Scene) => {
   if (!key) {
@@ -25,14 +31,23 @@ export const getSceneByID = (scenes: Scene[], id: string | null) =>
 export const getScenes = (): Map<string, Scene> | undefined => {
   log("get scene from db.");
   const scenes_from_db = window.utools.db.allDocs("scene/");
-  return Array.isArray(scenes_from_db) && scenes_from_db.length > 0
-    ? new Map(
-        scenes_from_db.map((scene) => {
-          const normalizeScene = newAScene(scene.value);
-          return [normalizeScene.id, normalizeScene];
-        }),
-      )
-    : undefined;
+
+  if (!scenes_from_db.length) {
+    return;
+  }
+
+  return new Map(
+    scenes_from_db
+      .map((scene) => {
+        const normalizeScene = newAScene(scene.value);
+        return [normalizeScene.id, normalizeScene] as [string, Scene];
+      })
+      .filter(
+        ([_, scene]) =>
+          !scene.deleted ||
+          dayjs(scene.deletedAt).isSameOrAfter(dayjs().subtract(30, "D")),
+      ),
+  );
 };
 
 export const removeScene = (key: string | null) => {
