@@ -6,6 +6,8 @@ import { Scene } from "@/types";
 import SS from "@/store";
 import cn from "clsx";
 import { newAScene } from "@/utils/scene";
+import { generatePreviewImageFromSceneData } from "@/utils/utils";
+import AsyncImg from "./AsyncImg";
 
 const PAGE_SIZE = 5;
 
@@ -57,7 +59,6 @@ function TrashcanDialog({
   const trashcan = Array.from(scenes?.values() ?? [])
     .filter((scene) => scene.deleted)
     .sort((a, b) => b.deletedAt! - a.deletedAt!);
-  // TODO: generate preview img
 
   const pages = new Array(Math.ceil((trashcan?.length ?? 0) / PAGE_SIZE));
   for (let i = 0; i < pages.length; i++) {
@@ -82,7 +83,12 @@ function TrashcanDialog({
     trashcanStore.remove(scene.id, scenes);
   };
 
-  const items = trashcan?.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const items = trashcan
+    ?.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE)
+    .map((scene) => ({
+      ...scene,
+      imgSrc: generatePreviewImageFromSceneData(scene.data),
+    }));
   const placeholder = [];
   for (let i = 0; i < PAGE_SIZE - (items?.length ?? 0); i++) {
     placeholder.push(
@@ -114,10 +120,9 @@ function TrashcanDialog({
           <>
             {items?.map((scene) => (
               <div key={scene.id} className="flex gap-4">
-                {/* TODO: fix image */}
-                <img
+                <AsyncImg
                   className="aspect-video w-48 rounded-lg border-2 object-contain"
-                  src=""
+                  src={scene.imgSrc}
                 />
                 {/* content */}
                 <div className="flex w-48 flex-1 flex-col">
