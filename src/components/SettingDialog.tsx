@@ -145,6 +145,8 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
         <AppSettingsSwitchItem prop="asideClosed" />
         <AppSettingsSwitchItem prop="asideCloseAutomatically" reverse />
         <AppSettingsSwitchItem prop="deleteSceneDirectly" />
+
+        {import.meta.env.DEV && <AppSettingsSwitchItem prop="dev" reverse />}
       </div>
     </Dialog>
   );

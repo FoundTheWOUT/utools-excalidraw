@@ -1,8 +1,41 @@
-import { newAScene, six_nanoid, noop } from "./utils/utils";
-import { DB_KEY, Store } from "./types";
+import { newAScene, six_nanoid } from "./utils/utils";
+import { DB_KEY, Payload, Store } from "./types";
 import { ENTER_ACTION } from "./const";
 
-const resolveEnterAction = window.resolveEnterAction || noop;
+type EntryAction = typeof ENTER_ACTION;
+type Values<T> = T[keyof T];
+type KeyWord = Values<EntryAction>;
+type EnterAction<T extends KeyWord> = T extends "load-excalidraw-file"
+  ? {
+      code: T;
+      payload: Payload[];
+    }
+  : T extends "search-scenes"
+    ? {
+        code: T;
+        option: {
+          sceneId: string;
+        };
+      }
+    : never;
+
+const enterAction = new Promise((resolve) => {
+  if (import.meta.hot) {
+    console.log('hot');
+    resolve(null);
+  } else {
+    utools.onPluginEnter((action) => {
+      resolve(action);
+    });
+  }
+});
+
+const resolveEnterAction = async <T extends KeyWord>(
+  key: T,
+): Promise<EnterAction<T> | null> => {
+  const action = (await enterAction) as EnterAction<T> | null;
+  return action?.code == key ? action : null;
+};
 
 // TODO: add test for this function
 export async function handleFileLoadAction(store: Store) {

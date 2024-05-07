@@ -37,16 +37,10 @@ export const getScenes = (): Map<string, Scene> | undefined => {
   }
 
   return new Map(
-    scenes_from_db
-      .map((scene) => {
-        const normalizeScene = newAScene(scene.value);
-        return [normalizeScene.id, normalizeScene] as [string, Scene];
-      })
-      .filter(
-        ([_, scene]) =>
-          !scene.deleted ||
-          dayjs(scene.deletedAt).isSameOrAfter(dayjs().subtract(30, "D")),
-      ),
+    scenes_from_db.map((scene) => {
+      const normalizeScene = newAScene(scene.value);
+      return [normalizeScene.id, normalizeScene] as [string, Scene];
+    }),
   );
 };
 

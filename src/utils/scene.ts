@@ -9,9 +9,10 @@ export const newAScene = ({
 }: Partial<Scene> & { name: string }): Scene => {
   return {
     id: id ? id : six_nanoid(),
-    sticky: false,
-    deleted: false,
-    deletedAt: null,
-    ...rest,
+    sticky: rest.sticky ?? false,
+    deleted: rest.deleted ?? false,
+    deletedAt: rest.deletedAt ?? null,
+    name: rest.name,
+    data: rest.data,
   };
 };

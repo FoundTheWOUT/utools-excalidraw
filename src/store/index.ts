@@ -40,6 +40,7 @@ const DefaultStore = (store?: Partial<Store>): Store => {
       deleteSceneDirectly: false,
       darkMode: false,
       theme: Theme.App,
+      dev: false,
       ...store?.[DB_KEY.SETTINGS],
     },
     scenes: store?.[DB_KEY.SCENES] ?? new Map([[blank.id, blank]]),

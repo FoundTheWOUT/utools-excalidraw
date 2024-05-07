@@ -221,7 +221,7 @@ function App({
         setResizing,
       }}
     >
-      {import.meta.env.DEV && (
+      {appSettings.dev && (
         <div className="flex gap-4">
           <button
             onClick={() => {

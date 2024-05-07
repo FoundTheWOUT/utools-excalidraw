@@ -19,6 +19,7 @@ export type Store = {
     deleteSceneDirectly: boolean;
     darkMode: boolean;
     theme: Theme;
+    dev: boolean;
   };
   [DB_KEY.SCENES]: Map<string, Scene>;
 };

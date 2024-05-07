@@ -147,7 +147,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   return (
     <div key={id} id={id} className="p-3">
-      {import.meta.env.DEV && id}
+      {appSettings?.dev && id}
       {!appSettings?.closePreview && (
         <button
           className={cn(
