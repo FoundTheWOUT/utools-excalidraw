@@ -20,14 +20,9 @@ type EnterAction<T extends KeyWord> = T extends "load-excalidraw-file"
     : never;
 
 const enterAction = new Promise((resolve) => {
-  if (import.meta.hot) {
-    console.log('hot');
-    resolve(null);
-  } else {
-    utools.onPluginEnter((action) => {
-      resolve(action);
-    });
-  }
+  utools.onPluginEnter((action) => {
+    resolve(action);
+  });
 });
 
 const resolveEnterAction = async <T extends KeyWord>(

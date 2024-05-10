@@ -1,4 +1,4 @@
-import { createContext, memo, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
@@ -8,24 +8,12 @@ import {
   TrashIcon,
   CogIcon,
 } from "@heroicons/react/solid";
-import { Scene } from "@/types";
 import TrashcanDialog from "./TrashcanDialog";
 import SettingDialog from "@/components/SettingDialog.tsx";
 
-export const SideBarContext = createContext<{
-  scenes: Scene[];
-} | null>(null);
-
-function SideBar({
-  scenesCollection,
-}: {
-  scenesCollection: Map<string, Scene>;
-}) {
+function SideBar() {
   const { appSettings, setAndStoreAppSettings, setResizing } =
     useContext(AppContext) ?? {};
-
-  const scenes =
-    appSettings?.scenesId.map((id) => scenesCollection.get(id)!) ?? [];
 
   const handleAsideControllerClick = () => {
     setAndStoreAppSettings?.({
@@ -41,11 +29,7 @@ function SideBar({
   }
 
   return (
-    <SideBarContext.Provider
-      value={{
-        scenes,
-      }}
-    >
+    <>
       <aside
         className={cn(
           appSettings.asideClosed ? "fixed" : "relative",
@@ -133,8 +117,8 @@ function SideBar({
         open={settingDialogOpen}
         onClose={(close) => setSettingDialogOpen(close)}
       />
-    </SideBarContext.Provider>
+    </>
   );
 }
 
-export default memo(SideBar);
+export default SideBar;

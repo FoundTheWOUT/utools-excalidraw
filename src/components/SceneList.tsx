@@ -11,18 +11,16 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import SceneItem from "./SceneItem";
-import { SideBarContext } from "./SideBar";
 import { loadScene } from "@/event";
 
 function SceneList() {
   const {
-    excalidrawRef,
+    excalidrawAPI,
     setAndStoreAppSettings,
     appSettings,
     handleSetActiveDraw,
     scenes: sceneCollection,
   } = useContext(AppContext) ?? {};
-  const { scenes = [] } = useContext(SideBarContext) ?? {};
 
   useEffect(() => {
     appSettings?.lastActiveDraw &&
@@ -36,7 +34,7 @@ function SceneList() {
         const [fileHandle] = await window.showOpenFilePicker();
         const fileData = await fileHandle.getFile();
         if (!fileData.name.endsWith(EXCALIDRAW_EXTENSION)) {
-          excalidrawRef?.current?.setToast({ message: "导入文件错误" });
+          excalidrawAPI?.setToast({ message: "导入文件错误" });
           return;
         }
         await loadFromBlob(fileData, null, null); // 尝试加载一下
@@ -54,7 +52,7 @@ function SceneList() {
         });
       } catch (error) {
         log(error);
-        excalidrawRef?.current?.setToast({ message: (error as Error).message });
+        excalidrawAPI?.setToast({ message: (error as Error).message });
       }
     });
     return () => {
@@ -69,20 +67,20 @@ function SceneList() {
     if (result.destination.index === result.source.index) {
       return;
     }
-    const reorderScenes = reorder(
-      scenes,
+    const reorderScenesId = reorder(
+      appSettings!.scenesId,
       result.source.index,
       result.destination.index,
     );
     setAndStoreAppSettings?.({
-      scenesId: reorderScenes.map((scene) => scene.id),
+      scenesId: reorderScenesId,
     });
   };
 
   // TODO: refactor this can merge with load scene
   const handleAddScene = () => {
-    const newScene = newAScene({ name: `画布${scenes.length}` });
-    excalidrawRef?.current && excalidrawRef.current.resetScene();
+    const newScene = newAScene({ name: `画布${appSettings?.scenesId.length}` });
+    excalidrawAPI?.resetScene();
     sceneCollection?.set(newScene.id, newScene);
     handleSetActiveDraw?.(newScene.id, {
       appSettings: {
@@ -97,8 +95,8 @@ function SceneList() {
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef}>
-              {scenes.map((scene, idx) => (
-                <Draggable key={scene.id} draggableId={scene.id} index={idx}>
+              {appSettings?.scenesId.map((id, idx) => (
+                <Draggable key={id} draggableId={id} index={idx}>
                   {(dragProvided) => {
                     return (
                       <div
@@ -106,7 +104,7 @@ function SceneList() {
                         {...dragProvided.draggableProps}
                       >
                         <SceneItem
-                          scene={scene}
+                          id={id}
                           idx={idx}
                           dragProvided={dragProvided}
                         />

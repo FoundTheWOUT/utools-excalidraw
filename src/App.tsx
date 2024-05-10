@@ -94,7 +94,7 @@ function App({
       } catch (error) {
         console.warn(error);
       } finally {
-        log("setUpdatingScene false");
+        // make sure file stored.
         endUpdateScene.emit();
       }
     },
@@ -245,7 +245,7 @@ function App({
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}
       >
-        <SideBar scenesCollection={scenes} />
+        <SideBar />
 
         {/* white board */}
         <main

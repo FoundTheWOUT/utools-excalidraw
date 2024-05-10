@@ -4,12 +4,11 @@ import { AppContext } from "@/App";
 import {
   generatePreviewImage,
   generatePreviewImageFromSceneData,
+  newAScene,
 } from "@/utils/utils";
 import SS from "@/store";
 import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
-import { SideBarContext } from "./SideBar";
-import { Scene } from "@/types";
 import { Popover, Transition } from "@headlessui/react";
 import { useFloating, offset } from "@floating-ui/react-dom";
 import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
@@ -19,22 +18,23 @@ import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
 
 interface Props {
-  scene: Scene;
+  id: string;
   idx: number;
   dragProvided: DraggableProvided;
 }
 
-const SceneItem = ({ scene, idx, dragProvided }: Props) => {
+const SceneItem = ({ id, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
-  const { scenes } = useContext(SideBarContext) ?? {};
   const {
     appSettings,
-    scenes: sceneCollection,
-    excalidrawRef,
+    scenes,
+    excalidrawAPI,
     handleSetActiveDraw,
     setSceneName,
   } = appContext ?? {};
-  const appState = excalidrawRef?.current?.getAppState();
+  const appState = excalidrawAPI?.getAppState();
+  const scene = scenes?.get(id);
+  const name = scene?.name;
 
   const [bgColor, setBgColor] = useState("");
   const [previewImg, setPreviewImg] = useState("");
@@ -60,7 +60,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   useEffect(() => {
     // generate preview image on mounted
-    generatePreviewImageFromSceneData(scene.data).then((path) => {
+    generatePreviewImageFromSceneData(scene?.data).then((path) => {
       setPreviewImg(path ?? "");
     });
   }, []);
@@ -81,8 +81,6 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
     });
   };
 
-  const { id, name } = scene;
-
   useEffect(() => {
     const unsubscribe = updateScene.subscribe(
       ({ target, elements, state, file }) => {
@@ -102,21 +100,23 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
       return;
     }
     const nextScenesId = scenesId.filter((sceneId) => sceneId !== id);
-    const updateScenesIndex = idx == scenesId.length ? idx - 1 : idx;
+    const updateScenesIndex = idx == scenesId.length - 1 ? idx - 1 : idx;
     if (permanent) {
-      sceneCollection?.delete(id);
+      scenes?.delete(id);
       SS.removeScene(id);
     } else {
-      const newScene = {
+      const scene = scenes!.get(id)!;
+      // TODO: we can implement delete method in scene class.
+      const newScene = newAScene({
         ...scene,
         deleted: true,
         deletedAt: dayjs().unix(),
-      };
-      sceneCollection?.set(id, newScene);
+      });
+      scenes?.set(id, newScene);
       SS.storeScene(id, newScene);
     }
     handleSetActiveDraw?.(nextScenesId[updateScenesIndex], {
-      scene: sceneCollection?.get(nextScenesId[updateScenesIndex]),
+      scene: scenes?.get(nextScenesId[updateScenesIndex]),
       appSettings: {
         scenesId: nextScenesId,
       },
@@ -133,21 +133,33 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
 
   const deleteBtnClass = cn(
     "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
-    scenes?.length === 1
+    appSettings?.scenesId?.length === 1
       ? "cursor-not-allowed text-red-300"
       : "hover-shadow text-red-500",
   );
 
-  const handleSceneNameBlur = () => {
-    setSceneName?.(name);
-    const newScene = { ...scene, name };
-    sceneCollection?.set(id, newScene);
+  const handleSceneNameBlur: React.FocusEventHandler<HTMLInputElement> = (
+    e,
+  ) => {
+    const newName = e.target.value;
+    setSceneName?.(newName);
+    const newScene = newAScene({ ...scene, name: newName });
+    scenes?.set(id, newScene);
     SS.storeScene(id, newScene);
+  };
+
+  const getFromStore = () => {
+    const scene = scenes?.get(id);
+    console.log(scene);
   };
 
   return (
     <div key={id} id={id} className="p-3">
-      {appSettings?.dev && id}
+      {appSettings?.dev && (
+        <>
+          {id} <button onClick={getFromStore}>get from store</button>
+        </>
+      )}
       {!appSettings?.closePreview && (
         <button
           className={cn(
@@ -197,11 +209,6 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             type="text"
             className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
             defaultValue={name}
-            onKeyDown={(e) => {
-              if (e.key == "Enter") {
-                scenes?.[idx] && SS.storeScene(id, scenes[idx]);
-              }
-            }}
             onBlur={handleSceneNameBlur}
           />
         )}
@@ -245,7 +252,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
                 <Popover.Button
                   className={deleteBtnClass}
                   title="删除"
-                  disabled={scenes?.length === 1}
+                  disabled={appSettings.scenesId?.length === 1}
                   ref={refs.setReference}
                 >
                   <XIcon className="w-5" />
@@ -258,7 +265,7 @@ const SceneItem = ({ scene, idx, dragProvided }: Props) => {
             className={deleteBtnClass}
             onClick={() => handleDeleteScene()}
             title="删除"
-            disabled={scenes?.length === 1}
+            disabled={appSettings?.scenesId?.length === 1}
           >
             <XIcon className="w-5" />
           </button>
