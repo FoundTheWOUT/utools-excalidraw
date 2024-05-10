@@ -11,10 +11,10 @@ import AsyncImg from "./AsyncImg";
 
 const PAGE_SIZE = 5;
 
-let listeners = [];
+let listeners: (() => void)[] = [];
 
 function emitChange() {
-  for (let listener of listeners) {
+  for (const listener of listeners) {
     listener();
   }
 }
@@ -28,7 +28,7 @@ const trashcanStore = {
     SS.removeScene(id);
     emitChange();
   },
-  subscribe(listener) {
+  subscribe(listener: () => void) {
     listeners = [...listeners, listener];
     return () => {
       listeners = listeners.filter((l) => l !== listener);

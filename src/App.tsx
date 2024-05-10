@@ -28,7 +28,6 @@ import {
 
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
-  excalidrawRef: { current: ExcalidrawImperativeAPI | null };
   excalidrawAPI: ExcalidrawImperativeAPI | null;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
@@ -211,7 +210,6 @@ function App({
     <AppContext.Provider
       value={{
         scenes,
-        excalidrawRef: { current: excalidrawAPI },
         excalidrawAPI,
         appSettings,
         setAndStoreAppSettings,

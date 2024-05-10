@@ -51,13 +51,13 @@ const ExportOps = () => {
   });
 
   if (!appContext) return null;
-  const { sceneName, excalidrawRef } = appContext;
+  const { sceneName, excalidrawAPI } = appContext;
   const exportToFile = (name: string) => {
-    if (!excalidrawRef.current) return;
+    if (!excalidrawAPI) return;
     const text = serializeAsJSON(
-      excalidrawRef.current.getSceneElementsIncludingDeleted(),
-      excalidrawRef.current.getAppState(),
-      excalidrawRef.current.getFiles(),
+      excalidrawAPI.getSceneElementsIncludingDeleted(),
+      excalidrawAPI.getAppState(),
+      excalidrawAPI.getFiles(),
       "local",
     );
     if (name.includes(".")) {
@@ -78,12 +78,12 @@ const ExportOps = () => {
   };
 
   const exportToPng = (name: string, scale: number) => {
-    if (!excalidrawRef.current) return;
+    if (!excalidrawAPI) return;
     const { exportImageScale, ...rest } = exportImageOptions;
     exportToBlob({
-      elements: excalidrawRef.current.getSceneElementsIncludingDeleted(),
-      appState: extend({}, excalidrawRef.current.getAppState(), rest),
-      files: excalidrawRef.current.getFiles(),
+      elements: excalidrawAPI.getSceneElementsIncludingDeleted(),
+      appState: extend({}, excalidrawAPI.getAppState(), rest),
+      files: excalidrawAPI.getFiles(),
       getDimensions: (w, h) => ({ width: w * scale, height: h * scale, scale }),
     })
       .then((blob) => blob?.arrayBuffer())
