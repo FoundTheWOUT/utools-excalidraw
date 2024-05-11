@@ -125,7 +125,7 @@ function TrashcanDialog({
                   src={scene.imgSrc}
                 />
                 {/* content */}
-                <div className="flex w-48 flex-1 flex-col">
+                <div className="flex w-48 flex-1 flex-col dark:text-white">
                   <div className="font-bold">{scene.name}</div>
                   <div className="text-xs">ID: {scene.id}</div>
                   {scene.deletedAt && (

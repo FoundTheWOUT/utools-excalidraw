@@ -65,6 +65,7 @@ export async function handleFileLoadAction(store: Store) {
   for (const scene of scenes) {
     store[DB_KEY.SCENES].set(scene.id, scene);
   }
+  store[DB_KEY.SETTINGS].scenesId.push(...scenes.map((s) => s.id));
   store[DB_KEY.SETTINGS].lastActiveDraw = firstSceneId;
 }
 

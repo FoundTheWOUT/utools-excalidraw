@@ -36,10 +36,38 @@ export const getScenes = (): Map<string, Scene> | undefined => {
     return;
   }
 
+  const normalizeScenes = scenes_from_db.map((scene) => newAScene(scene.value));
+
+  const { fresh: freshScenes, expired: expiredScenes } =
+    normalizeScenes.reduce<{
+      fresh: Scene[];
+      expired: Scene[];
+    }>(
+      (acc, cur) => {
+        // if deletedAt if 30 day ago, put scene to expired, otherwise put it to fresh
+        if (
+          cur.deletedAt &&
+          dayjs.unix(cur.deletedAt).isBefore(dayjs().subtract(30, "day"))
+        ) {
+          acc.expired.push(cur);
+        } else {
+          acc.fresh.push(cur);
+        }
+        return acc;
+      },
+      {
+        expired: [],
+        fresh: [],
+      },
+    );
+
+  expiredScenes.forEach((scene) => {
+    removeScene(scene.id);
+  });
+
   return new Map(
-    scenes_from_db.map((scene) => {
-      const normalizeScene = newAScene(scene.value);
-      return [normalizeScene.id, normalizeScene] as [string, Scene];
+    freshScenes.map((scene) => {
+      return [scene.id, scene];
     }),
   );
 };

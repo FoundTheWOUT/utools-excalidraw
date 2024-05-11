@@ -19,13 +19,13 @@
     @apply btn-preset bg-gray-200 text-gray-800 dark:bg-zinc-600;
   }
   .btn-safe {
-    @apply btn-preset bg-emerald-100 text-emerald-500 hover:bg-emerald-500;
+    @apply btn-preset bg-emerald-100 text-emerald-500 hover:bg-emerald-500 dark:bg-emerald-900 dark:text-emerald-300 dark:hover:bg-emerald-500 dark:hover:text-white;
   }
   .btn-danger {
-    @apply btn-preset bg-red-100 text-red-500 hover:bg-red-500;
+    @apply btn-preset bg-red-100 text-red-500 hover:bg-red-500 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-500 dark:hover:text-white;
   }
   .btn-primary {
-    @apply btn-preset bg-[#e3e2fe] text-[#5b57d1] hover:bg-[#6965db];
+    @apply btn-preset text-secondary bg-[#e3e2fe]/80 hover:bg-primary;
   }
 }
 
