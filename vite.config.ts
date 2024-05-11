@@ -8,7 +8,7 @@ export default defineConfig({
   base: "./",
   define: {
     __PLUGIN_ID__: `"zejxtgx5"`,
-    "process.env.IS_PREACT": JSON.stringify("true"),
+    "process.env.IS_PREACT": JSON.stringify("false"),
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
