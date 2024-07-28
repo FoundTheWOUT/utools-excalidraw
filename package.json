@@ -15,8 +15,7 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "0.17.5",
-    "@floating-ui/react-dom": "^2.0.8",
-    "@headlessui/react": "^1.7.19",
+    "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^1.0.6",
     "clsx": "^2.1.0",
     "dayjs": "^1.11.10",

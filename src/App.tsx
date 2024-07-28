@@ -238,7 +238,7 @@ function App({
         </div>
       )}
       <div
-        className="flex h-screen bg-white dark:bg-[#121212]"
+        className="flex h-screen bg-white dark:bg-[#121212] dark:text-white"
         onMouseUp={() => setResizing(false)}
         onMouseLeave={() => setResizing(false)}
         onMouseMove={handleScreenMouseMove}

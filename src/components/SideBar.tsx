@@ -2,14 +2,8 @@ import { useContext, useState } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  TrashIcon,
-  CogIcon,
-} from "@heroicons/react/solid";
-import TrashcanDialog from "./TrashcanDialog";
-import SettingDialog from "@/components/SettingDialog.tsx";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
+import SideBarHeader from "./SideBarHeader";
 
 function SideBar() {
   const { appSettings, setAndStoreAppSettings, setResizing } =
@@ -20,8 +14,6 @@ function SideBar() {
       asideClosed: !appSettings?.asideClosed,
     });
   };
-  const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
-  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
   const [openSideBarTemp, setOpenSideBarTemp] = useState(false);
 
   if (!appSettings) {
@@ -47,32 +39,11 @@ function SideBar() {
         }}
       >
         <div className="h-full overflow-y-auto">
-          {appSettings?.asideWidth && appSettings.asideWidth > 150 && (
-            <div className="flex items-center justify-between gap-2 p-3 pb-0">
-              <button
-                className="btn-base flex items-center p-2"
-                onClick={() => {
-                  setTrashcanDialogOpen(true);
-                }}
-                title="垃圾桶"
-              >
-                <TrashIcon className="w-5 text-red-500" />
-              </button>
-
-              <button
-                className="btn-base flex items-center p-2"
-                onClick={() => {
-                  setSettingDialogOpen(true);
-                }}
-                title="设置"
-              >
-                <CogIcon className="w-5 text-gray-500 dark:text-gray-300" />
-              </button>
-            </div>
-          )}
+          <SideBarHeader />
           <SceneList />
         </div>
-        {/* controller */}
+
+        {/* aside hide controller */}
         <button
           className={cn(
             "absolute -right-3 bottom-12 rounded-full bg-white shadow transition-transform dark:bg-zinc-600 dark:text-white",
@@ -87,6 +58,7 @@ function SideBar() {
           )}
         </button>
 
+        {/* aside width controller */}
         <div
           className={cn(
             "absolute -right-2 top-1/2 h-8 w-1.5 cursor-ew-resize rounded-full bg-slate-500/60",
@@ -107,16 +79,6 @@ function SideBar() {
           }}
         ></div>
       )}
-
-      <TrashcanDialog
-        open={trashcanDialogOpen}
-        onClose={(close) => setTrashcanDialogOpen(close)}
-      />
-
-      <SettingDialog
-        open={settingDialogOpen}
-        onClose={(close) => setSettingDialogOpen(close)}
-      />
     </>
   );
 }

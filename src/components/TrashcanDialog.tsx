@@ -115,7 +115,7 @@ function TrashcanDialog({
       {/* Body */}
       <div className="my-4 flex flex-col gap-2">
         {trashcan?.length === 0 ? (
-          <p className="mx-auto mt-6">暂无已删除画布</p>
+          <p className="mx-auto mt-6 dark:text-white">暂无已删除画布</p>
         ) : (
           <>
             {items?.map((scene) => (

@@ -20,9 +20,13 @@ type EnterAction<T extends KeyWord> = T extends "load-excalidraw-file"
     : never;
 
 const enterAction = new Promise((resolve) => {
-  utools.onPluginEnter((action) => {
-    resolve(action);
-  });
+  if (!window.utools) {
+    resolve(null);
+  } else {
+    utools.onPluginEnter((action) => {
+      resolve(action);
+    });
+  }
 });
 
 const resolveEnterAction = async <T extends KeyWord>(

@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, forwardRef } from "react";
 import cn from "clsx";
 import { AppContext } from "@/App";
 import {
@@ -9,8 +9,7 @@ import {
 import SS from "@/store";
 import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
-import { Popover, Transition } from "@headlessui/react";
-import { useFloating, offset } from "@floating-ui/react-dom";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
 import dayjs from "dayjs";
 import { DraggableProvided } from "react-beautiful-dnd";
@@ -22,6 +21,30 @@ interface Props {
   idx: number;
   dragProvided: DraggableProvided;
 }
+
+const DeleteSceneButton = forwardRef<
+  HTMLButtonElement,
+  { onClick?: () => void }
+>(function DeleteSceneButton(props, ref) {
+  const appContext = useContext(AppContext);
+  const { appSettings } = appContext ?? {};
+  return (
+    <button
+      className={cn(
+        "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
+        appSettings?.scenesId?.length === 1
+          ? "cursor-not-allowed text-red-300"
+          : "hover-shadow text-red-500",
+      )}
+      title="删除"
+      disabled={appSettings?.scenesId?.length === 1}
+      ref={ref}
+      {...props}
+    >
+      <XIcon className="w-5" />
+    </button>
+  );
+});
 
 const SceneItem = ({ id, idx, dragProvided }: Props) => {
   const appContext = useContext(AppContext);
@@ -126,17 +149,6 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
   const handleActiveAction = () => {
     handleSetActiveDraw?.(id, { scene });
   };
-  const { refs, floatingStyles } = useFloating({
-    placement: "top",
-    middleware: [offset(10)],
-  });
-
-  const deleteBtnClass = cn(
-    "flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600",
-    appSettings?.scenesId?.length === 1
-      ? "cursor-not-allowed text-red-300"
-      : "hover-shadow text-red-500",
-  );
 
   const handleSceneNameBlur: React.FocusEventHandler<HTMLInputElement> = (
     e,
@@ -191,6 +203,8 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
           )}
         </button>
       )}
+
+      {/* name */}
       <div
         className={cn("mt-1.5 flex gap-2", {
           hidden: appSettings?.asideWidth && appSettings.asideWidth <= 150,
@@ -207,7 +221,8 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
         ) : (
           <input
             type="text"
-            className="h-9 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
+            // flex-1 not work for input tag default, because it has default width, set min-w-0 to solve.
+            className="h-9 min-w-0 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
             defaultValue={name}
             onBlur={handleSceneNameBlur}
           />
@@ -215,60 +230,38 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
 
         {appSettings?.deleteSceneDirectly ? (
           <Popover className="relative">
-            {({ close }) => (
-              <>
-                <Transition
-                  as={Fragment}
-                  enter="transition-opacity ease-out duration-70"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="transition-opacity ease-in duration-150"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Popover.Panel
-                    ref={refs.setFloating}
-                    style={floatingStyles}
-                    className="w-36 rounded-lg bg-white p-4 shadow-lg"
-                  >
-                    <div className="mb-2">确定删除画布吗</div>
-                    <div className="flex justify-around">
-                      <button
-                        className="btn-layout btn-danger text-sm"
-                        onClick={() => handleDeleteScene(true)}
-                      >
-                        确定
-                      </button>
-
-                      <button
-                        className="btn-layout btn-safe text-sm"
-                        onClick={close}
-                      >
-                        取消
-                      </button>
-                    </div>
-                  </Popover.Panel>
-                </Transition>
-                <Popover.Button
-                  className={deleteBtnClass}
-                  title="删除"
-                  disabled={appSettings.scenesId?.length === 1}
-                  ref={refs.setReference}
-                >
-                  <XIcon className="w-5" />
-                </Popover.Button>
-              </>
-            )}
+            <PopoverPanel
+              className="z-10 mb-10 w-36 origin-bottom rounded-lg bg-white p-4 shadow-lg transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 dark:bg-zinc-800"
+              transition
+              anchor={{
+                to: "top",
+                gap: "10px",
+              }}
+            >
+              {({ close }) => (
+                <>
+                  <div className="mb-2">确定删除画布吗</div>
+                  <div className="flex justify-around">
+                    <button
+                      className="btn-layout btn-danger text-sm"
+                      onClick={() => handleDeleteScene(true)}
+                    >
+                      确定
+                    </button>
+                    <button
+                      className="btn-layout btn-safe text-sm"
+                      onClick={() => close()}
+                    >
+                      取消
+                    </button>
+                  </div>
+                </>
+              )}
+            </PopoverPanel>
+            <PopoverButton as={DeleteSceneButton} />
           </Popover>
         ) : (
-          <button
-            className={deleteBtnClass}
-            onClick={() => handleDeleteScene()}
-            title="删除"
-            disabled={appSettings?.scenesId?.length === 1}
-          >
-            <XIcon className="w-5" />
-          </button>
+          <DeleteSceneButton onClick={() => handleDeleteScene()} />
         )}
 
         <button

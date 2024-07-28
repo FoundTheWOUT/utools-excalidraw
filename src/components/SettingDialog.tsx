@@ -30,7 +30,7 @@ function AppSettingsSwitchItem({
   if (!Object.hasOwn(appSettings, prop)) {
     return (
       <Switch.Group>
-        <div className="flex gap-2">
+        <div className="setting-item">
           <SwitchBtn checked={false} notAllow />
           <Switch.Label className="flex-1 text-gray-500">
             <div className="font-semibold">{t(prop)}</div>
@@ -43,12 +43,10 @@ function AppSettingsSwitchItem({
 
   return (
     <Switch.Group>
-      <div className="flex gap-2">
+      <div className="setting-item">
         <Switch.Label className="w-96 flex-1">
-          <div className="font-semibold dark:text-white">{t(prop)}</div>
-          <div className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
-            {t(`${prop}.Description`)}
-          </div>
+          <div className="setting-label">{t(prop)}</div>
+          <div className="setting-description">{t(`${prop}.Description`)}</div>
         </Switch.Label>
         <SwitchBtn
           checked={reverse ? !!appSettings[prop] : !appSettings[prop]}
@@ -95,10 +93,8 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
           }}
         >
           <div className="relative z-10 mt-1">
-            <div className="flex justify-between gap-2">
-              <Listbox.Label className="font-bold dark:text-white">
-                主题
-              </Listbox.Label>
+            <div className="setting-item">
+              <Listbox.Label className="setting-label">主题</Listbox.Label>
               <Listbox.Button className="relative cursor-default rounded-lg border bg-white p-2 text-sm text-gray-500 dark:border-zinc-800 dark:bg-zinc-600 dark:text-zinc-300">
                 {currentTheme?.name}
               </Listbox.Button>
