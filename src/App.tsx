@@ -10,7 +10,12 @@ import {
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
-import { FolderIcon } from "@heroicons/react/outline";
+import {
+  FolderIcon,
+  CogIcon,
+  TrashIcon,
+  ArchiveIcon,
+} from "@heroicons/react/outline";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
@@ -25,6 +30,8 @@ import {
   startUpdateScene,
   updateScene,
 } from "./event";
+import TrashcanDialog from "./components/TrashcanDialog";
+import SettingDialog from "./components/SettingDialog";
 
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
@@ -206,6 +213,17 @@ function App({
     loadScene.emit();
   };
 
+  const [trashcanDialogOpen, setTrashcanDialogOpen] = useState(false);
+  const [settingDialogOpen, setSettingDialogOpen] = useState(false);
+
+  const openSetting = () => {
+    setSettingDialogOpen(true);
+  };
+
+  const openTrashcan = () => {
+    setTrashcanDialogOpen(true);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -244,6 +262,16 @@ function App({
         onMouseMove={handleScreenMouseMove}
       >
         <SideBar />
+
+        <TrashcanDialog
+          open={trashcanDialogOpen}
+          onClose={(close) => setTrashcanDialogOpen(close)}
+        />
+
+        <SettingDialog
+          open={settingDialogOpen}
+          onClose={(close) => setSettingDialogOpen(close)}
+        />
 
         {/* white board */}
         <main
@@ -302,8 +330,21 @@ function App({
               <MainMenu.DefaultItems.Export />
               <MainMenu.DefaultItems.ClearCanvas />
               <MainMenu.DefaultItems.ToggleTheme />
-              <MainMenu.DefaultItems.ChangeCanvasBackground />
               <MainMenu.Separator />
+              <MainMenu.Item onSelect={openSetting} icon={<CogIcon />}>
+                设置
+              </MainMenu.Item>
+              <MainMenu.Item
+                onSelect={openTrashcan}
+                icon={<TrashIcon className="text-red-500" />}
+              >
+                回收站
+              </MainMenu.Item>
+              <MainMenu.Item onSelect={handleSceneLoad} icon={<ArchiveIcon />}>
+                批量导出
+              </MainMenu.Item>
+              <MainMenu.Separator />
+              <MainMenu.DefaultItems.ChangeCanvasBackground />
             </MainMenu>
           </Excalidraw>
         </main>

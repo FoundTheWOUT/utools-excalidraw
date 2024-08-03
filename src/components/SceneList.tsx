@@ -90,7 +90,7 @@ function SceneList() {
   };
 
   return (
-    <>
+    <div className="h-full overflow-y-auto">
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="list">
           {(provided) => (
@@ -126,7 +126,7 @@ function SceneList() {
           <PlusIcon className="h-10 text-gray-500 dark:text-white" />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

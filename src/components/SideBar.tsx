@@ -3,7 +3,6 @@ import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
-import SideBarHeader from "./SideBarHeader";
 
 function SideBar() {
   const { appSettings, setAndStoreAppSettings, setResizing } =
@@ -38,10 +37,7 @@ function SideBar() {
           setOpenSideBarTemp(false);
         }}
       >
-        <div className="h-full overflow-y-auto">
-          <SideBarHeader />
-          <SceneList />
-        </div>
+        <SceneList />
 
         {/* aside hide controller */}
         <button
