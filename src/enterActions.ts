@@ -1,6 +1,6 @@
 import { newAScene, six_nanoid } from "./utils/utils";
 import { DB_KEY, Payload, Store } from "./types";
-import { ENTER_ACTION } from "./const";
+import { ENTER_ACTION, SKIP_ENTER_ACTION } from "./const";
 
 type EntryAction = typeof ENTER_ACTION;
 type Values<T> = T[keyof T];
@@ -20,6 +20,10 @@ type EnterAction<T extends KeyWord> = T extends "load-excalidraw-file"
     : never;
 
 const enterAction = new Promise((resolve) => {
+  if (SKIP_ENTER_ACTION) {
+    resolve(null);
+    return;
+  }
   if (!window.utools) {
     resolve(null);
   } else {

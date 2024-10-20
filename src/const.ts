@@ -19,3 +19,5 @@ export const ENTER_ACTION = {
   LOAD_FILE: "load-excalidraw-file",
   FOCUS_SCENE: "search-scenes",
 } as const;
+
+export const SKIP_ENTER_ACTION = import.meta.env.PROD ? false : true;

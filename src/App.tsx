@@ -10,12 +10,7 @@ import {
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
-import {
-  FolderIcon,
-  CogIcon,
-  TrashIcon,
-  ArchiveIcon,
-} from "@heroicons/react/outline";
+import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";
 import { restoreFiles } from "./utils/data";
@@ -339,9 +334,6 @@ function App({
                 icon={<TrashIcon className="text-red-500" />}
               >
                 回收站
-              </MainMenu.Item>
-              <MainMenu.Item onSelect={handleSceneLoad} icon={<ArchiveIcon />}>
-                批量导出
               </MainMenu.Item>
               <MainMenu.Separator />
               <MainMenu.DefaultItems.ChangeCanvasBackground />
