@@ -3,10 +3,9 @@ export const FILE_DOC_PREFIX = "file";
 export const EXCALIDRAW_EXTENSION = ".excalidraw";
 
 export const ALLOW_HOSTS = [
-  "https://blog.excalidraw.com/",
-  "https://github.com/excalidraw/excalidraw#documentation",
-  "https://github.com/excalidraw/excalidraw/issues",
-  "https://docs.excalidraw.com/",
+  "https://github.com",
+  "https://blog.excalidraw.com",
+  "https://docs.excalidraw.com",
   "https://libraries.excalidraw.com",
 ];
 
