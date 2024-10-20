@@ -3,6 +3,7 @@ import {
   Excalidraw,
   MainMenu,
   THEME,
+  WelcomeScreen,
   restore,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
@@ -318,6 +319,9 @@ function App({
               StoreSystem.handleLibraryChange(items);
             }}
           >
+            <WelcomeScreen>
+              <WelcomeScreen.Hints.MenuHint />
+            </WelcomeScreen>
             <MainMenu>
               <MainMenu.Item onSelect={handleSceneLoad} icon={<FolderIcon />}>
                 载入画布
