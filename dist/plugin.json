@@ -36,5 +36,8 @@
   "pluginName": "Excalidraw离线白板",
   "description": "离线版Excalidraw",
   "author": "FoundTheWOUT",
-  "homepage": "https://github.com/FoundTheWOUT"
+  "homepage": "https://github.com/FoundTheWOUT",
+  "pluginSetting": {
+    "single": false
+  }
 }
