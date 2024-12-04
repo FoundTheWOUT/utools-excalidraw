@@ -15,6 +15,7 @@ declare global {
     ) => Promise<unknown>;
 
     readFileSync: typeof fs.readFileSync;
+    EXCALIDRAW_ASSET_PATH: string;
   }
 
   const __PLUGIN_ID__: string;

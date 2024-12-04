@@ -11,6 +11,7 @@ import {
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types/types";
+import "@excalidraw/excalidraw/index.css";
 import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
 import { Scene, DB_KEY, Store } from "./types";

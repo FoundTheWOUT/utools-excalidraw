@@ -26,6 +26,8 @@ function registerALinkHandler() {
   document.addEventListener("click", aLinkHandler);
 }
 
+window.EXCALIDRAW_ASSET_PATH = import.meta.env.VITE_EXCALIDRAW_ASSET_PATH;
+
 async function main() {
   const store = await StoreSystem.getStore();
   await handleFileLoadAction(store);
