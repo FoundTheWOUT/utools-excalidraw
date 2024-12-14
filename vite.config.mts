@@ -16,6 +16,9 @@ export default defineConfig(({ command }) => {
     },
     build: {
       outDir: "dist/web",
+      rollupOptions: {
+        external: [/.*subset-worker\.chunk$/, /.*subset-shared\.chunk$/],
+      },
     },
     plugins: [
       react(),
