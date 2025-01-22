@@ -6,6 +6,36 @@
     <title>utools excalidraw</title>
   </head>
   <body>
+    <script>
+      !(function (c, b, d, a) {
+        c[a] || (c[a] = {});
+        c[a] = {
+          pid: "%VITE_RUM_PID%",
+          endpoint: "%VITE_RUM_ENDPOINT%",
+          env: "%VITE_RUM_ENV%",
+          spaMode: "history",
+          collectors: {
+            perf: true,
+            webVitals: true,
+            api: true,
+            staticResource: true,
+            jsError: true,
+            consoleError: true,
+            action: true,
+          },
+          tracing: false,
+        };
+        with (b)
+          with (body)
+            with (insertBefore(createElement("script"), firstChild))
+              setAttribute("crossorigin", "", (src = d));
+      })(
+        window,
+        document,
+        "%VITE_RUM_SDK%",
+        "__rum",
+      );
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
