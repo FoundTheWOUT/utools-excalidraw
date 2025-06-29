@@ -1,6 +1,4 @@
 {
   "cSpell.words": ["Excalidraw", "utools"],
-  "todohighlight.include": ["src/**"],
-  "vitest.commandLine": "pnpm test",
   "todo-tree.tree.scanMode": "workspace only"
 }
