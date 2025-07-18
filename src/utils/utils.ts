@@ -22,7 +22,7 @@ export const generatePreviewImage = async (
   try {
     const { exportToBlob } = await import("@excalidraw/excalidraw");
     const blob = await exportToBlob({
-      elements,
+      elements: elements.filter((el) => !el.isDeleted),
       appState: {
         ...appState,
         exportBackground: true,
@@ -91,6 +91,17 @@ export const isDark = (theme: Theme) => {
 
 export const setTheme = (theme: Theme) => {
   document.documentElement.classList[isDark(theme) ? "add" : "remove"]("dark");
+};
+
+export const omit = <T extends Record<string, unknown>>(
+  obj: T,
+  keys: (keyof T)[],
+): Omit<T, keyof T> => {
+  const result = { ...obj };
+  keys.forEach((key) => {
+    delete result[key];
+  });
+  return result;
 };
 
 export * from "./scene";

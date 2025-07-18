@@ -1,6 +1,6 @@
 import { AppContext } from "@/App";
 import { EXCALIDRAW_EXTENSION } from "@/const";
-import { extend } from "@/utils/utils";
+import { extend, omit } from "@/utils/utils";
 import { exportToBlob, serializeAsJSON } from "@excalidraw/excalidraw";
 import cn from "clsx";
 import { useState, useContext } from "react";
@@ -55,7 +55,7 @@ const ExportOps = () => {
   const exportToFile = (name: string) => {
     if (!excalidrawAPI) return;
     const text = serializeAsJSON(
-      excalidrawAPI.getSceneElementsIncludingDeleted(),
+      excalidrawAPI.getSceneElements(),
       excalidrawAPI.getAppState(),
       excalidrawAPI.getFiles(),
       "local",
@@ -79,9 +79,9 @@ const ExportOps = () => {
 
   const exportToPng = (name: string, scale: number) => {
     if (!excalidrawAPI) return;
-    const { exportImageScale, ...rest } = exportImageOptions;
+    const rest = omit(exportImageOptions, ["exportImageScale"]);
     exportToBlob({
-      elements: excalidrawAPI.getSceneElementsIncludingDeleted(),
+      elements: excalidrawAPI.getSceneElements(),
       appState: extend({}, excalidrawAPI.getAppState(), rest),
       files: excalidrawAPI.getFiles(),
       getDimensions: (w, h) => ({ width: w * scale, height: h * scale, scale }),
@@ -98,11 +98,9 @@ const ExportOps = () => {
           });
         savePath &&
           window.writeFile &&
-          window
-            .writeFile(savePath, arrayBuffer)
-            .then(() => {
-              window.utools && window.utools.shellShowItemInFolder(savePath);
-            });
+          window.writeFile(savePath, arrayBuffer).then(() => {
+            window.utools && window.utools.shellShowItemInFolder(savePath);
+          });
       });
   };
 
