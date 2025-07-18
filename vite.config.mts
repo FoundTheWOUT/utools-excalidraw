@@ -20,6 +20,11 @@ export default defineConfig(({ command }) => {
         external: [/.*subset-worker\.chunk$/, /.*subset-shared\.chunk$/],
       },
     },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: "es2022",
+      },
+    },
     plugins: [
       react(),
       visualizer() as PluginOption,

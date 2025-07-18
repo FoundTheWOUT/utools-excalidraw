@@ -1,19 +1,31 @@
 const fs = require("node:fs");
 window.utools = utools;
 
+/**
+ *
+ * @param {string} path
+ * @param {string | NodeJS.ArrayBufferView} data
+ * @param {{ encoding:NodeJS.BufferEncoding }} opts
+ * @returns
+ */
 window.writeFile = (path, data, opts) => {
-  const { encoding, isArrayBuffer } = Object.assign(
+  const { encoding } = Object.assign(
     // default options
-    { encoding: "utf8", isArrayBuffer: false },
+    { encoding: "utf8" },
     opts,
   );
-  if (isArrayBuffer) data = Buffer.from(data);
+  // check data if ArrayBufferView
+  if (data instanceof ArrayBuffer) {
+    data = Buffer.from(data);
+  } else if (ArrayBuffer.isView(data)) {
+    data = Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+  }
   return new Promise((resolve, reject) => {
     fs.writeFile(path, data, encoding, (err) => {
       if (err) {
         reject(err);
       } else {
-        resolve();
+        resolve(true);
       }
     });
   });
@@ -49,14 +61,19 @@ window.readFileSync = fs.readFileSync;
   });
 })();
 
-utools.onMainPush(({ code, payload, type }) => {
-  const scenes = utools.db.allDocs("scene/");
-  return scenes
-    .filter(
-      ({ value: { name, deleted } }) => !deleted && name.includes(payload),
-    )
-    .map((scene) => ({
-      text: scene.value.name ?? scene._id,
-      sceneId: scene.value.id,
-    }));
-});
+utools.onMainPush(
+  ({ payload }) => {
+    const scenes = utools.db.allDocs("scene/");
+    return scenes
+      .filter(
+        ({ value: { name, deleted } }) => !deleted && name.includes(payload),
+      )
+      .map((scene) => ({
+        text: scene.value.name ?? scene._id,
+        sceneId: scene.value.id,
+      }));
+  },
+  () => {
+    return true;
+  },
+);
