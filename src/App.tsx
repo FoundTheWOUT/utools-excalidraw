@@ -139,7 +139,9 @@ function App({
 
     const { data } = payload.scene ?? {};
 
-    payload.scene?.name && setName(payload.scene?.name);
+    if (payload.scene?.name) {
+      setName(payload.scene.name);
+    }
     setAndStoreAppSettings({
       ...(payload.appSettings ?? {}),
       lastActiveDraw: sceneId,
@@ -168,7 +170,9 @@ function App({
         ),
       );
       const files = Object.values(_data.files);
-      files.length && excalidrawAPI.addFiles(files);
+      if (files.length) {
+        excalidrawAPI.addFiles(files);
+      }
     } catch (error) {
       console.error(error);
       excalidrawAPI.setToast({ message: "解析错误" });

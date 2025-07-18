@@ -1,10 +1,9 @@
-import { defineConfig, type PluginOption } from "vite";
+import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 
-export default defineConfig(({ command }) => {
+export default defineConfig(() => {
   return {
     base: "./",
     define: {
@@ -25,19 +24,7 @@ export default defineConfig(({ command }) => {
         target: "es2022",
       },
     },
-    plugins: [
-      react(),
-      visualizer() as PluginOption,
-      command === "serve" &&
-        viteStaticCopy({
-          targets: [
-            {
-              src: "node_modules/@excalidraw/excalidraw/dist/dev/*",
-              dest: "static",
-            },
-          ],
-        }),
-    ],
+    plugins: [react(), visualizer()],
     test: {
       environment: "jsdom",
       setupFiles: ["./setup-test.ts"],

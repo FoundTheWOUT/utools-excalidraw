@@ -99,8 +99,9 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
     // re gen preview image
     generatePreviewImage(elements, appState, files).then((path) => {
       setPreviewImg(path ?? "");
-      appState?.viewBackgroundColor &&
+      if (appState?.viewBackgroundColor) {
         setBgColor(appState?.viewBackgroundColor);
+      }
     });
   };
 

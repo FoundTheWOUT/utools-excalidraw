@@ -23,8 +23,9 @@ function SceneList() {
   } = useContext(AppContext) ?? {};
 
   useEffect(() => {
-    appSettings?.lastActiveDraw &&
+    if (appSettings?.lastActiveDraw) {
       document.getElementById(appSettings?.lastActiveDraw)?.scrollIntoView();
+    }
   }, []);
 
   // listen loadScene event, and update SceneList.

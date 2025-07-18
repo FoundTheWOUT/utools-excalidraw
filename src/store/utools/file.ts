@@ -12,13 +12,12 @@ export const storeFile = (
 ) => {
   if (!type) type = "text/plain";
   if (data.byteLength > TEN_MB) {
-    excalidrawRef &&
-      excalidrawRef.setToast({ message: "插入图片大于10MB，退出后图片将丢失" });
+    excalidrawRef?.setToast({ message: "插入图片大于10MB，退出后图片将丢失" });
     return;
   }
   log("store file to db.");
   try {
-    window.utools && window.utools.db.postAttachment(`file/${key}`, data, type);
+    window.utools.db?.postAttachment(`file/${key}`, data, type);
   } catch (err) {
     console.error(err);
   }
@@ -47,7 +46,7 @@ export const dropDeletedFiles = (scenes: Map<string, Scene>) => {
   files.forEach((doc) => {
     const _path = doc._id.split("/");
     if (_path.length < 1 || !noneDeletedFileId.has(_path[1])) {
-      window.utools && window.utools.db.remove(doc._id);
+      window.utools?.db.remove(doc._id);
     }
   });
 };

@@ -18,7 +18,7 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
   // console.log(data);
   log("store scene to db.");
   try {
-    window.utools && window.utools.dbStorage.setItem(`scene/${key}`, data);
+    window.utools?.dbStorage.setItem(`scene/${key}`, data);
   } catch (error) {
     console.error(error);
   }

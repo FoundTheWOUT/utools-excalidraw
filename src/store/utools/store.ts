@@ -30,7 +30,7 @@ export const getStore = async (): Promise<Store> => {
 
 export const storeSetItem = <T extends DB_KEY>(key: T, value: Store[T]) => {
   log(`store to ${key}, data:`, value);
-  window.utools && window.utools.dbStorage.setItem(key, value);
+  window.utools?.dbStorage.setItem(key, value);
 };
 
 // scene store api

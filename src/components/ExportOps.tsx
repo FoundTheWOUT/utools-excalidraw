@@ -40,6 +40,13 @@ const ToImageIcon = () => (
   </svg>
 );
 
+function save(savePath: string | undefined, data: string | ArrayBuffer) {
+  if (!savePath) return;
+  window.writeFile?.(savePath, data).then(() => {
+    window.utools?.shellShowItemInFolder(savePath);
+  });
+}
+
 const ExportOps = () => {
   const appContext = useContext(AppContext);
 
@@ -70,11 +77,7 @@ const ExportOps = () => {
         buttonLabel: "保存",
         filters: [{ name: "Excalidraw file", extensions: ["excalidraw"] }],
       });
-    savePath &&
-      window.writeFile &&
-      window.writeFile(savePath, text).then(() => {
-        window.utools && window.utools.shellShowItemInFolder(savePath);
-      });
+    save(savePath, text);
   };
 
   const exportToPng = (name: string, scale: number) => {
@@ -96,11 +99,7 @@ const ExportOps = () => {
             buttonLabel: "保存",
             filters: [{ name: "PNG", extensions: ["png"] }],
           });
-        savePath &&
-          window.writeFile &&
-          window.writeFile(savePath, arrayBuffer).then(() => {
-            window.utools && window.utools.shellShowItemInFolder(savePath);
-          });
+        save(savePath, arrayBuffer);
       });
   };
 

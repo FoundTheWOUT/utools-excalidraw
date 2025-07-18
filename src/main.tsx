@@ -17,7 +17,7 @@ function registerALinkHandler() {
     const url = new URL(target.href);
     if (ALLOW_HOSTS.includes(url.origin)) {
       const targetHref = REDIRECT_HOSTS[target.href] ?? target.href;
-      window.utools && window.utools.shellOpenExternal(targetHref);
+      window.utools?.shellOpenExternal(targetHref);
       e.preventDefault();
       window.open(targetHref, "_blank", "noopener noreferrer");
     }
@@ -43,10 +43,9 @@ async function main() {
   const root = createRoot(container!);
   registerALinkHandler();
 
-  window.utools &&
-    utools.onPluginOut(() => {
-      StoreSystem.dropDeletedFiles(scenes);
-    });
+  window.utools?.onPluginOut(() => {
+    StoreSystem.dropDeletedFiles(scenes);
+  });
 
   root.render(
     <StrictMode>
