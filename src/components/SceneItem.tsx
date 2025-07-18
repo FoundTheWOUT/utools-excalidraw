@@ -13,8 +13,8 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
 import dayjs from "dayjs";
 import { DraggableProvided } from "react-beautiful-dnd";
-import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
-import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
+import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
+import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 
 interface Props {
   id: string;

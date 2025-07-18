@@ -1,4 +1,4 @@
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { Scene } from "@/types";
 import { log } from "@/utils/utils";
 import { FILE_DOC_PREFIX, TEN_MB } from "@/const";

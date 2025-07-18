@@ -1,9 +1,9 @@
 import { DB_KEY, Scene, Store, Theme } from "@/types";
 import { newAScene } from "@/utils/utils";
-import {
+import type {
   ExcalidrawImperativeAPI,
   LibraryItems,
-} from "@excalidraw/excalidraw/types/types";
+} from "@excalidraw/excalidraw/types";
 import { StoreSystemCommon } from "./common";
 import { StoreSystemUtools } from "./utools";
 import { restoreScenesArray } from "./utools/scene";

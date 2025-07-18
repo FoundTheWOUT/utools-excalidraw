@@ -1,5 +1,5 @@
 import { DB_KEY, Scene, Store } from "@/types";
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { StoreSystem, initStore } from "..";
 import { encoder } from "@/utils/utils";
 import { collectAllFileId } from "@/utils/data";

@@ -7,10 +7,10 @@ import {
   restore,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
-import {
+import type {
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
-} from "@excalidraw/excalidraw/types/types";
+} from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
 import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";

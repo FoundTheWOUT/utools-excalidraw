@@ -1,10 +1,10 @@
 import { FILE_DOC_PREFIX } from "@/const";
 import { DB_KEY, Store } from "@/types";
 import { encoder } from "@/utils/utils";
-import {
+import type {
   ExcalidrawImperativeAPI,
   LibraryItems,
-} from "@excalidraw/excalidraw/types/types";
+} from "@excalidraw/excalidraw/types";
 import { StoreSystem } from "..";
 import { storeFile } from "./file";
 import { removeScene } from "./scene";

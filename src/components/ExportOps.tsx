@@ -99,7 +99,7 @@ const ExportOps = () => {
         savePath &&
           window.writeFile &&
           window
-            .writeFile(savePath, arrayBuffer, { isArrayBuffer: true })
+            .writeFile(savePath, arrayBuffer)
             .then(() => {
               window.utools && window.utools.shellShowItemInFolder(savePath);
             });
