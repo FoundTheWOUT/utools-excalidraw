@@ -10,7 +10,5 @@ export default defineConfig([
   reactPlugin.configs.flat.recommended,
   reactPlugin.configs.flat["jsx-runtime"],
   reactHooks.configs["recommended-latest"],
-  {
-    ignores: ["src/vite-env.d.ts"],
-  },
+  { ignores: ["dist/preload.js"] },
 ]);

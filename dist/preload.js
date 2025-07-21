@@ -1,5 +1,4 @@
-import fs from "node:fs";
-window.utools = utools;
+const fs = require("node:fs");
 
 /**
  *

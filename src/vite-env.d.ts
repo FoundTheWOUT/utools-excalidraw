@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 /// <reference types="vite/client" />
 import * as fs from "fs";
 import utoolsType from "utools-api-types";
