@@ -59,7 +59,12 @@ function SceneList() {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [
+    appSettings?.scenesId,
+    excalidrawAPI,
+    handleSetActiveDraw,
+    sceneCollection,
+  ]);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
