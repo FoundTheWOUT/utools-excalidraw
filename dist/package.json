@@ -1,4 +1,3 @@
 {
-  "name": "utools-excalidraw-plugin",
-  "private": true
+  "type": "commonjs"
 }

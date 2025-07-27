@@ -47,6 +47,7 @@ function SceneList() {
         const newScene = newAScene({ name, data });
         sceneCollection?.set(newScene.id, newScene);
         handleSetActiveDraw?.(newScene.id, {
+          scene: newScene,
           appSettings: {
             scenesId: appSettings?.scenesId.concat(newScene.id),
           },
