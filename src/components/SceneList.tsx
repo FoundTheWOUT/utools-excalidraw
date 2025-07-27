@@ -13,7 +13,7 @@ import {
 import SceneItem from "./SceneItem";
 import { loadScene } from "@/event";
 
-function SceneList() {
+function SceneList({ search = "" }: { search?: string }) {
   const {
     excalidrawAPI,
     setAndStoreAppSettings,
@@ -96,13 +96,21 @@ function SceneList() {
     });
   };
 
+  // Filter scenes by name
+  const filteredSceneIds =
+    appSettings?.scenesId.filter((id) => {
+      const scene = sceneCollection?.get(id);
+      if (!scene) return false;
+      return scene.name?.toLowerCase().includes(search.toLowerCase());
+    }) ?? [];
+
   return (
-    <div className="h-full overflow-y-auto">
+    <div>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef}>
-              {appSettings?.scenesId.map((id, idx) => (
+              {filteredSceneIds.map((id, idx) => (
                 <Draggable key={id} draggableId={id} index={idx}>
                   {(dragProvided) => {
                     return (

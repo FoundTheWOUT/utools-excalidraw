@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { DraggableProvided } from "react-beautiful-dnd";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
+import Input from "@/ui/Input";
 
 interface Props {
   id: string;
@@ -220,12 +221,11 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
             {name}
           </button>
         ) : (
-          <input
-            type="text"
-            // flex-1 not work for input tag default, because it has default width, set min-w-0 to solve.
-            className="h-9 min-w-0 flex-1 truncate rounded-lg bg-gray-200 px-3 outline-none ring-[#6965db] ring-offset-2 focus:ring dark:bg-zinc-600 dark:text-white dark:ring-offset-zinc-800"
+          <Input
             defaultValue={name}
             onBlur={handleSceneNameBlur}
+            // flex-1 not work for input tag default, because it has default width, set min-w-0 to solve.
+            className="min-w-0 flex-1 bg-gray-200 dark:bg-zinc-600"
           />
         )}
 

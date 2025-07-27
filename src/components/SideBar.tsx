@@ -3,6 +3,7 @@ import cn from "clsx";
 import { AppContext } from "@/App";
 import SceneList from "./SceneList";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
+import Input from "@/ui/Input";
 
 function SideBar() {
   const { appSettings, setAndStoreAppSettings, setResizing } =
@@ -14,6 +15,7 @@ function SideBar() {
     });
   };
   const [openSideBarTemp, setOpenSideBarTemp] = useState(false);
+  const [sceneSearch, setSceneSearch] = useState(""); // search state
 
   if (!appSettings) {
     return null;
@@ -37,7 +39,19 @@ function SideBar() {
           setOpenSideBarTemp(false);
         }}
       >
-        <SceneList />
+        <div className="h-full overflow-y-auto">
+          {/* Search input */}
+          <div className="sticky top-0 bg-gray-100 p-3 dark:bg-zinc-700">
+            <Input
+              value={sceneSearch}
+              placeholder="Search scenes..."
+              onChange={(e) => setSceneSearch(e.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          <SceneList search={sceneSearch} />
+        </div>
 
         {/* aside hide controller */}
         <button
