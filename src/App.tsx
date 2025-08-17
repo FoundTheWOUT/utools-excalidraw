@@ -6,6 +6,8 @@ import {
   WelcomeScreen,
   restore,
   serializeAsJSON,
+  TTDDialog,
+  TTDDialogTrigger,
 } from "@excalidraw/excalidraw";
 import type {
   ExcalidrawImperativeAPI,
@@ -282,6 +284,7 @@ function App({
           }}
         >
           <Excalidraw
+            aiEnabled={true}
             excalidrawAPI={setExcalidrawAPI}
             initialData={initialData}
             onChange={(elements, state, files) => {
@@ -347,6 +350,40 @@ function App({
               <MainMenu.Separator />
               <MainMenu.DefaultItems.ChangeCanvasBackground />
             </MainMenu>
+
+            <TTDDialogTrigger />
+            <TTDDialog
+              onTextSubmit={async (val) => {
+                try {
+                  const result = await utools.ai({
+                    model: "", // deepseek-v3
+                    messages: [
+                      {
+                        role: "system",
+                        content:
+                          "你是一个 mermaid 专家，精通 mermaid 语法。根据用户输入的信息选择合适 mermaid 图表类型，并直接输出对应的 mermaid 代码，不要输出任何多余的文字说明。",
+                      },
+                      { role: "user", content: val },
+                    ],
+                  });
+                  if (result.content) {
+                    return {
+                      generatedResponse: result.content
+                        .split("\n")
+                        .slice(1, -1)
+                        .join("\n"),
+                    };
+                  }
+                  return {
+                    error: new Error("生成失败，请稍后再试。"),
+                  };
+                } catch (error) {
+                  return {
+                    error: error as Error,
+                  };
+                }
+              }}
+            />
           </Excalidraw>
         </main>
       </div>

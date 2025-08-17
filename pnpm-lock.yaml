@@ -100,8 +100,8 @@ importers:
         specifier: ^8.37.0
         version: 8.37.0(eslint@9.31.0(jiti@1.21.0))(typescript@5.4.5)
       utools-api-types:
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^7.2.0
+        version: 7.2.0
       vite:
         specifier: ^5.2.9
         version: 5.2.9(@types/node@22.16.4)(sass@1.51.0)
@@ -3094,8 +3094,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  utools-api-types@5.0.0:
-    resolution: {integrity: sha512-XLwJYo+6Tfhq6W5yGtzllIS0Dt0byy2fpyhdohwGJIju5+VsmJ2Nljvc63mStvx8uzWwEyIwr6fFmrycf3rAEw==}
+  utools-api-types@7.2.0:
+    resolution: {integrity: sha512-hXj1NHhgFChp+wvfqL99AlNGDiJgDOXPUaKKnuxMqvz5D6J1IdBy6MUNti4cjmRyAKx407APsdg13MWU+xW1+Q==}
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
@@ -6639,7 +6639,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  utools-api-types@5.0.0: {}
+  utools-api-types@7.2.0: {}
 
   uuid@9.0.1: {}
 
