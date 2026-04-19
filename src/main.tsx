@@ -51,7 +51,7 @@ async function main() {
   root.render(
     <StrictMode>
       <ExcalidrawAPIProvider>
-        <App store={store} initialData={initialData} />,
+        <App store={store} initialData={initialData} />
       </ExcalidrawAPIProvider>
     </StrictMode>,
   );
