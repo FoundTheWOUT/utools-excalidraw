@@ -148,7 +148,7 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
             >
               <ListboxOptions
                 anchor="bottom end"
-                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] sm:text-sm dark:border-zinc-800 dark:bg-zinc-600"
               >
                 {themeOptions.map((theme, themeIdx) => (
                   <ListboxOption
@@ -204,13 +204,13 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
             >
               <ListboxOptions
                 anchor="bottom end"
-                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] sm:text-sm dark:border-zinc-800 dark:bg-zinc-600"
               >
                 {aiModelOptions.map((model, modelIdx) => (
                   <ListboxOption
                     key={modelIdx}
                     className={({ active }) =>
-                      `relative cursor-default select-none p-2 px-4 text-gray-900 focus:bg-[#6965db] focus:text-white dark:text-zinc-400 data-focus:bg-red-500 ${
+                      `data-focus:bg-red-500 relative cursor-default select-none p-2 px-4 text-gray-900 focus:bg-[#6965db] focus:text-white dark:text-zinc-400 ${
                         active
                           ? "bg-[#6965db] text-white"
                           : "text-gray-900 dark:text-zinc-400"

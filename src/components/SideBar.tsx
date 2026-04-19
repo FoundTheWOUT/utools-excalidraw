@@ -41,7 +41,7 @@ function SideBar() {
       >
         <div className="h-full overflow-y-auto">
           {/* Search input */}
-          <div className="sticky top-0 bg-gray-100 p-3 dark:bg-zinc-700">
+          <div className="sticky top-0 z-20 bg-gray-100 p-3 dark:bg-zinc-800">
             <Input
               value={sceneSearch}
               placeholder="Search scenes..."
@@ -56,7 +56,7 @@ function SideBar() {
         {/* aside hide controller */}
         <button
           className={cn(
-            "absolute -right-3 bottom-12 rounded-full bg-white shadow transition-transform dark:bg-zinc-600 dark:text-white",
+            "absolute -right-3 bottom-12 rounded-full bg-white shadow-sm transition-transform dark:bg-zinc-600 dark:text-white",
             appSettings?.asideClosed && "translate-x-4",
           )}
           onClick={handleAsideControllerClick}

@@ -112,7 +112,7 @@ const ExportOps = () => {
         </div>
         <p className="mt-4 text-black">将画布数据导出为文件，以便以后导入</p>
         <div
-          className="mt-auto cursor-pointer select-none rounded bg-green-500 p-2 text-center hover:bg-green-700"
+          className="mt-auto cursor-pointer select-none rounded-sm bg-green-500 p-2 text-center hover:bg-green-700"
           onClick={() => {
             if (sceneName) exportToFile(sceneName);
           }}
@@ -122,7 +122,7 @@ const ExportOps = () => {
       </div>
       {/* 保存为图片 */}
       <div className="flex flex-col items-center gap-4 ">
-        <div className="flex rounded-full bg-[#6965db] p-6 text-[2.6em] text-white">
+        <div className="flex rounded-full bg-primary p-6 text-[2.6em] text-white">
           <ToImageIcon />
         </div>
         <div className="flex flex-col gap-2">
@@ -166,10 +166,10 @@ const ExportOps = () => {
                 <div
                   key={scale}
                   className={cn(
-                    "flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-md bg-[#6965db]",
+                    "flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-md bg-primary",
                     scale === exportImageOptions.exportImageScale
-                      ? "bg-[#6965db]"
-                      : "bg-[#6965db]/50",
+                      ? "bg-primary"
+                      : "bg-primary/50",
                   )}
                   onClick={() => {
                     setExportImageOptions({
@@ -185,7 +185,7 @@ const ExportOps = () => {
           </div>
         </div>
         <div
-          className="cursor-pointer select-none rounded bg-[#6965db] p-2 text-center text-white hover:bg-[#4e4ba3]"
+          className="cursor-pointer select-none rounded-sm bg-primary p-2 text-center text-white hover:bg-[#4e4ba3]"
           onClick={() => {
             if (sceneName)
               exportToPng(sceneName, exportImageOptions.exportImageScale);

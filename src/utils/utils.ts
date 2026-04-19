@@ -91,7 +91,7 @@ export const isDark = (theme: Theme) => {
 };
 
 export const setTheme = (theme: Theme) => {
-  document.documentElement.classList[isDark(theme) ? "add" : "remove"]("dark");
+  document.documentElement.classList.toggle("dark", isDark(theme));
 };
 
 export const omit = <T extends Record<string, unknown>>(

@@ -177,10 +177,10 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
       {!appSettings?.closePreview && (
         <button
           className={cn(
-            "aspect-video w-full cursor-pointer select-none overflow-hidden rounded border bg-white",
+            "aspect-video w-full cursor-pointer select-none overflow-hidden rounded-sm border bg-white",
             lock ? "cursor-wait" : "hover-shadow",
             {
-              "ring ring-[#6965db] ring-offset-2":
+              "ring ring-primary ring-offset-2":
                 appSettings?.lastActiveDraw === id,
             },
           )}

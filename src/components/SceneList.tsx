@@ -136,7 +136,7 @@ function SceneList({ search = "" }: { search?: string }) {
       </DragDropContext>
       <div className="p-3">
         <div
-          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded bg-white dark:bg-zinc-600 dark:shadow-zinc-950"
+          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded-sm bg-white dark:bg-zinc-600 dark:shadow-zinc-950"
           onClick={handleAddScene}
         >
           <PlusIcon className="h-10 text-gray-500 dark:text-white" />
