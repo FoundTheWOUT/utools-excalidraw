@@ -1,5 +1,14 @@
 import { Fragment, useContext, useEffect, useState } from "react";
-import { Switch, Listbox, Transition } from "@headlessui/react";
+import {
+  Switch,
+  Listbox,
+  Transition,
+  ListboxButton,
+  Label,
+  Field,
+  ListboxOptions,
+  ListboxOption,
+} from "@headlessui/react";
 import { SunIcon, MoonIcon, SparklesIcon } from "@heroicons/react/outline";
 import type { DialogProps } from "@/ui/Dialog.tsx";
 import { Dialog } from "@/ui/Dialog.tsx";
@@ -7,7 +16,7 @@ import { setTheme } from "@/utils/utils.ts";
 import { AppContext } from "@/App.tsx";
 import SwitchBtn from "@/ui/Switch.tsx";
 import { t } from "@/i18n.ts";
-import type { DB_KEY, Store} from "@/types.ts";
+import type { DB_KEY, Store } from "@/types.ts";
 import { Theme } from "@/types.ts";
 
 type MayBeSettingKey =
@@ -73,34 +82,63 @@ const themeOptions = [
 export default function SettingDialog(props: Omit<DialogProps, "title">) {
   const { appSettings, setAndStoreAppSettings } = useContext(AppContext) ?? {};
 
+  const [aiModels, setAiModels] = useState<UtoolsAiModel[]>([]);
   const [currentTheme, setCurrentTheme] = useState(
     themeOptions.find((opt) => opt.key === appSettings?.theme),
   );
+
+  const aiModelOptions = [
+    { id: "", label: "无", icon: "", cost: 0 },
+    ...aiModels.map((model) => ({
+      id: model.id,
+      label: model.label,
+      icon: model.icon,
+      cost: model.cost,
+    })),
+  ];
+
+  const [currentModel, setCurrentModel] = useState(
+    aiModelOptions.find((opt) => opt.id === appSettings?.selectedModel) ||
+      aiModelOptions[0],
+  );
+
+  useEffect(() => {
+    if (window.utools) {
+      utools.allAiModels().then(setAiModels);
+    }
+  }, []);
+
   useEffect(() => {
     if (currentTheme) {
       setTheme(currentTheme.key);
     }
   }, [currentTheme, setAndStoreAppSettings]);
+
+  useEffect(() => {
+    const opt = aiModelOptions.find(
+      (opt) => opt.id === appSettings?.selectedModel,
+    );
+    setCurrentModel(opt || aiModelOptions[0]);
+  }, [aiModels, appSettings?.selectedModel]);
+
   return (
     <Dialog {...props} title="设置">
       <div className="mt-4 flex flex-col gap-4 p-2">
         {/* theme */}
-        <Listbox
-          value={currentTheme}
-          onChange={(newTheme) => {
-            setCurrentTheme(newTheme);
-            setAndStoreAppSettings?.({
-              theme: newTheme.key,
-            });
-          }}
-        >
-          <div className="relative z-10 mt-1">
-            <div className="setting-item">
-              <Listbox.Label className="setting-label">主题</Listbox.Label>
-              <Listbox.Button className="relative cursor-default rounded-lg border bg-white p-2 text-sm text-gray-500 dark:border-zinc-800 dark:bg-zinc-600 dark:text-zinc-300">
-                {currentTheme?.name}
-              </Listbox.Button>
-            </div>
+        <Field className="setting-item">
+          <Label className="setting-label">主题</Label>
+          <Listbox
+            value={currentTheme}
+            onChange={(newTheme) => {
+              setCurrentTheme(newTheme);
+              setAndStoreAppSettings?.({
+                theme: newTheme.key,
+              });
+            }}
+          >
+            <ListboxButton className="rounded-lg border bg-white p-2 text-sm text-gray-500 dark:border-zinc-800 dark:bg-zinc-600 dark:text-zinc-300">
+              {currentTheme?.name}
+            </ListboxButton>
 
             <Transition
               as={Fragment}
@@ -108,18 +146,21 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute right-0 mt-1 max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm">
-                {themeOptions.map((person, personIdx) => (
-                  <Listbox.Option
-                    key={personIdx}
+              <ListboxOptions
+                anchor="bottom end"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
+              >
+                {themeOptions.map((theme, themeIdx) => (
+                  <ListboxOption
+                    key={themeIdx}
                     className={({ active }) =>
-                      `relative cursor-default select-none p-2 px-4 ${
+                      `relative cursor-default select-none p-2 px-4 text-gray-900 focus:bg-[#6965db] focus:text-white dark:text-zinc-400 ${
                         active
                           ? "bg-[#6965db] text-white"
                           : "text-gray-900 dark:text-zinc-400"
                       }`
                     }
-                    value={person}
+                    value={theme}
                   >
                     {({ selected }) => (
                       <>
@@ -128,16 +169,82 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
                             selected ? "font-medium" : "font-normal"
                           }`}
                         >
-                          {person.name}
+                          {theme.name}
                         </span>
                       </>
                     )}
-                  </Listbox.Option>
+                  </ListboxOption>
                 ))}
-              </Listbox.Options>
+              </ListboxOptions>
             </Transition>
-          </div>
-        </Listbox>
+          </Listbox>
+        </Field>
+
+        {/* AI Model */}
+        <Field className="setting-item">
+          <Label className="setting-label">AI 模型</Label>
+          <Listbox
+            value={currentModel}
+            onChange={(newModel) => {
+              setCurrentModel(newModel);
+              setAndStoreAppSettings?.({
+                selectedModel: newModel.id,
+              });
+            }}
+          >
+            <ListboxButton className="rounded-lg border bg-white p-2 text-sm text-gray-500 dark:border-zinc-800 dark:bg-zinc-600 dark:text-zinc-300">
+              {currentModel?.label}
+            </ListboxButton>
+
+            <Transition
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <ListboxOptions
+                anchor="bottom end"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] focus:outline-none dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
+              >
+                {aiModelOptions.map((model, modelIdx) => (
+                  <ListboxOption
+                    key={modelIdx}
+                    className={({ active }) =>
+                      `relative cursor-default select-none p-2 px-4 text-gray-900 focus:bg-[#6965db] focus:text-white dark:text-zinc-400 data-focus:bg-red-500 ${
+                        active
+                          ? "bg-[#6965db] text-white"
+                          : "text-gray-900 dark:text-zinc-400"
+                      }`
+                    }
+                    value={model}
+                  >
+                    {({ selected, active }) => (
+                      <div className="flex items-center gap-2">
+                        {model.icon && (
+                          <img src={model.icon} alt="" className="h-4 w-4" />
+                        )}
+                        <span
+                          className={`block truncate ${
+                            selected ? "font-medium" : "font-normal"
+                          }`}
+                        >
+                          {model.label}
+                        </span>
+                        {model.cost > 0 && (
+                          <span
+                            className={`text-xs ${active ? "text-white/80" : "text-gray-500"}`}
+                          >
+                            消耗: {model.cost}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </ListboxOption>
+                ))}
+              </ListboxOptions>
+            </Transition>
+          </Listbox>
+        </Field>
 
         <AppSettingsSwitchItem prop="closePreview" />
         <AppSettingsSwitchItem prop="asideClosed" />

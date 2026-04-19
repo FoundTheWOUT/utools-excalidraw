@@ -360,7 +360,7 @@ function App({
                 try {
                   await utools.ai(
                     {
-                      model: store.settings.selectedModel,
+                      model: appSettings.selectedModel,
                       messages: [
                         {
                           role: "system",
