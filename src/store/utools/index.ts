@@ -1,11 +1,9 @@
-import { FILE_DOC_PREFIX } from "@/const";
-import { DB_KEY, Store } from "@/types";
-import { encoder } from "@/utils/utils";
 import type {
   ExcalidrawImperativeAPI,
   LibraryItems,
 } from "@excalidraw/excalidraw/types";
-import { StoreSystem } from "..";
+import type { SavedChats } from "@excalidraw/excalidraw/index";
+import { type StoreSystem } from "../StoreSystem";
 import { storeFile } from "./file";
 import { removeScene } from "./scene";
 import {
@@ -15,6 +13,9 @@ import {
   storeScene,
   dropDeletedFiles,
 } from "./store";
+import { FILE_DOC_PREFIX } from "@/const";
+import type { DB_KEY, Store } from "@/types";
+import { encoder } from "@/utils/utils";
 export class StoreSystemUtools implements StoreSystem {
   getStore = getStore;
   getFile = getFile;
@@ -65,4 +66,15 @@ export class StoreSystemUtools implements StoreSystem {
       window.utools.dbStorage.removeItem(`library/${id}`);
     });
   }
+
+  ttdDialogPersistenceAdapter = {
+    async loadChats() {
+      const chats = utools.dbStorage.getItem("tchat_chats");
+      console.log(chats);
+      return chats || [];
+    },
+    async saveChats(chats: SavedChats) {
+      utools.dbStorage.setItem("tchat_chats", chats);
+    },
+  };
 }

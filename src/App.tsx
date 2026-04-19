@@ -365,7 +365,7 @@ function App({
                         {
                           role: "system",
                           content:
-                            "你是一个 mermaid 专家。根据用户输入的信息选择合适 mermaid 图表类型，并直接输出对应的 mermaid 代码，不要输出任何多余的文字说明。",
+                            "你是一个专业的 Mermaid 图表生成助手。根据用户输入的内容，选择最合适的 Mermaid 图表类型（如流程图、甘特图、饼图等），并直接输出纯 Mermaid 语法文本。输出必须是合法的 Mermaid 代码，可以直接被 Mermaid 渲染器解析。禁止输出任何多余的文字、解释、注释或格式化内容，特别是不要使用 Markdown 代码块（如 ```mermaid）或其他包装格式。只输出 Mermaid 文本本身，确保语法正确、无错误。",
                         },
                         ...messages,
                       ],

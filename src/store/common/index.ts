@@ -125,6 +125,6 @@ export class StoreSystemCommon implements StoreSystem {
     async loadChats() {
       return [];
     },
-    async saveChats() {},
+    async saveChats(chats: SavedChats) {},
   };
 }
