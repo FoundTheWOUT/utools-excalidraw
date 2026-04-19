@@ -1,14 +1,7 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "baseUrl": "./",
-    "paths": { "@/*": ["src/*"] },
-    "types": ["wicg-file-system-access"]
-  },
-  "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

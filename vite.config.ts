@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { DevTools } from "@vitejs/devtools";
 
 export default defineConfig(() => {
   return {
@@ -15,16 +16,12 @@ export default defineConfig(() => {
     },
     build: {
       outDir: "dist/web",
-      rollupOptions: {
+      rolldownOptions: {
         external: [/.*subset-worker\.chunk$/, /.*subset-shared\.chunk$/],
+        devtools: {},
       },
     },
-    optimizeDeps: {
-      esbuildOptions: {
-        target: "es2022",
-      },
-    },
-    plugins: [react(), visualizer()],
+    plugins: [react(), visualizer(), DevTools()],
     test: {
       environment: "jsdom",
       setupFiles: ["./setup-test.ts"],
