@@ -1,6 +1,6 @@
-import { Scene } from "@/types";
-import { collectAllFileId } from "./data";
 import { describe, it, expect } from "vitest";
+import { collectAllFileId } from "./data";
+import type { Scene } from "@/types";
 
 describe("collectAllFileId", () => {
   it("should return an empty set when scenes is an empty array", () => {

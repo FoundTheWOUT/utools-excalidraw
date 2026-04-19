@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren, ChangeEventHandler } from "react";
 
 const StyledCheckBox = ({
   children,
@@ -6,7 +6,7 @@ const StyledCheckBox = ({
   onChange,
 }: PropsWithChildren<{
   checked: boolean;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onChange: ChangeEventHandler<HTMLInputElement>;
 }>) => (
   <div className="flex items-center gap-2">
     <input

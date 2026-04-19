@@ -1,6 +1,8 @@
-import { DB_KEY, Scene, Store } from "@/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-import { StoreSystem, initStore } from "..";
+import type { SavedChats } from "@excalidraw/excalidraw/index";
+import { type StoreSystem } from "../StoreSystem";
+import { initStore } from "..";
+import { DB_KEY, type Scene, type Store } from "@/types";
 import { encoder } from "@/utils/utils";
 import { collectAllFileId } from "@/utils/data";
 
@@ -118,4 +120,11 @@ export class StoreSystemCommon implements StoreSystem {
 
     sceneStore.delete(key);
   }
+
+  ttdDialogPersistenceAdapter = {
+    async loadChats() {
+      return [];
+    },
+    async saveChats() {},
+  };
 }

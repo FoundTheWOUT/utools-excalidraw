@@ -1,18 +1,18 @@
 import type { ImportedDataState } from "@excalidraw/excalidraw/data/types";
-import {
+import type {
   BinaryFiles,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types";
 import { merge } from "lodash-es";
-import { Scene } from "../types";
-import SS from "../store";
-import { decoder, log } from "./utils";
 import { FONT_FAMILY, restoreLibraryItems } from "@excalidraw/excalidraw";
 import type {
   ExcalidrawImageElement,
   FileId,
 } from "@excalidraw/excalidraw/element/types";
-import { RestoredDataState } from "@excalidraw/excalidraw/data/restore";
+import type { RestoredDataState } from "@excalidraw/excalidraw/data/restore";
+import type { Scene } from "../types";
+import SS from "../store";
+import { decoder, log } from "./utils";
 
 export const defaultStatue = {
   appState: {

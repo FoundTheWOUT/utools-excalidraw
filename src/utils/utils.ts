@@ -1,7 +1,8 @@
-import { Scene, Theme } from "@/types";
-import { restoreFiles } from "./data";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
+import { restoreFiles } from "./data";
+import { Theme } from "@/types";
+import type { Scene} from "@/types";
 
 export function blobToBase64(
   blob: Blob | null,

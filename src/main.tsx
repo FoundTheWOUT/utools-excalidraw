@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import "./index.css";
+import { ExcalidrawAPIProvider } from "@excalidraw/excalidraw";
 import App from "./App";
 import StoreSystem from "./store";
 import { loadInitialData } from "./utils/data";
@@ -49,7 +50,9 @@ async function main() {
 
   root.render(
     <StrictMode>
-      <App store={store} initialData={initialData} />
+      <ExcalidrawAPIProvider>
+        <App store={store} initialData={initialData} />,
+      </ExcalidrawAPIProvider>
     </StrictMode>,
   );
 }

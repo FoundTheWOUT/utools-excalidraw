@@ -1,5 +1,6 @@
 import { newAScene, six_nanoid } from "./utils/utils";
-import { DB_KEY, Payload, Store } from "./types";
+import type { Payload, Store } from "./types";
+import { DB_KEY } from "./types";
 import { ENTER_ACTION, SKIP_ENTER_ACTION } from "./const";
 
 type EntryAction = typeof ENTER_ACTION;

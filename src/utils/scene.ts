@@ -1,5 +1,5 @@
-import { Scene } from "@/types";
 import { nanoid } from "nanoid";
+import type { Scene } from "@/types";
 
 export const six_nanoid = () => nanoid(6);
 

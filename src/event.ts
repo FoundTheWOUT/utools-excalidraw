@@ -1,6 +1,6 @@
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { EventChanel } from "./utils/event";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
+import { EventChanel } from "./utils/event";
 
 export const loadScene = new EventChanel();
 export const updateScene = new EventChanel<{

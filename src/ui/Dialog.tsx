@@ -1,6 +1,7 @@
 import { Dialog as HDialog, Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/outline";
-import { Fragment, PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import { Fragment } from "react";
 import cn from "clsx";
 
 export type DialogProps = PropsWithChildren<{

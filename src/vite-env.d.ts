@@ -1,6 +1,5 @@
-/// <reference types="vite/client" />
-import * as fs from "fs";
-import utoolsType from "utools-api-types";
+import type * as fs from "fs";
+import type utoolsType from "utools-api-types";
 
 declare global {
   function writeFile(

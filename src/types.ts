@@ -9,7 +9,7 @@ export type Scene = {
 };
 
 export type Store = {
-  [DB_KEY.SETTINGS]: {
+  settings: {
     lastActiveDraw: string | null;
     asideWidth: number;
     asideClosed: boolean;
@@ -20,8 +20,9 @@ export type Store = {
     darkMode: boolean;
     theme: Theme;
     dev: boolean;
+    selectedModel: string;
   };
-  [DB_KEY.SCENES]: Map<string, Scene>;
+  scenes: Map<string, Scene>;
 };
 
 export enum DB_KEY {

@@ -1,8 +1,9 @@
-import { DB_KEY, Store } from "@/types";
-import { log } from "@/utils/utils";
+import { initStore } from "..";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
 import { getScenes, removeScene, storeScene } from "./scene";
-import { initStore } from "..";
+import type { Store } from "@/types";
+import { DB_KEY } from "@/types";
+import { log } from "@/utils/utils";
 
 /**
  *

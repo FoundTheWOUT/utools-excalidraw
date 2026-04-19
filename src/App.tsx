@@ -1,13 +1,16 @@
-import React, { useState, createContext } from "react";
+import type React from "react";
+import { useState, createContext } from "react";
 import {
   Excalidraw,
   MainMenu,
   THEME,
   WelcomeScreen,
-  restore,
+  restoreAppState,
+  restoreElements,
   serializeAsJSON,
   TTDDialog,
   TTDDialogTrigger,
+  useExcalidrawAPI,
 } from "@excalidraw/excalidraw";
 import type {
   ExcalidrawImperativeAPI,
@@ -15,10 +18,12 @@ import type {
 } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
 import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
-import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
-import { Scene, DB_KEY, Store } from "./types";
-import { restoreFiles } from "./utils/data";
 import { debounce } from "lodash-es";
+import type { RequestError } from "@excalidraw/excalidraw/errors";
+import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
+import { DB_KEY } from "./types";
+import type { Scene, Store } from "./types";
+import { restoreFiles } from "./utils/data";
 import ExportOps from "./components/ExportOps";
 import { TEN_MB } from "./const";
 import SideBar from "./components/SideBar";
@@ -61,8 +66,8 @@ function App({
     scenes,
   } = store;
 
-  const [excalidrawAPI, setExcalidrawAPI] =
-    useState<ExcalidrawImperativeAPI | null>(null);
+  const excalidrawAPI = useExcalidrawAPI();
+
   const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
   const [name, setName] = useState(scenes.get(lastActiveDraw!)?.name ?? "");
 
@@ -157,20 +162,16 @@ function App({
       const _data = await restoreFiles(JSON.parse(data));
       const theme = isDark(appSettings.theme) ? THEME.DARK : THEME.LIGHT;
       excalidrawAPI.history.clear();
-      excalidrawAPI.updateScene(
-        restore(
+      excalidrawAPI.updateScene({
+        appState: restoreAppState(
           {
-            appState: {
-              ..._data.appState,
-              theme,
-            },
-            elements: _data.elements,
-            files: _data.files,
+            ..._data.appState,
+            theme,
           },
           null,
-          null,
         ),
-      );
+        elements: restoreElements(_data.elements, null),
+      });
       const files = Object.values(_data.files);
       if (files.length) {
         excalidrawAPI.addFiles(files);
@@ -285,7 +286,6 @@ function App({
         >
           <Excalidraw
             aiEnabled={true}
-            excalidrawAPI={setExcalidrawAPI}
             initialData={initialData}
             onChange={(elements, state, files) => {
               handleSceneUpdate(
@@ -353,33 +353,41 @@ function App({
 
             <TTDDialogTrigger />
             <TTDDialog
-              onTextSubmit={async (val) => {
+              persistenceAdapter={StoreSystem.ttdDialogPersistenceAdapter}
+              onTextSubmit={async ({ onChunk, onStreamCreated, messages }) => {
+                let fullMessage = "";
+                onStreamCreated?.();
                 try {
-                  const result = await utools.ai({
-                    model: "", // deepseek-v3
-                    messages: [
-                      {
-                        role: "system",
-                        content:
-                          "你是一个 mermaid 专家，精通 mermaid 语法。根据用户输入的信息选择合适 mermaid 图表类型，并直接输出对应的 mermaid 代码，不要输出任何多余的文字说明。",
-                      },
-                      { role: "user", content: val },
-                    ],
-                  });
-                  if (result.content) {
-                    return {
-                      generatedResponse: result.content
-                        .split("\n")
-                        .slice(1, -1)
-                        .join("\n"),
-                    };
-                  }
+                  await utools.ai(
+                    {
+                      model: store.settings.selectedModel,
+                      messages: [
+                        {
+                          role: "system",
+                          content:
+                            "你是一个 mermaid 专家。根据用户输入的信息选择合适 mermaid 图表类型，并直接输出对应的 mermaid 代码，不要输出任何多余的文字说明。",
+                        },
+                        ...messages,
+                      ],
+                    },
+                    (chunk) => {
+                      if (chunk.content) {
+                        fullMessage += chunk.content;
+                        onChunk?.(chunk.content);
+                      }
+                    },
+                  );
                   return {
-                    error: new Error("生成失败，请稍后再试。"),
+                    generatedResponse: fullMessage,
+                    error: null,
                   };
-                } catch (error) {
+                } catch (error: unknown) {
                   return {
-                    error: error as Error,
+                    error: {
+                      message:
+                        (error as Error).message || "生成失败，请稍后再试。",
+                      status: 500,
+                    } as RequestError,
                   };
                 }
               }}

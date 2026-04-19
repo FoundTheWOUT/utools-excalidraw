@@ -1,13 +1,13 @@
-import { AppContext } from "@/App";
-import { Dialog } from "@/ui/Dialog";
 import { useContext, useState, useSyncExternalStore } from "react";
 import dayjs from "dayjs";
-import { Scene } from "@/types";
-import SS from "@/store";
 import cn from "clsx";
+import AsyncImg from "./AsyncImg";
+import { AppContext } from "@/App";
+import { Dialog } from "@/ui/Dialog";
+import type { Scene } from "@/types";
+import SS from "@/store";
 import { newAScene } from "@/utils/scene";
 import { generatePreviewImageFromSceneData } from "@/utils/utils";
-import AsyncImg from "./AsyncImg";
 
 const PAGE_SIZE = 5;
 

@@ -1,31 +1,8 @@
-import { DB_KEY, Scene, Store, Theme } from "@/types";
-import { newAScene } from "@/utils/utils";
-import type {
-  ExcalidrawImperativeAPI,
-  LibraryItems,
-} from "@excalidraw/excalidraw/types";
 import { StoreSystemCommon } from "./common";
 import { StoreSystemUtools } from "./utools";
 import { restoreScenesArray } from "./utools/scene";
-
-export interface StoreSystem {
-  getStore(): Promise<Store>;
-
-  getFile(key: string): Promise<Uint8Array | null>;
-
-  // TODO: update scenesCollection after store
-  storeScene(key: string, data: Scene): void;
-
-  storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void;
-
-  storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void;
-
-  removeScene(key: string): void;
-
-  handleLibraryChange(item: LibraryItems): void;
-
-  dropDeletedFiles(scenes: Map<string, Scene>): void;
-}
+import { newAScene } from "@/utils/utils";
+import { DB_KEY, type Store, Theme } from "@/types";
 
 const DefaultStore = (store?: Partial<Store>): Store => {
   const blank = newAScene({ name: "画布一" });
@@ -41,6 +18,7 @@ const DefaultStore = (store?: Partial<Store>): Store => {
       darkMode: false,
       theme: Theme.App,
       dev: false,
+      selectedModel: "", // 空时使用 deepseek-v3
       ...store?.[DB_KEY.SETTINGS],
     },
     scenes: store?.[DB_KEY.SCENES] ?? new Map([[blank.id, blank]]),

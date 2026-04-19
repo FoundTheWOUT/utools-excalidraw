@@ -1,12 +1,14 @@
-import { Dialog, DialogProps } from "@/ui/Dialog.tsx";
-import { setTheme } from "@/utils/utils.ts";
 import { Fragment, useContext, useEffect, useState } from "react";
-import { AppContext } from "@/App.tsx";
 import { Switch, Listbox, Transition } from "@headlessui/react";
+import { SunIcon, MoonIcon, SparklesIcon } from "@heroicons/react/outline";
+import type { DialogProps } from "@/ui/Dialog.tsx";
+import { Dialog } from "@/ui/Dialog.tsx";
+import { setTheme } from "@/utils/utils.ts";
+import { AppContext } from "@/App.tsx";
 import SwitchBtn from "@/ui/Switch.tsx";
 import { t } from "@/i18n.ts";
-import { DB_KEY, Store, Theme } from "@/types.ts";
-import { SunIcon, MoonIcon, SparklesIcon } from "@heroicons/react/outline";
+import type { DB_KEY, Store} from "@/types.ts";
+import { Theme } from "@/types.ts";
 
 type MayBeSettingKey =
   | keyof Store[DB_KEY.SETTINGS]

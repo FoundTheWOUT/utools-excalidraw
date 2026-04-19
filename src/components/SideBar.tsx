@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import cn from "clsx";
-import { AppContext } from "@/App";
-import SceneList from "./SceneList";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
+import SceneList from "./SceneList";
+import { AppContext } from "@/App";
 import Input from "@/ui/Input";
 
 function SideBar() {

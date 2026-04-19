@@ -10,12 +10,12 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.{js,ts,tsx}",
-    "type-check": "tsc",
+    "type-check": "tsc -p tsconfig.app.json",
     "format": "prettier --write src/**/*",
     "pack-ext": "node scripts/pack.js"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "0.18.0",
+    "@excalidraw/excalidraw": "0.18.0-d9e8a33",
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^1.0.6",
     "clsx": "^2.1.0",
@@ -40,6 +40,8 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.31.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.4.38",
