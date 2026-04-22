@@ -34,6 +34,22 @@ This is a uTools plugin. The app runs inside uTools with `window.utools` API (se
 ## Tech Stack
 
 - Vite + React 18 + TypeScript
-- TailwindCSS for styling
+- TailwindCSS v3 for styling
 - @excalidraw/excalidraw for drawing
 - pnpm as package manager
+
+## Browser Compatibility
+
+uTools uses **Chromium 108**. Avoid modern CSS/JS features not supported in Chrome 108.
+
+## Tailwind v4
+
+Do NOT upgrade to Tailwind v4. v4 is a ground-up rewrite with significant breaking changes:
+
+- Config moved from `tailwind.config.js` to CSS `@theme` blocks
+- Gradient utilities renamed: `bg-gradient-to-*` → `bg-linear-to-*` (affects most UI)
+- Many utilities renamed/removed (`shadow-sm` → `shadow-xs`, `blur-sm` → `blur-xs`, etc.)
+- Requires Node 20+ for the upgrade tool
+- Third-party plugin compatibility incomplete
+
+Keep on v3 until Tailwind v4 ecosystem stabilizes.
