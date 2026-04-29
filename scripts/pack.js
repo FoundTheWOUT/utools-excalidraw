@@ -1,7 +1,7 @@
-const asar = require("@electron/asar");
-const { gzipSync } = require("zlib");
-const fs = require("fs");
-const { execSync } = require("child_process");
+import { gzipSync } from "zlib";
+import fs from "fs";
+import { execSync } from "child_process";
+import asar from "@electron/asar";
 
 async function pack() {
   // write version to plugin.json
