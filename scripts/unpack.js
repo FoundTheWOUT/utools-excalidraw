@@ -1,6 +1,6 @@
-const asar = require("@electron/asar");
-const { unzipSync } = require("zlib");
-const fs = require("fs");
+import { unzipSync } from "zlib";
+import fs from "fs";
+import asar from "@electron/asar";
 
 async function unpack() {
   const file = fs.readFileSync();
