@@ -2,7 +2,6 @@ import path from "path";
 import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import react from "@vitejs/plugin-react";
-import { DevTools } from "@vitejs/devtools";
 
 export default defineConfig(() => {
   return {
@@ -18,10 +17,9 @@ export default defineConfig(() => {
       outDir: "dist/web",
       rolldownOptions: {
         external: [/.*subset-worker\.chunk$/, /.*subset-shared\.chunk$/],
-        devtools: {},
       },
     },
-    plugins: [react(), visualizer(), DevTools()],
+    plugins: [react(), visualizer()],
     test: {
       environment: "jsdom",
       setupFiles: ["./setup-test.ts"],

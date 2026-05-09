@@ -28,3 +28,4 @@ tmp
 public/excalidraw-*
 stats.html
 .kilo
+.claude/settings.local.json
