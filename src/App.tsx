@@ -13,6 +13,7 @@ import {
   useExcalidrawAPI,
 } from "@excalidraw/excalidraw";
 import type {
+  AppState,
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types";
@@ -20,6 +21,7 @@ import "@excalidraw/excalidraw/index.css";
 import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
 import { debounce } from "lodash-es";
 import type { RequestError } from "@excalidraw/excalidraw/errors";
+import type { OrderedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
 import { DB_KEY } from "./types";
 import type { Scene, Store } from "./types";
@@ -36,6 +38,7 @@ import {
 } from "./event";
 import TrashcanDialog from "./components/TrashcanDialog";
 import SettingDialog from "./components/SettingDialog";
+import { ToastContainer } from "./utils/toast";
 
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
@@ -74,12 +77,23 @@ function App({
   const debounceStoreItem = debounce(StoreSystem.storeSetItem);
 
   const handleSceneUpdate = debounce(
-    async (elements, state, _files, target, api) => {
+    async (
+      elements: readonly OrderedExcalidrawElement[],
+      state:AppState,
+      _files,
+      target,
+      api,
+    ) => {
       startUpdateScene.emit();
       try {
         const currentScene = scenes.get(target)!;
         const data = JSON.parse(
-          serializeAsJSON(elements, state, {}, "database"),
+          serializeAsJSON(
+            elements.filter((element) => !element.isDeleted),
+            state,
+            {},
+            "database",
+          ),
         );
         data.appState.zoom = state.zoom;
         data.appState.scrollX = state.scrollX;
@@ -395,6 +409,7 @@ function App({
           </Excalidraw>
         </main>
       </div>
+      <ToastContainer />
     </AppContext.Provider>
   );
 }

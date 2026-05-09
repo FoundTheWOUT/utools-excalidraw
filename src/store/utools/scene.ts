@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { log, newAScene } from "@/utils/utils";
+import { toast } from "@/utils/toast.tsx";
 import type { Scene } from "@/types";
 
 dayjs.extend(isSameOrAfter);
@@ -13,13 +14,15 @@ export const storeScene = (key: string | undefined | null, data: Scene) => {
     console.warn("key is undefined or null");
     return;
   }
-  // console.log(`store key :${key}`);
-  // console.log(`store value:`);
-  // console.log(data);
   log("store scene to db.");
   try {
     window.utools?.dbStorage.setItem(`scene/${key}`, data);
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message === "doc max size 1M") {
+      toast("文件超大，编辑内容不会被保存");
+      return;
+    }
     console.error(error);
   }
 };
