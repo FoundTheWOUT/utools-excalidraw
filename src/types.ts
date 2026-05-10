@@ -25,10 +25,6 @@ export type Store = {
   scenes: Map<string, Scene>;
 };
 
-export enum DB_KEY {
-  SETTINGS = "settings",
-  SCENES = "scenes",
-}
 
 export type DBItem = {
   _id: string;

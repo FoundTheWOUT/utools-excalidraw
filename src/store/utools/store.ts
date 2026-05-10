@@ -2,7 +2,6 @@ import { initStore } from "..";
 import { removeFile, dropDeletedFiles, getFile, storeFile } from "./file";
 import { getScenes, removeScene, storeScene } from "./scene";
 import type { Store } from "@/types";
-import { DB_KEY } from "@/types";
 import { log } from "@/utils/utils";
 
 /**
@@ -19,7 +18,7 @@ import { log } from "@/utils/utils";
  */
 
 export const getStore = async (): Promise<Store> => {
-  const settings = window.utools && window.utools.db.get(DB_KEY.SETTINGS);
+  const settings = window.utools && window.utools.db.get("settings");
 
   const store = initStore({
     scenes: getScenes(),
@@ -29,7 +28,7 @@ export const getStore = async (): Promise<Store> => {
   return store;
 };
 
-export const storeSetItem = <T extends DB_KEY>(key: T, value: Store[T]) => {
+export const storeSetItem = <T extends keyof Store>(key: T, value: Store[T]) => {
   log(`store to ${key}, data:`, value);
   window.utools?.dbStorage.setItem(key, value);
 };

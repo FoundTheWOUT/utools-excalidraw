@@ -1,6 +1,5 @@
 import { newAScene, six_nanoid } from "./utils/utils";
 import type { Payload, Store } from "./types";
-import { DB_KEY } from "./types";
 import { ENTER_ACTION, SKIP_ENTER_ACTION } from "./const";
 
 type EntryAction = typeof ENTER_ACTION;
@@ -72,10 +71,10 @@ export async function handleFileLoadAction(store: Store) {
     });
 
   for (const scene of scenes) {
-    store[DB_KEY.SCENES].set(scene.id, scene);
+    store.scenes.set(scene.id, scene);
   }
-  store[DB_KEY.SETTINGS].scenesId.push(...scenes.map((s) => s.id));
-  store[DB_KEY.SETTINGS].lastActiveDraw = firstSceneId;
+  store.settings.scenesId.push(...scenes.map((s) => s.id));
+  store.settings.lastActiveDraw = firstSceneId;
 }
 
 export async function handleSearchSceneAction(store: Store) {
@@ -84,8 +83,8 @@ export async function handleSearchSceneAction(store: Store) {
     return;
   }
   const { sceneId } = action.option;
-  const scene = store[DB_KEY.SCENES].get(sceneId);
+  const scene = store.scenes.get(sceneId);
   if (scene?.id) {
-    store[DB_KEY.SETTINGS].lastActiveDraw = scene.id;
+    store.settings.lastActiveDraw = scene.id;
   }
 }

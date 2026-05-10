@@ -1,6 +1,6 @@
 import type { TTDPersistenceAdapter } from "@excalidraw/excalidraw/index";
 import type { ExcalidrawImperativeAPI, LibraryItems } from "@excalidraw/excalidraw/types";
-import type { Store, Scene, DB_KEY } from "@/types";
+import type { Store, Scene } from "@/types";
 
 
 export interface StoreSystem {
@@ -11,7 +11,7 @@ export interface StoreSystem {
   // TODO: update scenesCollection after store
   storeScene(key: string, data: Scene): void;
 
-  storeSetItem<T extends DB_KEY>(key: string, value: Store[T]): void;
+  storeSetItem<T extends keyof Store>(key: T, value: Store[T]): void;
 
   storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null): void;
 

@@ -23,7 +23,6 @@ import { debounce } from "lodash-es";
 import type { RequestError } from "@excalidraw/excalidraw/errors";
 import type { OrderedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
-import { DB_KEY } from "./types";
 import type { Scene, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import ExportOps from "./components/ExportOps";
@@ -45,13 +44,13 @@ export const AppContext = createContext<{
   excalidrawAPI: ExcalidrawImperativeAPI | null;
   sceneName: string;
   setSceneName: React.Dispatch<React.SetStateAction<string>>;
-  appSettings: Store[DB_KEY.SETTINGS] & { [key: string]: unknown };
-  setAndStoreAppSettings: (settings: Partial<Store[DB_KEY.SETTINGS]>) => void;
+  appSettings: Store["settings"] & { [key: string]: unknown };
+  setAndStoreAppSettings: (settings: Partial<Store["settings"]>) => void;
   handleSetActiveDraw: (
     id: string,
     payload?: {
       scene?: Scene;
-      appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
+      appSettings?: Partial<Store["settings"]>;
     },
   ) => Promise<void>;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -71,7 +70,7 @@ function App({
 
   const excalidrawAPI = useExcalidrawAPI();
 
-  const [appSettings, setAppSettings] = useState(store[DB_KEY.SETTINGS]);
+  const [appSettings, setAppSettings] = useState(store.settings);
   const [name, setName] = useState(scenes.get(lastActiveDraw!)?.name ?? "");
 
   const debounceStoreItem = debounce(StoreSystem.storeSetItem);
@@ -126,7 +125,7 @@ function App({
   );
 
   const setAndStoreAppSettings = (
-    settings: Partial<Store[DB_KEY.SETTINGS]>,
+    settings: Partial<Store["settings"]>,
   ) => {
     const {
       value = undefined,
@@ -135,7 +134,7 @@ function App({
       ...rest
     } = { ...appSettings, ...settings };
     setAppSettings(rest);
-    debounceStoreItem(DB_KEY.SETTINGS, rest);
+    debounceStoreItem("settings", rest);
   };
 
   const [resizing, setResizing] = useState(false);
@@ -152,7 +151,7 @@ function App({
     sceneId: string,
     payload?: {
       scene?: Scene;
-      appSettings?: Partial<Store[DB_KEY.SETTINGS]>;
+      appSettings?: Partial<Store["settings"]>;
     },
   ) => {
     if (!excalidrawAPI) return;

@@ -2,7 +2,7 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import type { SavedChats } from "@excalidraw/excalidraw/index";
 import { type StoreSystem } from "../StoreSystem";
 import { initStore } from "..";
-import { DB_KEY, type Scene, type Store } from "@/types";
+import { type Scene, type Store } from "@/types";
 import { encoder } from "@/utils/utils";
 import { collectAllFileId } from "@/utils/data";
 
@@ -20,7 +20,7 @@ const createObjectStoreIfNotExist = (
 
 export class StoreSystemCommon implements StoreSystem {
   async getStore() {
-    const settings = localStorage.getItem(DB_KEY.SETTINGS);
+    const settings = localStorage.getItem("settings");
     return new Promise<Store>((resolve, reject) => {
       DBOpenReq.onerror = (err) => {
         reject(err);
@@ -106,7 +106,7 @@ export class StoreSystemCommon implements StoreSystem {
       };
     }
   }
-  storeSetItem<T extends DB_KEY>(key: string, value: Store[T]) {
+  storeSetItem<T extends keyof Store>(key: T, value: Store[T]) {
     localStorage.setItem(key, JSON.stringify(value));
   }
   handleLibraryChange() {}

@@ -16,11 +16,11 @@ import { setTheme } from "@/utils/utils.ts";
 import { AppContext } from "@/App.tsx";
 import SwitchBtn from "@/ui/Switch.tsx";
 import { t } from "@/i18n.ts";
-import type { DB_KEY, Store } from "@/types.ts";
+import type { Store } from "@/types.ts";
 import { Theme } from "@/types.ts";
 
 type MayBeSettingKey =
-  | keyof Store[DB_KEY.SETTINGS]
+  | keyof Store["settings"]
   | (string & NonNullable<unknown>);
 
 function AppSettingsSwitchItem({

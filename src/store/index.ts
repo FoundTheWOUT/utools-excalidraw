@@ -2,7 +2,7 @@ import { StoreSystemCommon } from "./common";
 import { StoreSystemUtools } from "./utools";
 import { restoreScenesArray } from "./utools/scene";
 import { newAScene } from "@/utils/utils";
-import { DB_KEY, type Store, Theme } from "@/types";
+import { type Store, Theme } from "@/types";
 
 const DefaultStore = (store?: Partial<Store>): Store => {
   const blank = newAScene({ name: "画布一" });
@@ -19,9 +19,9 @@ const DefaultStore = (store?: Partial<Store>): Store => {
       theme: Theme.App,
       dev: false,
       selectedModel: "", // 空时使用 deepseek-v3
-      ...store?.[DB_KEY.SETTINGS],
+      ...store?.settings,
     },
-    scenes: store?.[DB_KEY.SCENES] ?? new Map([[blank.id, blank]]),
+    scenes: store?.scenes ?? new Map([[blank.id, blank]]),
   };
 };
 
@@ -29,23 +29,23 @@ export const initStore = (store?: Partial<Store>): Store => {
   const _store = DefaultStore(store);
   const { idArray } = restoreScenesArray(
     _store.scenes,
-    _store[DB_KEY.SETTINGS].scenesId,
+    _store.settings.scenesId,
   );
 
   // 自动修复 lastActiveDraw
   // if can't find lastActiveDraw(id) in scenes, set the first scene id as lastActiveDraw.
-  let lastActiveDraw = _store[DB_KEY.SETTINGS].lastActiveDraw;
+  let lastActiveDraw = _store.settings.lastActiveDraw;
   if (lastActiveDraw && !idArray.includes(lastActiveDraw)) {
     lastActiveDraw = idArray[0];
   }
 
   return {
     settings: {
-      ..._store[DB_KEY.SETTINGS],
+      ..._store.settings,
       lastActiveDraw,
       scenesId: idArray,
     },
-    scenes: _store[DB_KEY.SCENES],
+    scenes: _store.scenes,
   };
 };
 

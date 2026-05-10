@@ -14,7 +14,7 @@ import {
   dropDeletedFiles,
 } from "./store";
 import { FILE_DOC_PREFIX } from "@/const";
-import type { DB_KEY, Store } from "@/types";
+import type { Store } from "@/types";
 import { encoder } from "@/utils/utils";
 export class StoreSystemUtools implements StoreSystem {
   getStore = getStore;
@@ -23,7 +23,7 @@ export class StoreSystemUtools implements StoreSystem {
   storeScene = storeScene;
   dropDeletedFiles = dropDeletedFiles;
 
-  storeSetItem<T extends DB_KEY>(key: DB_KEY, value: Store[T]): void {
+  storeSetItem<T extends keyof Store>(key: T, value: Store[T]): void {
     storeSetItem(key, value);
   }
   storeFile(excalidrawRef?: ExcalidrawImperativeAPI | null) {
