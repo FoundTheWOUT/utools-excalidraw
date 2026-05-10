@@ -31,11 +31,12 @@ export type DBItem = {
   value: Array<unknown> | object | string | number;
 };
 
-export enum Theme {
-  Light = "LIGHT",
-  Dark = "DARK",
-  App = "APP",
-}
+export const Theme = {
+  Light: "LIGHT",
+  Dark: "DARK",
+  App: "APP",
+} as const;
+export type Theme = (typeof Theme)[keyof typeof Theme];
 
 export type Payload = Partial<{
   isFile: boolean;
