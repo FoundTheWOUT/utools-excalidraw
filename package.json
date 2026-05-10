@@ -27,7 +27,6 @@
     "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
-    "@electron/asar": "^3.2.9",
     "@eslint/js": "^9.31.0",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.16.4",
@@ -36,7 +35,7 @@
     "@types/react-dom": "^18.2.25",
     "@types/wicg-file-system-access": "^2023.10.6",
     "@vitejs/devtools": "^0.1.14",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "eslint": "^9.31.0",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -47,9 +46,9 @@
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "rollup-plugin-visualizer": "^5.12.0",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^8.37.0",
-    "utools-api-types": "^7.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2",
+    "utools-api-types": "^7.5.1",
     "vite": "^8.0.8"
   }
 }
