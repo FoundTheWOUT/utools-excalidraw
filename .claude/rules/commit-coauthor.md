@@ -1,9 +1,8 @@
 ---
-name: commit-coauthor-model
 description: Co-Authored-By line in commit messages should use the current powering model name
-type: feedback
-originSessionId: 61f474a7-7b4c-45c8-8017-61a21f4262ce
+alwaysApply: false
 ---
+
 Commit message 中的 Co-Authored-By 应使用当前运行的模型名称，而非固定的 "Claude Opus" 等名称。
 
 **Why:** 用户希望 commit 记录准确反映实际使用的模型。

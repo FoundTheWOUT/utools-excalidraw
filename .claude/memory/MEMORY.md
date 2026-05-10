@@ -1,1 +1,0 @@
-- [Commit co-author model](feedback_commit_coauthor.md) — Co-Authored-By should use the current powering model name
