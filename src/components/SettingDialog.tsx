@@ -1,6 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import {
-  Switch,
   Listbox,
   Transition,
   ListboxButton,
@@ -40,25 +39,25 @@ function AppSettingsSwitchItem({
 
   if (!Object.hasOwn(appSettings, prop)) {
     return (
-      <Switch.Group>
+      <Field>
         <div className="setting-item">
           <SwitchBtn checked={false} notAllow />
-          <Switch.Label className="flex-1 text-gray-500">
+          <Label className="flex-1 text-gray-500">
             <div className="font-semibold">{t(prop)}</div>
             <div className="mt-1 text-sm">{t(`${prop}.Description`)}</div>
-          </Switch.Label>
+          </Label>
         </div>
-      </Switch.Group>
+      </Field>
     );
   }
 
   return (
-    <Switch.Group>
+    <Field>
       <div className="setting-item">
-        <Switch.Label className="w-96 flex-1">
+        <Label className="w-96 flex-1">
           <div className="setting-label">{t(prop)}</div>
           <div className="setting-description">{t(`${prop}.Description`)}</div>
-        </Switch.Label>
+        </Label>
         <SwitchBtn
           checked={reverse ? !!appSettings[prop] : !appSettings[prop]}
           onClick={() => {
@@ -69,7 +68,7 @@ function AppSettingsSwitchItem({
           }}
         />
       </div>
-    </Switch.Group>
+    </Field>
   );
 }
 
