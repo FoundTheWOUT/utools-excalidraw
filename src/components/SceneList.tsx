@@ -1,18 +1,33 @@
 import { loadFromBlob } from "@excalidraw/excalidraw";
 import { PlusIcon } from "@heroicons/react/solid";
 import { memo, useContext, useEffect } from "react";
-import type {
-  DropResult} from "react-beautiful-dnd";
 import {
-  DragDropContext,
-  Draggable,
-  Droppable
-} from "react-beautiful-dnd";
+  DragDropProvider,
+  DragOverlay,
+  type DragEndEvent,
+} from "@dnd-kit/react";
+import { useSortable } from "@dnd-kit/react/sortable";
+import { arrayMove } from "@dnd-kit/helpers";
 import SceneItem from "./SceneItem";
-import { log, newAScene, reorder } from "@/utils/utils";
+import { log, newAScene } from "@/utils/utils";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import { AppContext } from "@/App";
 import { loadScene } from "@/event";
+
+function SortableSceneItem({ id, idx }: { id: string; idx: number }) {
+  const sortable = useSortable({ id, index: idx });
+
+  return (
+    <div
+      ref={sortable.ref}
+      style={{
+        opacity: sortable.isDragging || sortable.isDropping ? 0.1 : undefined,
+      }}
+    >
+      <SceneItem id={id} idx={idx} handleRef={sortable.handleRef} />
+    </div>
+  );
+}
 
 function SceneList({ search = "" }: { search?: string }) {
   const {
@@ -68,21 +83,15 @@ function SceneList({ search = "" }: { search?: string }) {
     sceneCollection,
   ]);
 
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-    if (result.destination.index === result.source.index) {
-      return;
-    }
-    const reorderScenesId = reorder(
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { source, target } = event.operation;
+    if (!source || !target || source.id === target.id) return;
+    const reordered = arrayMove(
       appSettings!.scenesId,
-      result.source.index,
-      result.destination.index,
+      appSettings!.scenesId.indexOf(source.id as string),
+      appSettings!.scenesId.indexOf(target.id as string),
     );
-    setAndStoreAppSettings?.({
-      scenesId: reorderScenesId,
-    });
+    setAndStoreAppSettings?.({ scenesId: reordered });
   };
 
   // TODO: refactor this can merge with load scene
@@ -107,33 +116,19 @@ function SceneList({ search = "" }: { search?: string }) {
 
   return (
     <div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="list">
-          {(provided) => (
-            <div ref={provided.innerRef}>
-              {filteredSceneIds.map((id, idx) => (
-                <Draggable key={id} draggableId={id} index={idx}>
-                  {(dragProvided) => {
-                    return (
-                      <div
-                        ref={dragProvided.innerRef}
-                        {...dragProvided.draggableProps}
-                      >
-                        <SceneItem
-                          id={id}
-                          idx={idx}
-                          dragProvided={dragProvided}
-                        />
-                      </div>
-                    );
-                  }}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
+      <DragDropProvider onDragEnd={handleDragEnd}>
+        {filteredSceneIds.map((id, idx) => (
+          <SortableSceneItem key={id} id={id} idx={idx} />
+        ))}
+        <DragOverlay>
+          {(source) => (
+            <SceneItem
+              id={source.id as string}
+              idx={filteredSceneIds.indexOf(source.id as string)}
+            />
           )}
-        </Droppable>
-      </DragDropContext>
+        </DragOverlay>
+      </DragDropProvider>
       <div className="p-3">
         <div
           className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded-sm bg-white dark:bg-zinc-600 dark:shadow-zinc-950"

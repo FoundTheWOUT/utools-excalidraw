@@ -70,18 +70,6 @@ export const log = (function () {
   return noop;
 })();
 
-export const reorder = <T>(
-  list: T[],
-  startIndex: number,
-  endIndex: number,
-): T[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
 export const isDark = (theme: Theme) => {
   const appDark = window.utools ? utools.isDarkColors() : null;
 

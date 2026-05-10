@@ -4,7 +4,6 @@ import { XIcon } from "@heroicons/react/solid";
 import { ArrowsExpandIcon } from "@heroicons/react/outline";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import dayjs from "dayjs";
-import type { DraggableProvided } from "react-beautiful-dnd";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 import { endUpdateScene, startUpdateScene, updateScene } from "@/event";
@@ -20,7 +19,7 @@ import Input from "@/ui/Input";
 interface Props {
   id: string;
   idx: number;
-  dragProvided: DraggableProvided;
+  handleRef?: (element: Element | null) => void;
 }
 
 const DeleteSceneButton = forwardRef<
@@ -47,7 +46,7 @@ const DeleteSceneButton = forwardRef<
   );
 });
 
-const SceneItem = ({ id, idx, dragProvided }: Props) => {
+const SceneItem = ({ id, idx, handleRef }: Props) => {
   const appContext = useContext(AppContext);
   const {
     appSettings,
@@ -268,7 +267,7 @@ const SceneItem = ({ id, idx, dragProvided }: Props) => {
         <button
           className="hover-shadow flex rounded-lg bg-gray-200 p-2 dark:bg-zinc-600 dark:text-white"
           title="移动"
-          {...dragProvided.dragHandleProps}
+          ref={handleRef}
         >
           <ArrowsExpandIcon className="w-5" />
         </button>
