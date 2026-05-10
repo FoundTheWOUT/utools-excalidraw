@@ -11,8 +11,7 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.{js,ts,tsx}",
     "type-check": "tsc -p tsconfig.app.json",
-    "format": "prettier --write src/**/*",
-    "pack-ext": "node scripts/pack.js"
+    "format": "prettier --write src/**/*"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "0.18.0-d9e8a33",
