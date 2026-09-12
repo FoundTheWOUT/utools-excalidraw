@@ -27,6 +27,10 @@ pnpm type-check    # TypeScript
 pnpm format         # Prettier
 ```
 
+## Git Commits
+
+Never add a `Co-Authored-By:` trailer or any other AI/tool attribution line to commit messages. Keep only the subject and body; the committer identity comes from the local git config.
+
 ## uTools Plugin Context
 
 This is a uTools plugin. The app runs inside uTools with `window.utools` API (see `src/main.tsx`). Dev server (`pnpm dev`) is for testing in browser; actual plugin runs in uTools.
