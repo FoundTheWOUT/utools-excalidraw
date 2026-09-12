@@ -15,6 +15,8 @@ import { setTheme } from "@/utils/utils.ts";
 import { AppContext } from "@/App.tsx";
 import SwitchBtn from "@/ui/Switch.tsx";
 import { t } from "@/i18n.ts";
+import { formatHotkey } from "@/shortcuts/keys";
+import { DEFAULT_SHORTCUTS, SHORTCUT_IDS } from "@/shortcuts/registry";
 import type { Store } from "@/types.ts";
 import { Theme } from "@/types.ts";
 
@@ -147,7 +149,7 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
             >
               <ListboxOptions
                 anchor="bottom end"
-                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] sm:text-sm dark:border-zinc-800 dark:bg-zinc-600"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
               >
                 {themeOptions.map((theme, themeIdx) => (
                   <ListboxOption
@@ -203,7 +205,7 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
             >
               <ListboxOptions
                 anchor="bottom end"
-                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] sm:text-sm dark:border-zinc-800 dark:bg-zinc-600"
+                className="max-h-60 overflow-auto rounded-md border bg-white py-1 text-base shadow-lg [--anchor-gap:4px] dark:border-zinc-800 dark:bg-zinc-600 sm:text-sm"
               >
                 {aiModelOptions.map((model, modelIdx) => (
                   <ListboxOption
@@ -249,6 +251,26 @@ export default function SettingDialog(props: Omit<DialogProps, "title">) {
         <AppSettingsSwitchItem prop="asideClosed" />
         <AppSettingsSwitchItem prop="asideCloseAutomatically" reverse />
         <AppSettingsSwitchItem prop="deleteSceneDirectly" />
+
+        {/* shortcuts（一期只读展示） */}
+        <Field className="setting-item">
+          <Label className="w-96 flex-1">
+            <div className="setting-label">{t("shortcuts")}</div>
+            <div className="setting-description">
+              {t("shortcuts.Description")}
+            </div>
+          </Label>
+        </Field>
+        {SHORTCUT_IDS.map((id) => (
+          <Field key={id} className="setting-item items-center">
+            <Label className="setting-description !mt-0 flex-1">
+              {t(DEFAULT_SHORTCUTS[id].labelKey)}
+            </Label>
+            <kbd className="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 font-sans text-xs text-gray-600 dark:border-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+              {formatHotkey(DEFAULT_SHORTCUTS[id].hotkey)}
+            </kbd>
+          </Field>
+        ))}
 
         {import.meta.env.DEV && <AppSettingsSwitchItem prop="dev" reverse />}
       </div>

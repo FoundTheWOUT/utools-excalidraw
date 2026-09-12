@@ -2,6 +2,12 @@ const i18n = {
   zh_CN: {
     asideClosed: "展开侧栏",
     "asideClosed.Description": "是否展开侧栏",
+    asideCollapse: "收起侧栏",
+    shortcuts: "快捷键",
+    "shortcuts.Description":
+      "在插件窗口内生效（macOS 上 Ctrl 对应 ⌘）。文本编辑或输入法组字时不会触发。",
+    "shortcuts.toggleAside": "打开/关闭侧栏",
+    "shortcuts.addScene": "新增画布",
     closePreview: "显示预览",
     "closePreview.Description":
       "是否显示画布预览。注意：关闭后无法修改画布名称",

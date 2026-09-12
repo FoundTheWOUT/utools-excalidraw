@@ -1,5 +1,4 @@
 import { loadFromBlob } from "@excalidraw/excalidraw";
-import { PlusIcon } from "@heroicons/react/solid";
 import { memo, useContext, useEffect } from "react";
 import {
   DragDropProvider,
@@ -9,7 +8,7 @@ import {
 import { useSortable } from "@dnd-kit/react/sortable";
 import { arrayMove } from "@dnd-kit/helpers";
 import SceneItem from "./SceneItem";
-import { log, newAScene } from "@/utils/utils";
+import { log, newAScene, scrollSceneIntoView } from "@/utils/utils";
 import { EXCALIDRAW_EXTENSION } from "@/const";
 import { AppContext } from "@/App";
 import { loadScene } from "@/event";
@@ -38,11 +37,10 @@ function SceneList({ search = "" }: { search?: string }) {
     scenes: sceneCollection,
   } = useContext(AppContext) ?? {};
 
+  // 当前画布变化时（含新建画布：新条目追加在列表末尾，可能不在视口内）滚动到可见区域
   useEffect(() => {
-    if (appSettings?.lastActiveDraw) {
-      document.getElementById(appSettings?.lastActiveDraw)?.scrollIntoView();
-    }
-  }, []);
+    scrollSceneIntoView(appSettings?.lastActiveDraw);
+  }, [appSettings?.lastActiveDraw]);
 
   // listen loadScene event, and update SceneList.
   useEffect(() => {
@@ -94,17 +92,7 @@ function SceneList({ search = "" }: { search?: string }) {
     setAndStoreAppSettings?.({ scenesId: reordered });
   };
 
-  // TODO: refactor this can merge with load scene
-  const handleAddScene = () => {
-    const newScene = newAScene({ name: `画布${appSettings?.scenesId.length}` });
-    excalidrawAPI?.resetScene();
-    sceneCollection?.set(newScene.id, newScene);
-    handleSetActiveDraw?.(newScene.id, {
-      appSettings: {
-        scenesId: appSettings?.scenesId.concat(newScene.id),
-      },
-    });
-  };
+  // 新增画布入口已移到侧栏右上角（issue #34），实现统一在 AppContext.addScene
 
   // Filter scenes by name
   const filteredSceneIds =
@@ -129,14 +117,6 @@ function SceneList({ search = "" }: { search?: string }) {
           )}
         </DragOverlay>
       </DragDropProvider>
-      <div className="p-3">
-        <div
-          className="hover-shadow flex aspect-video w-full cursor-pointer items-center justify-center rounded-sm bg-white dark:bg-zinc-600 dark:shadow-zinc-950"
-          onClick={handleAddScene}
-        >
-          <PlusIcon className="h-10 text-gray-500 dark:text-white" />
-        </div>
-      </div>
     </div>
   );
 }

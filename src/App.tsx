@@ -22,7 +22,13 @@ import { FolderIcon, CogIcon, TrashIcon } from "@heroicons/react/outline";
 import { debounce } from "lodash-es";
 import type { RequestError } from "@excalidraw/excalidraw/errors";
 import type { OrderedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { isDark, log, newAScene, numIsInRange } from "./utils/utils";
+import {
+  isDark,
+  log,
+  newAScene,
+  nextSceneName,
+  numIsInRange,
+} from "./utils/utils";
 import type { Scene, Store } from "./types";
 import { restoreFiles } from "./utils/data";
 import ExportOps from "./components/ExportOps";
@@ -38,6 +44,7 @@ import {
 import TrashcanDialog from "./components/TrashcanDialog";
 import SettingDialog from "./components/SettingDialog";
 import { ToastContainer } from "./utils/toast";
+import { useShortcuts } from "./shortcuts/useShortcuts";
 
 export const AppContext = createContext<{
   scenes: Map<string, Scene>;
@@ -53,6 +60,10 @@ export const AppContext = createContext<{
       appSettings?: Partial<Store["settings"]>;
     },
   ) => Promise<void>;
+  /** 新增画布（侧栏「+」按钮与快捷键共用） */
+  addScene: () => void;
+  /** 打开/关闭侧栏（侧栏折叠按钮与快捷键共用） */
+  toggleAside: () => void;
   setResizing: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
@@ -78,7 +89,7 @@ function App({
   const handleSceneUpdate = debounce(
     async (
       elements: readonly OrderedExcalidrawElement[],
-      state:AppState,
+      state: AppState,
       _files,
       target,
       api,
@@ -124,9 +135,7 @@ function App({
     300,
   );
 
-  const setAndStoreAppSettings = (
-    settings: Partial<Store["settings"]>,
-  ) => {
+  const setAndStoreAppSettings = (settings: Partial<Store["settings"]>) => {
     const {
       value = undefined,
       _id = undefined,
@@ -195,6 +204,24 @@ function App({
     }
   };
 
+  const addScene = () => {
+    const newScene = newAScene({ name: nextSceneName(scenes) });
+    excalidrawAPI?.resetScene();
+    scenes.set(newScene.id, newScene);
+    void handleSetActiveDraw(newScene.id, {
+      appSettings: {
+        scenesId: appSettings.scenesId.concat(newScene.id),
+      },
+    });
+  };
+
+  const toggleAside = () => {
+    setAndStoreAppSettings({ asideClosed: !appSettings.asideClosed });
+  };
+
+  // 应用内快捷键：window 捕获阶段接管，见 src/shortcuts/
+  useShortcuts({ toggleAside, addScene });
+
   const handleScreenMouseMove = (e: React.MouseEvent) => {
     if (!resizing) return;
     let width = e.pageX;
@@ -249,6 +276,8 @@ function App({
         appSettings,
         setAndStoreAppSettings,
         handleSetActiveDraw,
+        addScene,
+        toggleAside,
         setSceneName: setName,
         sceneName: name,
         setResizing,
