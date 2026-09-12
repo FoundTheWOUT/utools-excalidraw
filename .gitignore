@@ -25,6 +25,11 @@ dist-ssr
 *.upx
 
 tmp
+
+# GitHub Issues 本地快照（node scripts/fetch-issues.mjs 生成，不提交）
+issues
+
+
 public/excalidraw-*
 stats.html
 .kilo
